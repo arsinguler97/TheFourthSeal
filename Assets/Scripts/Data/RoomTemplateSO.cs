@@ -1,8 +1,11 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [CreateAssetMenu(menuName = "ScriptableObjects/RoomTemplate")]
 public class RoomTemplateSO : ScriptableObject
 {
-    public int lavaCount = 10;
-    public int blockedCount = 10;
+    [FormerlySerializedAs("lavaCount")]
+    public int lavaTileCount = 10;
+    [FormerlySerializedAs("blockedCount")]
+    public int blockedTileCount = 10;
 }

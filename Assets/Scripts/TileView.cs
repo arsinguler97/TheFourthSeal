@@ -1,8 +1,10 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class TileView : MonoBehaviour
 {
-    [SerializeField] SpriteRenderer sr;
+    [FormerlySerializedAs("sr")]
+    [SerializeField] SpriteRenderer spriteRenderer;
 
     public Vector2Int GridPos { get; private set; }
 
@@ -13,6 +15,6 @@ public class TileView : MonoBehaviour
 
     public void SetSprite(Sprite sprite)
     {
-        sr.sprite = sprite;
+        spriteRenderer.sprite = sprite;
     }
 }

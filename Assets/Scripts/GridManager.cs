@@ -1,92 +1,110 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class GridManager : MonoBehaviour
 {
     public static GridManager I { get; private set; }
 
-    [SerializeField] int width = 10;
-    [SerializeField] int height = 10;
-    [SerializeField] float cellSize = 1f;
-    [SerializeField] TileView tilePrefab;
+    [FormerlySerializedAs("width")]
+    [SerializeField] int gridWidth = 10;
+    [FormerlySerializedAs("height")]
+    [SerializeField] int gridHeight = 10;
+    [FormerlySerializedAs("cellSize")]
+    [SerializeField] float gridCellSize = 1f;
+    [FormerlySerializedAs("tilePrefab")]
+    [SerializeField] TileView tileViewPrefab;
 
-    [SerializeField] TileTypeSO floorType;
-    [SerializeField] TileTypeSO lavaType;
-    [SerializeField] TileTypeSO blockedType;
-    [SerializeField] TileTypeSO exitType;
+    [FormerlySerializedAs("floorType")]
+    [SerializeField] TileTypeSO floorTileType;
+    [FormerlySerializedAs("lavaType")]
+    [SerializeField] TileTypeSO lavaTileType;
+    [FormerlySerializedAs("blockedType")]
+    [SerializeField] TileTypeSO blockedTileType;
+    [FormerlySerializedAs("exitType")]
+    [SerializeField] TileTypeSO exitTileType;
 
-    public int Width => width;
-    public int Height => height;
+    public int Width => gridWidth;
+    public int Height => gridHeight;
 
-    TileView[,] _tiles;
-    Vector3 _origin;
+    TileView[,] _tileViews;
+    Vector3 _gridOriginWorldPosition;
 
     void Awake() => I = this;
 
     void Start()
     {
-        _origin = new Vector3(-((width - 1) * cellSize) * 0.5f,
-                              -((height - 1) * cellSize) * 0.5f,
-                              0f);
+        _gridOriginWorldPosition = new Vector3(
+            -((gridWidth - 1) * gridCellSize) * 0.5f,
+            -((gridHeight - 1) * gridCellSize) * 0.5f,
+            0f);
 
-        Build();
+        BuildGrid();
     }
 
-    void Build()
+    // Creates one TileView object for each logical grid cell.
+    void BuildGrid()
     {
-        _tiles = new TileView[width, height];
+        _tileViews = new TileView[gridWidth, gridHeight];
 
-        for (int y = 0; y < height; y++)
-        for (int x = 0; x < width; x++)
+        for (int y = 0; y < gridHeight; y++)
+        for (int x = 0; x < gridWidth; x++)
         {
-            var t = Instantiate(tilePrefab, transform);
-            t.Init(new Vector2Int(x, y));
-            t.transform.position = GridToWorld(new Vector2Int(x, y));
-            _tiles[x, y] = t;
+            TileView tileView = Instantiate(tileViewPrefab, transform);
+            Vector2Int tileGridPosition = new Vector2Int(x, y);
+            tileView.Init(tileGridPosition);
+            tileView.transform.position = GridToWorld(tileGridPosition);
+            _tileViews[x, y] = tileView;
         }
     }
 
-    public void ApplyConfig(RoomConfig cfg)
+    public void ApplyConfig(RoomConfig roomConfig)
     {
-        for (int y = 0; y < height; y++)
-        for (int x = 0; x < width; x++)
+        for (int y = 0; y < gridHeight; y++)
+        for (int x = 0; x < gridWidth; x++)
         {
-            var p = new Vector2Int(x, y);
+            Vector2Int tileGridPosition = new Vector2Int(x, y);
 
-            if (p == cfg.exit)
-                _tiles[x, y].SetSprite(exitType.sprite);
-            else if (cfg.blocked.Contains(p))
-                _tiles[x, y].SetSprite(blockedType.sprite);
-            else if (cfg.lava.Contains(p))
-                _tiles[x, y].SetSprite(lavaType.sprite);
+            if (tileGridPosition == roomConfig.exitPosition)
+                _tileViews[x, y].SetSprite(exitTileType.sprite);
+            else if (roomConfig.blockedPositions.Contains(tileGridPosition))
+                _tileViews[x, y].SetSprite(blockedTileType.sprite);
+            else if (roomConfig.lavaPositions.Contains(tileGridPosition))
+                _tileViews[x, y].SetSprite(lavaTileType.sprite);
             else
-                _tiles[x, y].SetSprite(floorType.sprite);
+                _tileViews[x, y].SetSprite(floorTileType.sprite);
         }
     }
 
-    public Vector3 GridToWorld(Vector2Int g)
+    public Vector3 GridToWorld(Vector2Int gridPosition)
     {
-        return _origin + new Vector3(g.x * cellSize, g.y * cellSize, 0f);
+        return _gridOriginWorldPosition + new Vector3(
+            gridPosition.x * gridCellSize,
+            gridPosition.y * gridCellSize,
+            0f);
     }
 
-    public Vector2Int WorldToGrid(Vector3 w)
+    public Vector2Int WorldToGrid(Vector3 worldPosition)
     {
-        var p = w - _origin;
-        int x = Mathf.RoundToInt(p.x / cellSize);
-        int y = Mathf.RoundToInt(p.y / cellSize);
+        Vector3 offsetFromOrigin = worldPosition - _gridOriginWorldPosition;
+        int x = Mathf.RoundToInt(offsetFromOrigin.x / gridCellSize);
+        int y = Mathf.RoundToInt(offsetFromOrigin.y / gridCellSize);
         return new Vector2Int(x, y);
     }
 
-    public bool InBounds(Vector2Int g)
+    public bool InBounds(Vector2Int gridPosition)
     {
-        return g.x >= 0 && g.y >= 0 && g.x < width && g.y < height;
+        return gridPosition.x >= 0
+            && gridPosition.y >= 0
+            && gridPosition.x < gridWidth
+            && gridPosition.y < gridHeight;
     }
 
-    public bool IsWalkable(Vector2Int g)
+    public bool IsWalkable(Vector2Int gridPosition)
     {
-        if (!InBounds(g))
+        if (!InBounds(gridPosition))
             return false;
 
-        var cfg = RunManager.I != null ? RunManager.I.CurrentRoomConfig : null;
-        return cfg == null || !cfg.blocked.Contains(g);
+        RoomConfig activeRoomConfig = RunManager.I != null ? RunManager.I.CurrentRoomConfig : null;
+        return activeRoomConfig == null || !activeRoomConfig.blockedPositions.Contains(gridPosition);
     }
 }

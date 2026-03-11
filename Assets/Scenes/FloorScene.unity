@@ -376,7 +376,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 6
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -708,7 +708,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2e52e78418055a4caed2ef8be567a85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomButton
-  template: {fileID: 11400000, guid: dd13fd0aeac1e264ca0814430500f1fb, type: 2}
+  roomTemplate: {fileID: 11400000, guid: dd13fd0aeac1e264ca0814430500f1fb, type: 2}
 --- !u!114 &757295713
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -906,7 +906,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2e52e78418055a4caed2ef8be567a85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomButton
-  template: {fileID: 11400000, guid: dd13fd0aeac1e264ca0814430500f1fb, type: 2}
+  roomTemplate: {fileID: 11400000, guid: dd13fd0aeac1e264ca0814430500f1fb, type: 2}
 --- !u!114 &960766487
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1254,7 +1254,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2e52e78418055a4caed2ef8be567a85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomButton
-  template: {fileID: 11400000, guid: 13eed8ae10df5f64fb1e41274117f0df, type: 2}
+  roomTemplate: {fileID: 11400000, guid: 13eed8ae10df5f64fb1e41274117f0df, type: 2}
 --- !u!114 &1081653985
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1452,7 +1452,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2e52e78418055a4caed2ef8be567a85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomButton
-  template: {fileID: 11400000, guid: c701eaca06e899248addf50a09ab5fd9, type: 2}
+  roomTemplate: {fileID: 11400000, guid: c701eaca06e899248addf50a09ab5fd9, type: 2}
 --- !u!114 &1101751982
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1650,7 +1650,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2e52e78418055a4caed2ef8be567a85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomButton
-  template: {fileID: 11400000, guid: dd13fd0aeac1e264ca0814430500f1fb, type: 2}
+  roomTemplate: {fileID: 11400000, guid: dd13fd0aeac1e264ca0814430500f1fb, type: 2}
 --- !u!114 &1118871512
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1848,7 +1848,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2e52e78418055a4caed2ef8be567a85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomButton
-  template: {fileID: 11400000, guid: c701eaca06e899248addf50a09ab5fd9, type: 2}
+  roomTemplate: {fileID: 11400000, guid: c701eaca06e899248addf50a09ab5fd9, type: 2}
 --- !u!114 &1216931667
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2022,7 +2022,7 @@ MonoBehaviour:
     CustomLookAtTarget: 0
   Lens:
     FieldOfView: 34
-    OrthographicSize: 5
+    OrthographicSize: 6
     NearClipPlane: 0.3
     FarClipPlane: 1000
     Dutch: 0
@@ -2196,7 +2196,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2e52e78418055a4caed2ef8be567a85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomButton
-  template: {fileID: 11400000, guid: 13eed8ae10df5f64fb1e41274117f0df, type: 2}
+  roomTemplate: {fileID: 11400000, guid: 13eed8ae10df5f64fb1e41274117f0df, type: 2}
 --- !u!114 &1518101043
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2394,7 +2394,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2e52e78418055a4caed2ef8be567a85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomButton
-  template: {fileID: 11400000, guid: c701eaca06e899248addf50a09ab5fd9, type: 2}
+  roomTemplate: {fileID: 11400000, guid: c701eaca06e899248addf50a09ab5fd9, type: 2}
 --- !u!114 &1901893200
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2667,7 +2667,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2e52e78418055a4caed2ef8be567a85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomButton
-  template: {fileID: 11400000, guid: 13eed8ae10df5f64fb1e41274117f0df, type: 2}
+  roomTemplate: {fileID: 11400000, guid: 13eed8ae10df5f64fb1e41274117f0df, type: 2}
 --- !u!114 &1962364014
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -4,6 +4,7 @@ public class RunManager : MonoBehaviour
 {
     public static RunManager I { get; private set; }
 
+    // Persists the room choice made on the floor scene so RoomScene can build matching content.
     public RoomTemplateSO SelectedRoomTemplate { get; private set; }
     public RoomConfig CurrentRoomConfig;
 
@@ -19,8 +20,8 @@ public class RunManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
-    public void SelectRoom(RoomTemplateSO template)
+    public void SelectRoom(RoomTemplateSO roomTemplate)
     {
-        SelectedRoomTemplate = template;
+        SelectedRoomTemplate = roomTemplate;
     }
 }

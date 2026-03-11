@@ -1,71 +1,94 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class RoomGenerator : MonoBehaviour
 {
-    [SerializeField] PlayerController playerPrefab;
+    [FormerlySerializedAs("playerPrefab")]
+    [SerializeField] PlayerController playerControllerPrefab;
 
-    PlayerController _spawnedPlayer;
+    PlayerController _spawnedPlayerController;
 
     void Start()
     {
-        StartCoroutine(GenerateAfterGridReady());
+        StartCoroutine(GenerateRoomAfterGridReady());
     }
 
-    IEnumerator GenerateAfterGridReady()
+    IEnumerator GenerateRoomAfterGridReady()
     {
         yield return null;
 
-        var template = RunManager.I.SelectedRoomTemplate;
-        if (template == null) yield break;
+        RoomTemplateSO selectedTemplate = RunManager.I.SelectedRoomTemplate;
+        if (selectedTemplate == null) yield break;
 
-        int width = GridManager.I.Width;
-        int height = GridManager.I.Height;
+        int gridWidth = GridManager.I.Width;
+        int gridHeight = GridManager.I.Height;
 
-        var cfg = new RoomConfig();
+        RoomConfig generatedRoomConfig = new RoomConfig();
 
-        cfg.start = new Vector2Int(Random.Range(0, width), 0);
-        cfg.exit = new Vector2Int(Random.Range(0, width), height - 1);
-        cfg.reward = new Vector2Int(Random.Range(0, width), Random.Range(1, height - 1));
+        generatedRoomConfig.startPosition = new Vector2Int(Random.Range(0, gridWidth), 0);
+        generatedRoomConfig.exitPosition = new Vector2Int(Random.Range(0, gridWidth), gridHeight - 1);
+        generatedRoomConfig.rewardPosition = new Vector2Int(Random.Range(0, gridWidth), Random.Range(1, gridHeight - 1));
 
-        SpawnPlayer(cfg.start);
+        SpawnPlayerAtGridPosition(generatedRoomConfig.startPosition);
 
-        var reserved = new HashSet<Vector2Int> { cfg.start, cfg.exit, cfg.reward };
+        HashSet<Vector2Int> reservedPositions = new HashSet<Vector2Int>
+        {
+            generatedRoomConfig.startPosition,
+            generatedRoomConfig.exitPosition,
+            generatedRoomConfig.rewardPosition
+        };
 
-        PlaceRandom(cfg.lava, template.lavaCount, reserved, width, height);
-        reserved.UnionWith(cfg.lava);
-        PlaceRandom(cfg.blocked, template.blockedCount, reserved, width, height);
+        PlaceRandomPositions(
+            generatedRoomConfig.lavaPositions,
+            selectedTemplate.lavaTileCount,
+            reservedPositions,
+            gridWidth,
+            gridHeight);
+        reservedPositions.UnionWith(generatedRoomConfig.lavaPositions);
+        PlaceRandomPositions(
+            generatedRoomConfig.blockedPositions,
+            selectedTemplate.blockedTileCount,
+            reservedPositions,
+            gridWidth,
+            gridHeight);
 
-        RunManager.I.CurrentRoomConfig = cfg;
+        RunManager.I.CurrentRoomConfig = generatedRoomConfig;
 
-        GridManager.I.ApplyConfig(cfg);
+        GridManager.I.ApplyConfig(generatedRoomConfig);
     }
 
-    void PlaceRandom(HashSet<Vector2Int> set, int count, HashSet<Vector2Int> reserved, int width, int height)
+    // Fills a set with unique random cells, skipping positions already reserved by key room elements.
+    void PlaceRandomPositions(
+        HashSet<Vector2Int> targetPositions,
+        int desiredCount,
+        HashSet<Vector2Int> reservedPositions,
+        int gridWidth,
+        int gridHeight)
     {
-        int tries = 0;
+        int attemptCount = 0;
 
-        while (set.Count < count && tries < 5000)
+        while (targetPositions.Count < desiredCount && attemptCount < 5000)
         {
-            tries++;
-            var p = new Vector2Int(Random.Range(0, width), Random.Range(0, height));
-            if (reserved.Contains(p)) continue;
-            set.Add(p);
+            attemptCount++;
+            Vector2Int randomGridPosition = new Vector2Int(Random.Range(0, gridWidth), Random.Range(0, gridHeight));
+            if (reservedPositions.Contains(randomGridPosition)) continue;
+            targetPositions.Add(randomGridPosition);
         }
     }
 
-    void SpawnPlayer(Vector2Int spawnGrid)
+    void SpawnPlayerAtGridPosition(Vector2Int spawnGridPosition)
     {
-        if (_spawnedPlayer == null)
+        if (_spawnedPlayerController == null)
         {
-            _spawnedPlayer = FindFirstObjectByType<PlayerController>();
+            _spawnedPlayerController = FindFirstObjectByType<PlayerController>();
 
-            if (_spawnedPlayer == null && playerPrefab != null)
-                _spawnedPlayer = Instantiate(playerPrefab);
+            if (_spawnedPlayerController == null && playerControllerPrefab != null)
+                _spawnedPlayerController = Instantiate(playerControllerPrefab);
         }
 
-        if (_spawnedPlayer != null)
-            _spawnedPlayer.SetGridPosition(spawnGrid);
+        if (_spawnedPlayerController != null)
+            _spawnedPlayerController.SetGridPosition(spawnGridPosition);
     }
 }

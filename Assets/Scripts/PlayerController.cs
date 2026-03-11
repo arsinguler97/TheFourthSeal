@@ -1,109 +1,115 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] float moveSpeed = 8f;
+    [FormerlySerializedAs("moveSpeed")]
+    [SerializeField] float moveSpeedUnitsPerSecond = 8f;
 
-    Vector2Int _gridPos;
-    Vector2Int _targetGridPos;
-    bool _moving;
+    Vector2Int _currentGridPosition;
+    Vector2Int _destinationGridPosition;
+    bool _isMovingToDestination;
 
-    Vector2 _look;
-    bool _click;
+    Vector2 _pointerScreenPosition;
+    bool _hasPendingClickMove;
 
     void Start()
     {
-        _targetGridPos = _gridPos;
-        transform.position = GridManager.I.GridToWorld(_gridPos);
+        _destinationGridPosition = _currentGridPosition;
+        transform.position = GridManager.I.GridToWorld(_currentGridPosition);
     }
 
     void Update()
     {
-        if (_moving)
+        if (_isMovingToDestination)
         {
-            var targetWorld = GridManager.I.GridToWorld(_targetGridPos);
-            transform.position = Vector3.MoveTowards(transform.position, targetWorld, moveSpeed * Time.deltaTime);
+            Vector3 destinationWorldPosition = GridManager.I.GridToWorld(_destinationGridPosition);
+            transform.position = Vector3.MoveTowards(
+                transform.position,
+                destinationWorldPosition,
+                moveSpeedUnitsPerSecond * Time.deltaTime);
 
-            if (Vector3.Distance(transform.position, targetWorld) < 0.001f)
+            if (Vector3.Distance(transform.position, destinationWorldPosition) < 0.001f)
             {
-                _gridPos = _targetGridPos;
-                _moving = false;
-                CheckExitReached();
+                _currentGridPosition = _destinationGridPosition;
+                _isMovingToDestination = false;
+                LoadFloorSceneWhenStandingOnExit();
             }
             return;
         }
 
-        if (_click)
+        if (_hasPendingClickMove)
         {
-            _click = false;
+            _hasPendingClickMove = false;
 
-            var w = Camera.main.ScreenToWorldPoint(_look);
-            w.z = 0;
-            var g = GridManager.I.WorldToGrid(w);
+            Vector3 clickedWorldPosition = Camera.main.ScreenToWorldPoint(_pointerScreenPosition);
+            clickedWorldPosition.z = 0;
+            Vector2Int clickedGridPosition = GridManager.I.WorldToGrid(clickedWorldPosition);
 
-            if (GridManager.I.IsWalkable(g))
+            if (GridManager.I.IsWalkable(clickedGridPosition))
             {
-                _targetGridPos = g;
-                _moving = true;
+                _destinationGridPosition = clickedGridPosition;
+                _isMovingToDestination = true;
             }
             return;
         }
 
     }
 
-    Vector2Int ReadStepFromMove(Vector2 v)
+    // Converts an analog input vector into a single grid step on the dominant axis.
+    Vector2Int GetGridStepFromMoveInput(Vector2 moveInput)
     {
-        if (v == Vector2.zero) return Vector2Int.zero;
+        if (moveInput == Vector2.zero) return Vector2Int.zero;
 
-        if (Mathf.Abs(v.x) > Mathf.Abs(v.y))
-            return v.x > 0 ? Vector2Int.right : Vector2Int.left;
+        if (Mathf.Abs(moveInput.x) > Mathf.Abs(moveInput.y))
+            return moveInput.x > 0 ? Vector2Int.right : Vector2Int.left;
 
-        return v.y > 0 ? Vector2Int.up : Vector2Int.down;
+        return moveInput.y > 0 ? Vector2Int.up : Vector2Int.down;
     }
 
-    public void OnMove(InputAction.CallbackContext ctx)
+    public void OnMove(InputAction.CallbackContext context)
     {
-        if (!ctx.performed || _moving)
+        if (!context.performed || _isMovingToDestination)
             return;
 
-        var step = ReadStepFromMove(ctx.ReadValue<Vector2>());
-        if (step == Vector2Int.zero)
+        Vector2Int requestedStep = GetGridStepFromMoveInput(context.ReadValue<Vector2>());
+        if (requestedStep == Vector2Int.zero)
             return;
 
-        var next = _gridPos + step;
-        if (!GridManager.I.IsWalkable(next))
+        Vector2Int requestedGridPosition = _currentGridPosition + requestedStep;
+        if (!GridManager.I.IsWalkable(requestedGridPosition))
             return;
 
-        _targetGridPos = next;
-        _moving = true;
+        _destinationGridPosition = requestedGridPosition;
+        _isMovingToDestination = true;
     }
 
-    public void OnLook(InputAction.CallbackContext ctx)
+    public void OnLook(InputAction.CallbackContext context)
     {
-        _look = ctx.ReadValue<Vector2>();
+        _pointerScreenPosition = context.ReadValue<Vector2>();
     }
 
-    public void OnClick(InputAction.CallbackContext ctx)
+    public void OnClick(InputAction.CallbackContext context)
     {
-        if (ctx.performed) _click = true;
+        if (context.performed) _hasPendingClickMove = true;
     }
 
     public void SetGridPosition(Vector2Int gridPos)
     {
-        _gridPos = gridPos;
-        _targetGridPos = gridPos;
-        _moving = false;
+        _currentGridPosition = gridPos;
+        _destinationGridPosition = gridPos;
+        _isMovingToDestination = false;
 
         if (GridManager.I != null)
             transform.position = GridManager.I.GridToWorld(gridPos);
     }
 
-    void CheckExitReached()
+    void LoadFloorSceneWhenStandingOnExit()
     {
-        var cfg = RunManager.I != null ? RunManager.I.CurrentRoomConfig : null;
-        if (cfg != null && _gridPos == cfg.exit)
+        RoomConfig activeRoomConfig = RunManager.I != null ? RunManager.I.CurrentRoomConfig : null;
+        if (activeRoomConfig != null && _currentGridPosition == activeRoomConfig.exitPosition)
             SceneManager.LoadScene("FloorScene");
     }
 }
