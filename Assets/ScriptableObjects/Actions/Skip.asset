@@ -9,9 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: caf3aa26c8a599b4a8294ebc1aba0e7e, type: 3}
-  m_Name: LavaRoom
-  m_EditorClassIdentifier: Assembly-CSharp::RoomTemplateSO
-  enemyCount: 1
-  lavaTileCount: 10
-  blockedTileCount: 0
+  m_Script: {fileID: 11500000, guid: bde6a837697126a4998339bb419ce212, type: 3}
+  m_Name: Skip
+  m_EditorClassIdentifier: Assembly-CSharp::ActionDefinitionSO
+  actionType: 3
+  actionCost: 1

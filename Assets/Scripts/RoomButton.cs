@@ -1,13 +1,17 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.Serialization;
 
 public class RoomButton : MonoBehaviour
 {
-    [FormerlySerializedAs("template")]
     [SerializeField] RoomTemplateSO roomTemplate;
+    public RoomTemplateSO RoomTemplate => roomTemplate;
 
     public void OpenRoom()
+    {
+        OpenRoomWithEnemyOverride(-1);
+    }
+
+    public void OpenRoomWithEnemyOverride(int enemyCountOverride)
     {
         if (roomTemplate == null)
         {
@@ -15,7 +19,8 @@ public class RoomButton : MonoBehaviour
             return;
         }
 
-        RunManager.I.SelectRoom(roomTemplate);
+        // Save the chosen template before switching scenes so RoomGenerator can read it later.
+        RunManager.I.SelectRoom(roomTemplate, enemyCountOverride);
         SceneManager.LoadScene("RoomScene");
     }
 }

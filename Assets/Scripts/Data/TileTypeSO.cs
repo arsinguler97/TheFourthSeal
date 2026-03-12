@@ -1,14 +1,8 @@
 using UnityEngine;
-using UnityEngine.Serialization;
 
 [CreateAssetMenu(menuName = "ScriptableObjects/TileTypes")]
 public class TileTypeSO : ScriptableObject
 {
-    [FormerlySerializedAs("id")]
-    public string tileId;
-    [FormerlySerializedAs("walkable")]
-    public bool isWalkable = true;
-    [FormerlySerializedAs("allowSpawn")]
-    public bool canBeUsedForSpawn = true;
+    // The sprite is all GridManager currently needs from a tile type asset.
     public Sprite sprite;
 }

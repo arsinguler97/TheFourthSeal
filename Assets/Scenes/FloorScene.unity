@@ -694,8 +694,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed05c4d03269f644bb4895d8c3725734, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomNode
-  roomIndex: 1
   roomButton: {fileID: 757295712}
+  additionalEnemyCount: 1
 --- !u!114 &757295712
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -892,8 +892,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed05c4d03269f644bb4895d8c3725734, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomNode
-  roomIndex: 6
   roomButton: {fileID: 960766486}
+  additionalEnemyCount: 1
 --- !u!114 &960766486
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1240,8 +1240,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed05c4d03269f644bb4895d8c3725734, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomNode
-  roomIndex: 8
   roomButton: {fileID: 1081653984}
+  additionalEnemyCount: 1
 --- !u!114 &1081653984
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1438,8 +1438,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed05c4d03269f644bb4895d8c3725734, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomNode
-  roomIndex: 4
   roomButton: {fileID: 1101751981}
+  additionalEnemyCount: 1
 --- !u!114 &1101751981
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1636,8 +1636,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed05c4d03269f644bb4895d8c3725734, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomNode
-  roomIndex: 5
   roomButton: {fileID: 1118871511}
+  additionalEnemyCount: 1
 --- !u!114 &1118871511
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1834,8 +1834,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed05c4d03269f644bb4895d8c3725734, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomNode
-  roomIndex: 0
   roomButton: {fileID: 1216931666}
+  additionalEnemyCount: 1
 --- !u!114 &1216931666
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2182,8 +2182,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed05c4d03269f644bb4895d8c3725734, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomNode
-  roomIndex: 3
   roomButton: {fileID: 1518101042}
+  additionalEnemyCount: 1
 --- !u!114 &1518101042
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2380,8 +2380,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed05c4d03269f644bb4895d8c3725734, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomNode
-  roomIndex: 7
   roomButton: {fileID: 1901893199}
+  additionalEnemyCount: 1
 --- !u!114 &1901893199
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2653,8 +2653,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed05c4d03269f644bb4895d8c3725734, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomNode
-  roomIndex: 2
   roomButton: {fileID: 1962364013}
+  additionalEnemyCount: 1
 --- !u!114 &1962364013
 MonoBehaviour:
   m_ObjectHideFlags: 0

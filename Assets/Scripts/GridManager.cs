@@ -1,30 +1,21 @@
 using UnityEngine;
-using UnityEngine.Serialization;
 
 public class GridManager : MonoBehaviour
 {
     public static GridManager I { get; private set; }
 
-    [FormerlySerializedAs("width")]
     [SerializeField] int gridWidth = 10;
-    [FormerlySerializedAs("height")]
     [SerializeField] int gridHeight = 10;
-    [FormerlySerializedAs("cellSize")]
     [SerializeField] float gridCellSize = 1f;
-    [FormerlySerializedAs("tilePrefab")]
     [SerializeField] TileView tileViewPrefab;
 
-    [FormerlySerializedAs("floorType")]
     [SerializeField] TileTypeSO floorTileType;
-    [FormerlySerializedAs("lavaType")]
     [SerializeField] TileTypeSO lavaTileType;
-    [FormerlySerializedAs("blockedType")]
     [SerializeField] TileTypeSO blockedTileType;
-    [FormerlySerializedAs("exitType")]
     [SerializeField] TileTypeSO exitTileType;
 
-    public int Width => gridWidth;
-    public int Height => gridHeight;
+    public int GridWidth => gridWidth;
+    public int GridHeight => gridHeight;
 
     TileView[,] _tileViews;
     Vector3 _gridOriginWorldPosition;
@@ -33,6 +24,7 @@ public class GridManager : MonoBehaviour
 
     void Start()
     {
+        // The origin is shifted so the grid is centered around the GameObject instead of starting at (0, 0).
         _gridOriginWorldPosition = new Vector3(
             -((gridWidth - 1) * gridCellSize) * 0.5f,
             -((gridHeight - 1) * gridCellSize) * 0.5f,
@@ -51,7 +43,6 @@ public class GridManager : MonoBehaviour
         {
             TileView tileView = Instantiate(tileViewPrefab, transform);
             Vector2Int tileGridPosition = new Vector2Int(x, y);
-            tileView.Init(tileGridPosition);
             tileView.transform.position = GridToWorld(tileGridPosition);
             _tileViews[x, y] = tileView;
         }
@@ -59,16 +50,17 @@ public class GridManager : MonoBehaviour
 
     public void ApplyConfig(RoomConfig roomConfig)
     {
+        // Paint each spawned tile according to the generated room data.
         for (int y = 0; y < gridHeight; y++)
         for (int x = 0; x < gridWidth; x++)
         {
             Vector2Int tileGridPosition = new Vector2Int(x, y);
 
-            if (tileGridPosition == roomConfig.exitPosition)
+            if (tileGridPosition == roomConfig.exit)
                 _tileViews[x, y].SetSprite(exitTileType.sprite);
-            else if (roomConfig.blockedPositions.Contains(tileGridPosition))
+            else if (roomConfig.blockedTiles.Contains(tileGridPosition))
                 _tileViews[x, y].SetSprite(blockedTileType.sprite);
-            else if (roomConfig.lavaPositions.Contains(tileGridPosition))
+            else if (roomConfig.lavaTiles.Contains(tileGridPosition))
                 _tileViews[x, y].SetSprite(lavaTileType.sprite);
             else
                 _tileViews[x, y].SetSprite(floorTileType.sprite);
@@ -77,6 +69,7 @@ public class GridManager : MonoBehaviour
 
     public Vector3 GridToWorld(Vector2Int gridPosition)
     {
+        // Converts a logical cell index into the centered world position used by sprites and the player.
         return _gridOriginWorldPosition + new Vector3(
             gridPosition.x * gridCellSize,
             gridPosition.y * gridCellSize,
@@ -85,6 +78,7 @@ public class GridManager : MonoBehaviour
 
     public Vector2Int WorldToGrid(Vector3 worldPosition)
     {
+        // Mouse clicks happen in world space, so they must be mapped back onto the nearest grid cell.
         Vector3 offsetFromOrigin = worldPosition - _gridOriginWorldPosition;
         int x = Mathf.RoundToInt(offsetFromOrigin.x / gridCellSize);
         int y = Mathf.RoundToInt(offsetFromOrigin.y / gridCellSize);
@@ -104,7 +98,8 @@ public class GridManager : MonoBehaviour
         if (!InBounds(gridPosition))
             return false;
 
+        // Only blocked tiles prevent movement; lava is still treated as a valid floor tile here.
         RoomConfig activeRoomConfig = RunManager.I != null ? RunManager.I.CurrentRoomConfig : null;
-        return activeRoomConfig == null || !activeRoomConfig.blockedPositions.Contains(gridPosition);
+        return activeRoomConfig == null || !activeRoomConfig.blockedTiles.Contains(gridPosition);
     }
 }

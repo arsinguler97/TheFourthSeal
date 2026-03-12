@@ -12,5 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caf3aa26c8a599b4a8294ebc1aba0e7e, type: 3}
   m_Name: NormalRoom
   m_EditorClassIdentifier: Assembly-CSharp::RoomTemplateSO
-  lavaCount: 0
-  blockedCount: 0
+  enemyCount: 1
+  lavaTileCount: 0
+  blockedTileCount: 0

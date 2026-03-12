@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 1014062100297672555}
   - component: {fileID: 3452728038276836431}
   - component: {fileID: -7831948146537697527}
+  - component: {fileID: -8637899552525357129}
   m_Layer: 3
   m_Name: Player
   m_TagString: Player
@@ -151,7 +152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc99a7fe825398d4eac76fc4402bc785, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
-  moveSpeed: 8
+  moveSpeedUnitsPerSecond: 8
 --- !u!114 &-7831948146537697527
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -298,3 +299,23 @@ MonoBehaviour:
   m_DefaultActionMap: Player
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
+--- !u!114 &-8637899552525357129
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3946341566760763454}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fcec1c1d73c444043ba775488dac5b2d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerUnit
+  displayName: Player
+  baseStats:
+    health: 15
+    attack: 6
+    defence: 0
+    speed: 2
+    strength: 0
+    range: 1

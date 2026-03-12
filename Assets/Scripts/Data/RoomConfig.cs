@@ -3,40 +3,15 @@ using UnityEngine;
 
 public class RoomConfig
 {
-    public Vector2Int startPosition;
-    public Vector2Int exitPosition;
-    public Vector2Int rewardPosition;
+    // Key positions used by the room logic and scene transitions.
+    public Vector2Int start;
+    public Vector2Int exit;
+    public Vector2Int reward;
 
-    public HashSet<Vector2Int> lavaPositions = new HashSet<Vector2Int>();
-    public HashSet<Vector2Int> blockedPositions = new HashSet<Vector2Int>();
+    // Every enemy spawn is reserved before hazards are generated so rooms stay playable.
+    public List<Vector2Int> enemySpawns = new List<Vector2Int>();
 
-    public Vector2Int start
-    {
-        get => startPosition;
-        set => startPosition = value;
-    }
-
-    public Vector2Int exit
-    {
-        get => exitPosition;
-        set => exitPosition = value;
-    }
-
-    public Vector2Int reward
-    {
-        get => rewardPosition;
-        set => rewardPosition = value;
-    }
-
-    public HashSet<Vector2Int> lava
-    {
-        get => lavaPositions;
-        set => lavaPositions = value;
-    }
-
-    public HashSet<Vector2Int> blocked
-    {
-        get => blockedPositions;
-        set => blockedPositions = value;
-    }
+    // Hazard and obstacle cells generated for this specific room instance.
+    public HashSet<Vector2Int> lavaTiles = new HashSet<Vector2Int>();
+    public HashSet<Vector2Int> blockedTiles = new HashSet<Vector2Int>();
 }
