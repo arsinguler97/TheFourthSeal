@@ -128,8 +128,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 243316636}
+  - component: {fileID: 243316637}
   m_Layer: 5
-  m_Name: RegularRooms
+  m_Name: Rooms
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -155,6 +156,8 @@ RectTransform:
   - {fileID: 1081653979}
   - {fileID: 757295707}
   - {fileID: 960766481}
+  - {fileID: 1101751976}
+  - {fileID: 1290020531}
   m_Father: {fileID: 248610977}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -162,6 +165,21 @@ RectTransform:
   m_AnchoredPosition: {x: 8.050003, y: 12}
   m_SizeDelta: {x: 587.4, y: 644}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &243316637
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 243316635}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7fa600a118ef0e45acca6fa8e26a974, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FloorMapController
+  floorMapPlayerUI: {fileID: 0}
+  startingRoomNode: {fileID: 0}
+  roomNodes: []
 --- !u!1 &248610973
 GameObject:
   m_ObjectHideFlags: 0
@@ -261,7 +279,6 @@ RectTransform:
   - {fileID: 1079662169}
   - {fileID: 1953341695}
   - {fileID: 243316636}
-  - {fileID: 1101751976}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -376,7 +393,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 6
+  orthographic size: 7
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -583,7 +600,7 @@ GameObject:
   - component: {fileID: 757295713}
   - component: {fileID: 757295712}
   m_Layer: 5
-  m_Name: RegularRoom (2)
+  m_Name: BotRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -694,8 +711,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed05c4d03269f644bb4895d8c3725734, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomNode
+  nodeId: BotRight
   roomButton: {fileID: 757295712}
   additionalEnemyCount: 1
+  connectedNodes:
+  - {fileID: 1216931665}
+  - {fileID: 1518101041}
 --- !u!114 &757295712
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -709,6 +730,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomButton
   roomTemplate: {fileID: 11400000, guid: dd13fd0aeac1e264ca0814430500f1fb, type: 2}
+  button: {fileID: 757295713}
+  nodeImage: {fileID: 757295709}
+  clearedColor: {r: 0.4, g: 0.4, b: 0.4, a: 1}
 --- !u!114 &757295713
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -781,7 +805,7 @@ GameObject:
   - component: {fileID: 960766487}
   - component: {fileID: 960766486}
   m_Layer: 5
-  m_Name: RegularRoom (5)
+  m_Name: TopRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -892,8 +916,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed05c4d03269f644bb4895d8c3725734, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomNode
+  nodeId: TopRight
   roomButton: {fileID: 960766486}
   additionalEnemyCount: 1
+  connectedNodes:
+  - {fileID: 1901893198}
+  - {fileID: 1518101041}
 --- !u!114 &960766486
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -907,6 +935,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomButton
   roomTemplate: {fileID: 11400000, guid: dd13fd0aeac1e264ca0814430500f1fb, type: 2}
+  button: {fileID: 960766487}
+  nodeImage: {fileID: 960766483}
+  clearedColor: {r: 0.4, g: 0.4, b: 0.4, a: 1}
 --- !u!114 &960766487
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1049,6 +1080,7 @@ GameObject:
   - component: {fileID: 1079662169}
   - component: {fileID: 1079662171}
   - component: {fileID: 1079662170}
+  - component: {fileID: 1079662172}
   m_Layer: 5
   m_Name: Start
   m_TagString: Untagged
@@ -1113,6 +1145,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1079662168}
   m_CullTransparentMesh: 1
+--- !u!114 &1079662172
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1079662168}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed05c4d03269f644bb4895d8c3725734, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RoomNode
+  nodeId: StartingRoom
+  roomButton: {fileID: 0}
+  additionalEnemyCount: 0
+  connectedNodes:
+  - {fileID: 1216931665}
+  - {fileID: 1962364012}
+  - {fileID: 757295711}
 --- !u!1 &1081653978
 GameObject:
   m_ObjectHideFlags: 0
@@ -1129,7 +1180,7 @@ GameObject:
   - component: {fileID: 1081653985}
   - component: {fileID: 1081653984}
   m_Layer: 5
-  m_Name: RegularRoom (4)
+  m_Name: TopLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1240,8 +1291,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed05c4d03269f644bb4895d8c3725734, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomNode
+  nodeId: TopLeft
   roomButton: {fileID: 1081653984}
   additionalEnemyCount: 1
+  connectedNodes:
+  - {fileID: 1901893198}
+  - {fileID: 1118871510}
 --- !u!114 &1081653984
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1255,6 +1310,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomButton
   roomTemplate: {fileID: 11400000, guid: 13eed8ae10df5f64fb1e41274117f0df, type: 2}
+  button: {fileID: 1081653985}
+  nodeImage: {fileID: 1081653981}
+  clearedColor: {r: 0.4, g: 0.4, b: 0.4, a: 1}
 --- !u!114 &1081653985
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1327,7 +1385,7 @@ GameObject:
   - component: {fileID: 1101751982}
   - component: {fileID: 1101751981}
   m_Layer: 5
-  m_Name: BossRoom
+  m_Name: Middle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1340,16 +1398,16 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1101751975}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 248610977}
+  m_Father: {fileID: 243316636}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 6, y: 6}
+  m_AnchoredPosition: {x: -2.050003, y: -6}
   m_SizeDelta: {x: 95.7, y: 108}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!58 &1101751977
@@ -1438,8 +1496,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed05c4d03269f644bb4895d8c3725734, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomNode
+  nodeId: Middle
   roomButton: {fileID: 1101751981}
   additionalEnemyCount: 1
+  connectedNodes:
+  - {fileID: 1216931665}
+  - {fileID: 1901893198}
+  - {fileID: 1118871510}
+  - {fileID: 1518101041}
 --- !u!114 &1101751981
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1453,6 +1517,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomButton
   roomTemplate: {fileID: 11400000, guid: c701eaca06e899248addf50a09ab5fd9, type: 2}
+  button: {fileID: 1101751982}
+  nodeImage: {fileID: 1101751978}
+  clearedColor: {r: 0.4, g: 0.4, b: 0.4, a: 1}
 --- !u!114 &1101751982
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1525,7 +1592,7 @@ GameObject:
   - component: {fileID: 1118871512}
   - component: {fileID: 1118871511}
   m_Layer: 5
-  m_Name: RegularRoom (6)
+  m_Name: MiddleLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1636,8 +1703,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed05c4d03269f644bb4895d8c3725734, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomNode
+  nodeId: MiddleLeft
   roomButton: {fileID: 1118871511}
   additionalEnemyCount: 1
+  connectedNodes:
+  - {fileID: 1081653983}
+  - {fileID: 1962364012}
+  - {fileID: 1101751980}
 --- !u!114 &1118871511
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1651,6 +1723,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomButton
   roomTemplate: {fileID: 11400000, guid: dd13fd0aeac1e264ca0814430500f1fb, type: 2}
+  button: {fileID: 1118871512}
+  nodeImage: {fileID: 1118871508}
+  clearedColor: {r: 0.4, g: 0.4, b: 0.4, a: 1}
 --- !u!114 &1118871512
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1723,7 +1798,7 @@ GameObject:
   - component: {fileID: 1216931667}
   - component: {fileID: 1216931666}
   m_Layer: 5
-  m_Name: RegularRoom
+  m_Name: BotMiddle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1834,8 +1909,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed05c4d03269f644bb4895d8c3725734, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomNode
+  nodeId: BotMiddle
   roomButton: {fileID: 1216931666}
   additionalEnemyCount: 1
+  connectedNodes:
+  - {fileID: 1962364012}
+  - {fileID: 757295711}
+  - {fileID: 1101751980}
 --- !u!114 &1216931666
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1849,6 +1929,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomButton
   roomTemplate: {fileID: 11400000, guid: c701eaca06e899248addf50a09ab5fd9, type: 2}
+  button: {fileID: 1216931667}
+  nodeImage: {fileID: 1216931663}
+  clearedColor: {r: 0.4, g: 0.4, b: 0.4, a: 1}
 --- !u!114 &1216931667
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1905,6 +1988,95 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!1 &1290020530
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1290020531}
+  - component: {fileID: 1290020533}
+  - component: {fileID: 1290020532}
+  - component: {fileID: 1290020534}
+  m_Layer: 5
+  m_Name: PlayerImage
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1290020531
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1290020530}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 243316636}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -8.050003, y: -12}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1290020532
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1290020530}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 2f5c10dcaf2659b4c9d8e39f08077ac2, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1290020533
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1290020530}
+  m_CullTransparentMesh: 1
+--- !u!114 &1290020534
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1290020530}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4aeb3c6cfebbaee4e8e42b0e6a5e034b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FloorMapPlayerUI
+  moveDuration: 1
 --- !u!1 &1436643012
 GameObject:
   m_ObjectHideFlags: 0
@@ -2022,7 +2194,7 @@ MonoBehaviour:
     CustomLookAtTarget: 0
   Lens:
     FieldOfView: 34
-    OrthographicSize: 6
+    OrthographicSize: 7
     NearClipPlane: 0.3
     FarClipPlane: 1000
     Dutch: 0
@@ -2071,7 +2243,7 @@ GameObject:
   - component: {fileID: 1518101043}
   - component: {fileID: 1518101042}
   m_Layer: 5
-  m_Name: RegularRoom (7)
+  m_Name: MiddleRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2182,8 +2354,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed05c4d03269f644bb4895d8c3725734, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomNode
+  nodeId: MiddleRight
   roomButton: {fileID: 1518101042}
   additionalEnemyCount: 1
+  connectedNodes:
+  - {fileID: 960766485}
+  - {fileID: 1101751980}
+  - {fileID: 757295711}
 --- !u!114 &1518101042
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2197,6 +2374,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomButton
   roomTemplate: {fileID: 11400000, guid: 13eed8ae10df5f64fb1e41274117f0df, type: 2}
+  button: {fileID: 1518101043}
+  nodeImage: {fileID: 1518101039}
+  clearedColor: {r: 0.4, g: 0.4, b: 0.4, a: 1}
 --- !u!114 &1518101043
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2269,7 +2449,7 @@ GameObject:
   - component: {fileID: 1901893200}
   - component: {fileID: 1901893199}
   m_Layer: 5
-  m_Name: RegularRoom (3)
+  m_Name: TopMiddle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2380,8 +2560,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed05c4d03269f644bb4895d8c3725734, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomNode
+  nodeId: TopMiddle
   roomButton: {fileID: 1901893199}
   additionalEnemyCount: 1
+  connectedNodes:
+  - {fileID: 1081653983}
+  - {fileID: 1101751980}
+  - {fileID: 960766485}
 --- !u!114 &1901893199
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2395,6 +2580,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomButton
   roomTemplate: {fileID: 11400000, guid: c701eaca06e899248addf50a09ab5fd9, type: 2}
+  button: {fileID: 1901893200}
+  nodeImage: {fileID: 1901893196}
+  clearedColor: {r: 0.4, g: 0.4, b: 0.4, a: 1}
 --- !u!114 &1901893200
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2542,7 +2730,7 @@ GameObject:
   - component: {fileID: 1962364014}
   - component: {fileID: 1962364013}
   m_Layer: 5
-  m_Name: RegularRoom (1)
+  m_Name: BotLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2653,8 +2841,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed05c4d03269f644bb4895d8c3725734, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomNode
+  nodeId: BotLeft
   roomButton: {fileID: 1962364013}
   additionalEnemyCount: 1
+  connectedNodes:
+  - {fileID: 1118871510}
+  - {fileID: 1216931665}
 --- !u!114 &1962364013
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2668,6 +2860,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomButton
   roomTemplate: {fileID: 11400000, guid: 13eed8ae10df5f64fb1e41274117f0df, type: 2}
+  button: {fileID: 1962364014}
+  nodeImage: {fileID: 1962364010}
+  clearedColor: {r: 0.4, g: 0.4, b: 0.4, a: 1}
 --- !u!114 &1962364014
 MonoBehaviour:
   m_ObjectHideFlags: 0

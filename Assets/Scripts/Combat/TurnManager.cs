@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 
 public class TurnManager : MonoBehaviour
@@ -13,12 +14,14 @@ public class TurnManager : MonoBehaviour
     int _currentTurnIndex = -1;
     bool _playerUsedMoveThisTurn;
     bool _playerUsedAttackThisTurn;
+    bool _isResolvingEnemyTurn;
 
     public bool IsPlayerTurn => CurrentUnit is PlayerUnit;
     public ActionType SelectedPlayerActionType { get; private set; } = ActionType.None;
     public int RemainingMoveSteps { get; private set; }
     public int CurrentActionPoints { get; private set; }
     public CombatUnit CurrentUnit => _currentTurnIndex >= 0 && _currentTurnIndex < _turnOrder.Count ? _turnOrder[_currentTurnIndex] : null;
+    public event Action<IReadOnlyList<CombatUnit>, int> TurnOrderChanged;
 
     void Awake()
     {
@@ -180,6 +183,7 @@ public class TurnManager : MonoBehaviour
     {
         SelectedPlayerActionType = ActionType.None;
         RemainingMoveSteps = 0;
+        UpdateTurnIndicators();
 
         if (CurrentUnit == null)
             return;
@@ -194,20 +198,30 @@ public class TurnManager : MonoBehaviour
             Debug.Log($"Player turn started with {CurrentActionPoints} action points.");
         }
 
-        if (CurrentUnit is EnemyUnit enemyUnit && CombatManager.I != null)
+        if (CurrentUnit is EnemyUnit enemyUnit)
         {
-            CombatManager.I.ExecuteEnemyTurn(enemyUnit);
-            EndCurrentTurn();
+            if (_isResolvingEnemyTurn)
+                return;
+
+            _isResolvingEnemyTurn = true;
+
+            if (enemyUnit.EnemyAI != null)
+                enemyUnit.EnemyAI.ExecuteTurn(FinishEnemyTurn);
+            else
+                FinishEnemyTurn();
         }
     }
 
     void EndCurrentTurn()
     {
+        _isResolvingEnemyTurn = false;
         RemoveDeadUnitsFromTurnOrder();
 
         if (_turnOrder.Count == 0)
         {
             _currentTurnIndex = -1;
+            UpdateTurnIndicators();
+            NotifyTurnOrderChanged();
             return;
         }
 
@@ -222,6 +236,8 @@ public class TurnManager : MonoBehaviour
         SelectedPlayerActionType = ActionType.None;
         RemainingMoveSteps = 0;
         CurrentActionPoints = 0;
+        UpdateTurnIndicators();
+        NotifyTurnOrderChanged();
         BeginCurrentTurn();
     }
 
@@ -259,6 +275,8 @@ public class TurnManager : MonoBehaviour
         if (_turnOrder.Count == 0)
         {
             _currentTurnIndex = -1;
+            UpdateTurnIndicators();
+            NotifyTurnOrderChanged();
             return;
         }
 
@@ -268,6 +286,39 @@ public class TurnManager : MonoBehaviour
         CurrentActionPoints = 0;
 
         DebugTurnOrder();
+        UpdateTurnIndicators();
+        NotifyTurnOrderChanged();
         BeginCurrentTurn();
+    }
+
+    public IReadOnlyList<CombatUnit> GetTurnOrder()
+    {
+        return _turnOrder;
+    }
+
+    public int GetCurrentTurnIndex()
+    {
+        return _currentTurnIndex;
+    }
+
+    void NotifyTurnOrderChanged()
+    {
+        TurnOrderChanged?.Invoke(_turnOrder, _currentTurnIndex);
+    }
+
+    void FinishEnemyTurn()
+    {
+        _isResolvingEnemyTurn = false;
+        EndCurrentTurn();
+    }
+
+    void UpdateTurnIndicators()
+    {
+        if (CombatManager.I == null)
+            return;
+
+        List<CombatUnit> livingUnits = CombatManager.I.GetLivingUnits();
+        for (int i = 0; i < livingUnits.Count; i++)
+            livingUnits[i].SetTurnIndicatorActive(livingUnits[i] == CurrentUnit);
     }
 }

@@ -1,13 +1,21 @@
 using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class CombatManager : MonoBehaviour
 {
     public static CombatManager I { get; private set; }
 
+    [SerializeField] GameObject roomClearFillRoot;
+    [SerializeField] Image roomClearFillImage;
+    [SerializeField] float roomClearFillDuration = 2f;
+
     public PlayerUnit PlayerUnit { get; private set; }
     readonly List<EnemyUnit> _enemyUnits = new List<EnemyUnit>();
     public IReadOnlyList<EnemyUnit> EnemyUnits => _enemyUnits;
+    bool _isRoomClearTransitionRunning;
 
     void Awake()
     {
@@ -18,6 +26,23 @@ public class CombatManager : MonoBehaviour
         }
 
         I = this;
+
+        if (roomClearFillRoot != null)
+            roomClearFillRoot.SetActive(false);
+
+        if (roomClearFillImage != null)
+        {
+            roomClearFillImage.fillAmount = 0f;
+            roomClearFillImage.raycastTarget = false;
+        }
+    }
+
+    void Update()
+    {
+        if (_isRoomClearTransitionRunning || _enemyUnits.Count == 0 || HasLivingEnemies())
+            return;
+
+        BeginReturnToFloorSceneTransition();
     }
 
     public void RegisterPlayer(PlayerUnit playerUnit)
@@ -76,31 +101,6 @@ public class CombatManager : MonoBehaviour
         return true;
     }
 
-    public void ExecuteEnemyTurn(EnemyUnit enemyUnit)
-    {
-        if (PlayerUnit == null || !PlayerUnit.IsAlive || enemyUnit == null || !enemyUnit.IsAlive)
-            return;
-
-        Debug.Log($"{enemyUnit.DisplayName} started its turn.");
-
-        for (int stepIndex = 0; stepIndex < enemyUnit.Stats.Speed; stepIndex++)
-        {
-            if (IsStraightLineTargetInRange(enemyUnit.GridPosition, PlayerUnit.GridPosition, enemyUnit.Stats.Range))
-                break;
-
-            Vector2Int nextStep = GetStepTowardTarget(enemyUnit.GridPosition, PlayerUnit.GridPosition);
-            if (nextStep == Vector2Int.zero || !enemyUnit.TryMoveOneStep(nextStep))
-                break;
-        }
-
-        if (IsStraightLineTargetInRange(enemyUnit.GridPosition, PlayerUnit.GridPosition, enemyUnit.Stats.Range))
-        {
-            int dealtDamage = enemyUnit.GetAttackDamage();
-            Debug.Log($"{enemyUnit.DisplayName} attacked {PlayerUnit.DisplayName} for {dealtDamage} rolled damage.");
-            PlayerUnit.ReceiveDamage(dealtDamage);
-        }
-    }
-
     public List<CombatUnit> GetLivingUnits()
     {
         List<CombatUnit> livingUnits = new List<CombatUnit>();
@@ -118,6 +118,18 @@ public class CombatManager : MonoBehaviour
         return livingUnits;
     }
 
+    public bool HasLivingEnemies()
+    {
+        for (int i = 0; i < _enemyUnits.Count; i++)
+        {
+            EnemyUnit enemyUnit = _enemyUnits[i];
+            if (enemyUnit != null && enemyUnit.IsAlive)
+                return true;
+        }
+
+        return false;
+    }
+
     public bool IsStraightLineTargetInRange(Vector2Int origin, Vector2Int target, int range)
     {
         bool sameColumn = origin.x == target.x;
@@ -129,40 +141,45 @@ public class CombatManager : MonoBehaviour
         return manhattanDistance <= range;
     }
 
-    Vector2Int GetStepTowardTarget(Vector2Int currentPosition, Vector2Int targetPosition)
+    public void BeginReturnToFloorSceneTransition()
     {
-        Vector2Int horizontalStep = Vector2Int.zero;
-        if (targetPosition.x > currentPosition.x)
-            horizontalStep = Vector2Int.right;
-        else if (targetPosition.x < currentPosition.x)
-            horizontalStep = Vector2Int.left;
+        if (_isRoomClearTransitionRunning)
+            return;
 
-        Vector2Int verticalStep = Vector2Int.zero;
-        if (targetPosition.y > currentPosition.y)
-            verticalStep = Vector2Int.up;
-        else if (targetPosition.y < currentPosition.y)
-            verticalStep = Vector2Int.down;
-
-        if (horizontalStep != Vector2Int.zero && CanEnemyStepTo(currentPosition + horizontalStep))
-            return horizontalStep;
-
-        if (verticalStep != Vector2Int.zero && CanEnemyStepTo(currentPosition + verticalStep))
-            return verticalStep;
-
-        if (horizontalStep != Vector2Int.zero)
-            return horizontalStep;
-
-        return verticalStep;
+        Debug.Log($"CombatManager.BeginReturnToFloorSceneTransition -> pending floor node '{(RunManager.I != null ? RunManager.I.PendingFloorNodeId : "null")}', current floor node '{(RunManager.I != null ? RunManager.I.CurrentFloorNodeId : "null")}'.");
+        StartCoroutine(FillRoomClearAndReturnToFloorScene());
     }
 
-    bool CanEnemyStepTo(Vector2Int targetGridPosition)
+    IEnumerator FillRoomClearAndReturnToFloorScene()
     {
-        if (!GridManager.I.IsWalkable(targetGridPosition))
-            return false;
+        _isRoomClearTransitionRunning = true;
 
-        if (PlayerUnit != null && PlayerUnit.IsAlive && PlayerUnit.GridPosition == targetGridPosition)
-            return false;
+        if (RunManager.I != null)
+            RunManager.I.MarkPendingRoomClearedAndAdvanceFloorPosition();
 
-        return true;
+        if (roomClearFillImage == null)
+        {
+            SceneManager.LoadScene("FloorScene");
+            yield break;
+        }
+
+        if (roomClearFillRoot != null)
+            roomClearFillRoot.SetActive(true);
+        else
+            roomClearFillImage.gameObject.SetActive(true);
+
+        roomClearFillImage.raycastTarget = false;
+        roomClearFillImage.fillAmount = 0f;
+
+        float elapsedTime = 0f;
+        while (elapsedTime < roomClearFillDuration)
+        {
+            elapsedTime += Time.deltaTime;
+            roomClearFillImage.fillAmount = Mathf.Clamp01(elapsedTime / roomClearFillDuration);
+            yield return null;
+        }
+
+        roomClearFillImage.fillAmount = 1f;
+        SceneManager.LoadScene("FloorScene");
     }
 }

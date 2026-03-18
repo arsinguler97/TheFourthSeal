@@ -112,10 +112,10 @@ On its turn, each enemy:
 - movement is non-diagonal
 - if the player becomes reachable in straight-line `Range`, attacks
 
-AI currently lives in:
-- `Assets/Scripts/Combat/CombatManager.cs`
+AI now lives in:
+- `Assets/Scripts/Combat/EnemyAIController.cs`
 
-There is not yet a separate `EnemyAIController`.
+`CombatManager` is now responsible only for shared combat state and helper queries.
 
 ## Current Enemy Spawn Limitation
 
@@ -172,6 +172,7 @@ Recommended future implementation order:
 - `RoomGenerator`
 - `CombatManager`
 - `TurnManager`
+- `TurnOrderPanelUI` on the top HUD panel if turn order UI is used
 - `Main Camera`
 - UI canvas with action buttons
 
@@ -213,7 +214,6 @@ The current code logs:
 Likely next implementation steps:
 - make attack target selection more robust / clearer visually
 - show current HP / AP / turn state in UI
-- move enemy AI out of `CombatManager` into its own controller
 - add player/enemy card UI
 - add item/equipment/consumable systems on top of current combat/stat foundation
 - hovering over enemies display their corresponding card on top of them

@@ -3,11 +3,17 @@ using UnityEngine;
 
 public abstract class CombatUnit : MonoBehaviour
 {
-    [SerializeField] string displayName = "Unit";
-    [SerializeField] StatBlockData baseStats = new StatBlockData();
+    [SerializeField] protected string displayName = "Unit";
+    [SerializeField] protected StatBlockData baseStats = new StatBlockData();
+    [SerializeField] ParticleSystem hitImpactEffect;
+    [SerializeField] SpriteRenderer turnIndicatorRenderer;
+    [SerializeField] float turnIndicatorPulseSpeed = 3f;
+    [SerializeField] float turnIndicatorMinAlpha = 0.25f;
+    [SerializeField] float turnIndicatorMaxAlpha = 1f;
 
     readonly List<StatModifierData> _activeModifiers = new List<StatModifierData>();
     RuntimeStatBlock _runtimeStats;
+    bool _isTurnIndicatorActive;
 
     public string DisplayName => displayName;
     public int CurrentHealth { get; private set; }
@@ -17,11 +23,31 @@ public abstract class CombatUnit : MonoBehaviour
 
     public abstract Vector2Int GridPosition { get; }
 
+    public virtual Sprite GetTurnOrderSprite()
+    {
+        SpriteRenderer spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+        return spriteRenderer != null ? spriteRenderer.sprite : null;
+    }
+
     protected virtual void Awake()
     {
         _runtimeStats = new RuntimeStatBlock(baseStats);
         RefreshStats();
         CurrentHealth = Mathf.Max(1, _runtimeStats.Health);
+        SetTurnIndicatorActive(false);
+    }
+
+    protected virtual void Update()
+    {
+        if (!_isTurnIndicatorActive || turnIndicatorRenderer == null)
+            return;
+
+        Color color = turnIndicatorRenderer.color;
+        color.a = Mathf.Lerp(
+            turnIndicatorMinAlpha,
+            turnIndicatorMaxAlpha,
+            (Mathf.Sin(Time.time * turnIndicatorPulseSpeed) + 1f) * 0.5f);
+        turnIndicatorRenderer.color = color;
     }
 
     public void RefreshStats()
@@ -57,6 +83,8 @@ public abstract class CombatUnit : MonoBehaviour
 
     public void ReceiveDamage(int incomingDamage)
     {
+        PlayHitImpactEffect();
+
         int reducedDamage = incomingDamage - _runtimeStats.Defence;
         int finalDamage = Mathf.Max(1, reducedDamage);
         CurrentHealth = Mathf.Max(0, CurrentHealth - finalDamage);
@@ -67,9 +95,32 @@ public abstract class CombatUnit : MonoBehaviour
             HandleDeath();
     }
 
+    void PlayHitImpactEffect()
+    {
+        if (hitImpactEffect == null)
+            return;
+
+        hitImpactEffect.Play();
+    }
+
     protected virtual void HandleDeath()
     {
+        SetTurnIndicatorActive(false);
         Debug.Log($"{DisplayName} died.");
         gameObject.SetActive(false);
+    }
+
+    public void SetTurnIndicatorActive(bool isActive)
+    {
+        _isTurnIndicatorActive = isActive;
+
+        if (turnIndicatorRenderer == null)
+            return;
+
+        turnIndicatorRenderer.enabled = isActive;
+
+        Color color = turnIndicatorRenderer.color;
+        color.a = isActive ? turnIndicatorMaxAlpha : 0f;
+        turnIndicatorRenderer.color = color;
     }
 }

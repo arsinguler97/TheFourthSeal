@@ -159,7 +159,12 @@ public class PlayerController : MonoBehaviour
         // Reaching the exit finishes the current room and returns to the floor selection scene.
         RoomConfig activeRoomConfig = RunManager.I != null ? RunManager.I.CurrentRoomConfig : null;
         if (activeRoomConfig != null && _currentGridPosition == activeRoomConfig.exit)
-            SceneManager.LoadScene("FloorScene");
+        {
+            if (CombatManager.I != null)
+                CombatManager.I.BeginReturnToFloorSceneTransition();
+            else
+                SceneManager.LoadScene("FloorScene");
+        }
     }
 
     bool TryMoveOneStep(Vector2Int requestedStep)
