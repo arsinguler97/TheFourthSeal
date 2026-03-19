@@ -8,14 +8,21 @@ public class CombatManager : MonoBehaviour
 {
     public static CombatManager I { get; private set; }
 
+    // Room clear uses a simple fill overlay before returning to the floor map.
     [SerializeField] GameObject roomClearFillRoot;
     [SerializeField] Image roomClearFillImage;
     [SerializeField] float roomClearFillDuration = 2f;
+    [Header("Player Defeat")]
+    // Defeat UI is enabled when the player dies and stays open until restart.
+    [SerializeField] GameObject playerDefeatRoot;
+    [SerializeField] Button playAgainButton;
+    [SerializeField] float playAgainEnableDelay = 1f;
 
     public PlayerUnit PlayerUnit { get; private set; }
     readonly List<EnemyUnit> _enemyUnits = new List<EnemyUnit>();
     public IReadOnlyList<EnemyUnit> EnemyUnits => _enemyUnits;
     bool _isRoomClearTransitionRunning;
+    bool _isPlayerDefeatSequenceRunning;
 
     void Awake()
     {
@@ -35,11 +42,24 @@ public class CombatManager : MonoBehaviour
             roomClearFillImage.fillAmount = 0f;
             roomClearFillImage.raycastTarget = false;
         }
+
+        if (playerDefeatRoot != null)
+            playerDefeatRoot.SetActive(false);
+
+        if (playAgainButton != null)
+            playAgainButton.interactable = false;
+    }
+
+    void OnDestroy()
+    {
+        if (I == this)
+            I = null;
     }
 
     void Update()
     {
-        if (_isRoomClearTransitionRunning || _enemyUnits.Count == 0 || HasLivingEnemies())
+        // Auto-exit the room once all enemies are dead, unless another transition is already running.
+        if (_isRoomClearTransitionRunning || _isPlayerDefeatSequenceRunning || _enemyUnits.Count == 0 || HasLivingEnemies())
             return;
 
         BeginReturnToFloorSceneTransition();
@@ -88,6 +108,7 @@ public class CombatManager : MonoBehaviour
         if (PlayerUnit == null || !PlayerUnit.IsAlive)
             return false;
 
+        // Player attacks are grid-based and only work on a living enemy in straight-line range.
         EnemyUnit targetEnemy = GetEnemyAt(targetGridPosition);
         if (targetEnemy == null)
             return false;
@@ -143,17 +164,36 @@ public class CombatManager : MonoBehaviour
 
     public void BeginReturnToFloorSceneTransition()
     {
-        if (_isRoomClearTransitionRunning)
+        if (_isRoomClearTransitionRunning || _isPlayerDefeatSequenceRunning)
             return;
 
-        Debug.Log($"CombatManager.BeginReturnToFloorSceneTransition -> pending floor node '{(RunManager.I != null ? RunManager.I.PendingFloorNodeId : "null")}', current floor node '{(RunManager.I != null ? RunManager.I.CurrentFloorNodeId : "null")}'.");
         StartCoroutine(FillRoomClearAndReturnToFloorScene());
+    }
+
+    public void HandlePlayerDeath(PlayerUnit playerUnit)
+    {
+        if (_isPlayerDefeatSequenceRunning)
+            return;
+
+        StartCoroutine(ShowPlayerDefeatSequence(playerUnit));
+    }
+
+    public void RestartRunFromDefeat()
+    {
+        if (!_isPlayerDefeatSequenceRunning)
+            return;
+
+        if (RunManager.I != null)
+            RunManager.I.ResetRunState();
+
+        SceneManager.LoadScene("FloorScene");
     }
 
     IEnumerator FillRoomClearAndReturnToFloorScene()
     {
         _isRoomClearTransitionRunning = true;
 
+        // Advancing floor state happens before the scene swap so the next FloorScene can resolve the new node.
         if (RunManager.I != null)
             RunManager.I.MarkPendingRoomClearedAndAdvanceFloorPosition();
 
@@ -181,5 +221,26 @@ public class CombatManager : MonoBehaviour
 
         roomClearFillImage.fillAmount = 1f;
         SceneManager.LoadScene("FloorScene");
+    }
+
+    IEnumerator ShowPlayerDefeatSequence(PlayerUnit playerUnit)
+    {
+        _isPlayerDefeatSequenceRunning = true;
+
+        // Stop the turn loop first so no more AI or turn changes happen under the defeat UI.
+        if (TurnManager.I != null)
+            TurnManager.I.StopCombatFlow();
+
+        if (playerDefeatRoot != null)
+            playerDefeatRoot.SetActive(true);
+
+        if (playAgainButton != null)
+            playAgainButton.interactable = false;
+
+        if (playAgainEnableDelay > 0f)
+            yield return new WaitForSeconds(playAgainEnableDelay);
+
+        if (playAgainButton != null)
+            playAgainButton.interactable = true;
     }
 }

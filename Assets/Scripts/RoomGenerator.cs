@@ -20,6 +20,7 @@ public class RoomGenerator : MonoBehaviour
     {
         yield return null;
 
+        // Room generation is driven entirely by the floor selection cached in RunManager.
         RoomTemplateSO selectedTemplate = RunManager.I.SelectedRoomTemplate;
         if (selectedTemplate == null)
             yield break;
@@ -104,6 +105,7 @@ public class RoomGenerator : MonoBehaviour
 
     void SpawnEnemiesAtGridPositions(List<Vector2Int> spawnGridPositions)
     {
+        // Existing enemies are reused when possible so repeated room loads do not instantiate endlessly.
         while (_spawnedEnemyUnits.Count < spawnGridPositions.Count)
         {
             EnemyUnit enemyUnit = FindFirstObjectByType<EnemyUnit>();
@@ -134,6 +136,7 @@ public class RoomGenerator : MonoBehaviour
     {
         roomConfig.enemySpawns.Clear();
 
+        // Enemy spawns are reserved before hazards so combat spaces stay playable.
         for (int enemyIndex = 0; enemyIndex < enemyCount; enemyIndex++)
         {
             Vector2Int enemySpawnGridPosition = FindRandomEnemySpawnPosition(

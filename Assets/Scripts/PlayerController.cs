@@ -175,15 +175,9 @@ public class PlayerController : MonoBehaviour
 
     bool TryStartMoveToGridPosition(Vector2Int requestedGridPosition)
     {
-        if (!GridManager.I.IsWalkable(requestedGridPosition))
+        if (!GridMovementUtility.CanUnitEnterTile(requestedGridPosition, GetComponent<PlayerUnit>()))
         {
-            Debug.Log($"Move blocked: {requestedGridPosition} is not walkable.");
-            return false;
-        }
-
-        if (CombatManager.I != null && CombatManager.I.IsTileOccupiedByAnotherUnit(requestedGridPosition, GetComponent<PlayerUnit>()))
-        {
-            Debug.Log($"Move blocked: {requestedGridPosition} is occupied by another unit.");
+            Debug.Log($"Move blocked: {requestedGridPosition} cannot be entered.");
             return false;
         }
 
@@ -219,6 +213,7 @@ public class PlayerController : MonoBehaviour
         if (CombatManager.I == null)
             return;
 
+        // TurnManager only resolves the action cost after CombatManager confirms a valid hit.
         if (CombatManager.I.TryPlayerAttackGrid(clickedGridPosition))
             TurnManager.I.NotifyPlayerAttackResolved();
         else

@@ -86,27 +86,16 @@ public class EnemyAIController : MonoBehaviour
         if (verticalStep != Vector2Int.zero && CanEnemyStepTo(currentPosition + verticalStep))
             return verticalStep;
 
-        if (horizontalStep != Vector2Int.zero)
-            return horizontalStep;
-
-        return verticalStep;
+        return Vector2Int.zero;
     }
 
     bool CanEnemyStepTo(Vector2Int targetGridPosition)
     {
-        if (GridManager.I == null || !GridManager.I.IsWalkable(targetGridPosition))
-            return false;
-
-        return CombatManager.I.PlayerUnit == null
-            || !CombatManager.I.PlayerUnit.IsAlive
-            || CombatManager.I.PlayerUnit.GridPosition != targetGridPosition;
+        return GridMovementUtility.CanEnemyApproachTile(targetGridPosition, _enemyUnit);
     }
 
     bool CanEnemyTakeStep(Vector2Int targetGridPosition)
     {
-        if (!CanEnemyStepTo(targetGridPosition))
-            return false;
-
-        return CombatManager.I == null || !CombatManager.I.IsTileOccupiedByAnotherUnit(targetGridPosition, _enemyUnit);
+        return CanEnemyStepTo(targetGridPosition);
     }
 }

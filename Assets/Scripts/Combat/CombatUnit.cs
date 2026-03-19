@@ -11,6 +11,12 @@ public abstract class CombatUnit : MonoBehaviour
     [SerializeField] float turnIndicatorMinAlpha = 0.25f;
     [SerializeField] float turnIndicatorMaxAlpha = 1f;
 
+    [Header("Damage Popup")]
+    [SerializeField] GameObject damagePopupPrefab;
+    [SerializeField] Vector3 damagePopupOffset = new Vector3(0.35f, 0.5f, 0f);
+    [SerializeField] Color playerDamagePopupColor = new Color(1f, 0.35f, 0.35f, 1f);
+    [SerializeField] Color enemyDamagePopupColor = new Color(1f, 0.95f, 0.35f, 1f);
+
     readonly List<StatModifierData> _activeModifiers = new List<StatModifierData>();
     RuntimeStatBlock _runtimeStats;
     bool _isTurnIndicatorActive;
@@ -31,10 +37,14 @@ public abstract class CombatUnit : MonoBehaviour
 
     protected virtual void Awake()
     {
+        // Runtime stats are copied from the serialized base stat block so modifiers can mutate safely.
         _runtimeStats = new RuntimeStatBlock(baseStats);
         RefreshStats();
         CurrentHealth = Mathf.Max(1, _runtimeStats.Health);
         SetTurnIndicatorActive(false);
+
+        if (hitImpactEffect != null)
+            hitImpactEffect.gameObject.SetActive(false);
     }
 
     protected virtual void Update()
@@ -85,9 +95,11 @@ public abstract class CombatUnit : MonoBehaviour
     {
         PlayHitImpactEffect();
 
+        // Defence can reduce damage, but every successful hit still deals at least 1.
         int reducedDamage = incomingDamage - _runtimeStats.Defence;
         int finalDamage = Mathf.Max(1, reducedDamage);
         CurrentHealth = Mathf.Max(0, CurrentHealth - finalDamage);
+        SpawnDamagePopup(finalDamage);
 
         Debug.Log($"{DisplayName} took {finalDamage} damage. Remaining health: {CurrentHealth}.");
 
@@ -100,7 +112,34 @@ public abstract class CombatUnit : MonoBehaviour
         if (hitImpactEffect == null)
             return;
 
-        hitImpactEffect.Play();
+        // Spawn a fresh particle instance per hit so replay timing never depends on previous state.
+        ParticleSystem impactInstance = Instantiate(
+            hitImpactEffect,
+            hitImpactEffect.transform.position,
+            hitImpactEffect.transform.rotation);
+
+        impactInstance.transform.localScale = hitImpactEffect.transform.lossyScale;
+        impactInstance.gameObject.SetActive(true);
+        impactInstance.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        impactInstance.Clear(true);
+        impactInstance.Play(true);
+
+        float lifetime = impactInstance.main.duration + impactInstance.main.startLifetime.constantMax + 0.25f;
+        Destroy(impactInstance.gameObject, lifetime);
+    }
+
+    void SpawnDamagePopup(int finalDamage)
+    {
+        if (damagePopupPrefab == null)
+            return;
+
+        // Popup color is chosen by unit side so player and enemy damage read differently at a glance.
+        GameObject popupObject = Instantiate(damagePopupPrefab, transform.position + damagePopupOffset, Quaternion.identity);
+        DamagePopup popupInstance = popupObject.GetComponent<DamagePopup>();
+        if (popupInstance == null)
+            return;
+
+        popupInstance.Initialize(finalDamage, this is PlayerUnit ? playerDamagePopupColor : enemyDamagePopupColor);
     }
 
     protected virtual void HandleDeath()

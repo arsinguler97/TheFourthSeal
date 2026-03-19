@@ -37,7 +37,7 @@ public class RunManager : MonoBehaviour
 
     public void PrepareRoomSelection(string floorNodeId, RoomTemplateSO roomTemplate, int enemyCountOverride = -1)
     {
-        Debug.Log($"RunManager.PrepareRoomSelection -> pending floor node '{floorNodeId}'.");
+        // PendingFloorNodeId is committed only after the room is actually cleared.
         PendingFloorNodeId = floorNodeId;
         SelectRoom(roomTemplate, enemyCountOverride);
     }
@@ -45,19 +45,26 @@ public class RunManager : MonoBehaviour
     public void MarkPendingRoomClearedAndAdvanceFloorPosition()
     {
         if (string.IsNullOrEmpty(PendingFloorNodeId))
-        {
-            Debug.LogWarning($"RunManager.MarkPendingRoomClearedAndAdvanceFloorPosition skipped because PendingFloorNodeId is empty. CurrentFloorNodeId remains '{CurrentFloorNodeId}'.");
             return;
-        }
 
         _clearedFloorNodeIds.Add(PendingFloorNodeId);
         CurrentFloorNodeId = PendingFloorNodeId;
-        Debug.Log($"RunManager.MarkPendingRoomClearedAndAdvanceFloorPosition -> advanced to '{CurrentFloorNodeId}'.");
         PendingFloorNodeId = null;
     }
 
     public bool IsFloorNodeCleared(string floorNodeId)
     {
         return !string.IsNullOrEmpty(floorNodeId) && _clearedFloorNodeIds.Contains(floorNodeId);
+    }
+
+    public void ResetRunState()
+    {
+        // Used by defeat/restart to bring the floor run back to its initial state.
+        SelectedRoomTemplate = null;
+        SelectedRoomEnemyCount = 0;
+        CurrentFloorNodeId = StartFloorNodeId;
+        PendingFloorNodeId = null;
+        CurrentRoomConfig = null;
+        _clearedFloorNodeIds.Clear();
     }
 }

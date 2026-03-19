@@ -45,7 +45,7 @@ public class RoomButton : MonoBehaviour
             return;
         }
 
-        RunManager.I.SelectRoom(roomTemplate, enemyCountOverride);
+        Debug.LogWarning($"RoomButton on {name} could not open a room because no active FloorMapController was found.");
     }
 
     public void SetInteractable(bool isInteractable)

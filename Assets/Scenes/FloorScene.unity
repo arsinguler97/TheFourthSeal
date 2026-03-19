@@ -128,7 +128,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 243316636}
-  - component: {fileID: 243316637}
   m_Layer: 5
   m_Name: Rooms
   m_TagString: Untagged
@@ -165,21 +164,6 @@ RectTransform:
   m_AnchoredPosition: {x: 8.050003, y: 12}
   m_SizeDelta: {x: 587.4, y: 644}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &243316637
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 243316635}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b7fa600a118ef0e45acca6fa8e26a974, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::FloorMapController
-  floorMapPlayerUI: {fileID: 0}
-  startingRoomNode: {fileID: 0}
-  roomNodes: []
 --- !u!1 &248610973
 GameObject:
   m_ObjectHideFlags: 0
@@ -192,6 +176,7 @@ GameObject:
   - component: {fileID: 248610976}
   - component: {fileID: 248610975}
   - component: {fileID: 248610974}
+  - component: {fileID: 248610978}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -286,6 +271,30 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &248610978
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 248610973}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7fa600a118ef0e45acca6fa8e26a974, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FloorMapController
+  floorMapPlayerUI: {fileID: 1290020534}
+  startingRoomNode: {fileID: 1079662172}
+  roomNodes:
+  - {fileID: 1216931665}
+  - {fileID: 1901893198}
+  - {fileID: 1962364012}
+  - {fileID: 1118871510}
+  - {fileID: 1518101041}
+  - {fileID: 1081653983}
+  - {fileID: 757295711}
+  - {fileID: 960766485}
+  - {fileID: 1101751980}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -2000,6 +2009,7 @@ GameObject:
   - component: {fileID: 1290020533}
   - component: {fileID: 1290020532}
   - component: {fileID: 1290020534}
+  - component: {fileID: 1290020535}
   m_Layer: 5
   m_Name: PlayerImage
   m_TagString: Untagged
@@ -2065,6 +2075,19 @@ CanvasRenderer:
   m_GameObject: {fileID: 1290020530}
   m_CullTransparentMesh: 1
 --- !u!114 &1290020534
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1290020530}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4aeb3c6cfebbaee4e8e42b0e6a5e034b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FloorMapPlayerUI
+  moveDuration: 1
+--- !u!114 &1290020535
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

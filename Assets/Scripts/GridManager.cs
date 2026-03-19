@@ -22,6 +22,12 @@ public class GridManager : MonoBehaviour
 
     void Awake() => I = this;
 
+    void OnDestroy()
+    {
+        if (I == this)
+            I = null;
+    }
+
     void Start()
     {
         // The origin is shifted so the grid is centered around the GameObject instead of starting at (0, 0).

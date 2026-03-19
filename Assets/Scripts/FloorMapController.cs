@@ -6,6 +6,7 @@ public class FloorMapController : MonoBehaviour
 {
     public static FloorMapController I { get; private set; }
 
+    // These references are scene-local and should belong to FloorScene, not the persistent RunManager object.
     [SerializeField] FloorMapPlayerUI floorMapPlayerUI;
     [SerializeField] RoomNode startingRoomNode;
     [SerializeField] List<RoomNode> roomNodes = new List<RoomNode>();
@@ -22,37 +23,26 @@ public class FloorMapController : MonoBehaviour
         I = this;
     }
 
+    void OnDestroy()
+    {
+        if (I == this)
+            I = null;
+    }
+
     void Start()
     {
         if (RunManager.I == null)
             return;
 
-        List<string> availableNodeIds = new List<string>();
-        for (int i = 0; i < roomNodes.Count; i++)
-        {
-            RoomNode listedNode = roomNodes[i];
-            if (listedNode == null)
-                continue;
-
-            availableNodeIds.Add($"{listedNode.name}:{listedNode.NodeId}");
-        }
-
-        Debug.Log($"FloorMapController available room nodes -> [{string.Join(", ", availableNodeIds)}], startingRoomNode '{(startingRoomNode != null ? startingRoomNode.name : "null")}:{(startingRoomNode != null ? startingRoomNode.NodeId : "null")}'.");
-
+        // Rebuild interactable state from persistent run progress every time FloorScene loads.
         RefreshNodeStates();
 
         RoomNode currentNode = GetNodeById(RunManager.I.CurrentFloorNodeId);
         if (currentNode == null)
             currentNode = startingRoomNode;
 
-        Debug.Log($"FloorMapController start node resolved to: {(currentNode != null ? currentNode.NodeId : "null")} from CurrentFloorNodeId '{RunManager.I.CurrentFloorNodeId}'.");
-
         if (floorMapPlayerUI != null && currentNode != null)
-        {
-            RectTransform targetRect = currentNode.GetComponent<RectTransform>();
-            Debug.Log($"FloorMapController snapping marker to node '{currentNode.name}' / '{currentNode.NodeId}' at anchoredPosition '{(targetRect != null ? targetRect.anchoredPosition.ToString() : "null")}'.");
             floorMapPlayerUI.SnapTo(currentNode.GetComponent<RectTransform>());
-        }
     }
 
     public void SelectRoomNode(RoomNode roomNode, RoomTemplateSO roomTemplate, int enemyCountOverride)
@@ -66,14 +56,13 @@ public class FloorMapController : MonoBehaviour
             return;
         }
 
-        Debug.Log($"SelectRoomNode -> object '{roomNode.name}', nodeId '{roomNode.NodeId}', currentFloorNodeId '{RunManager.I.CurrentFloorNodeId}'.");
-
         if (RunManager.I.IsFloorNodeCleared(roomNode.NodeId))
             return;
 
         RunManager.I.PrepareRoomSelection(roomNode.NodeId, roomTemplate, enemyCountOverride);
         _isTransitioningToRoom = true;
 
+        // The map marker animation is cosmetic; the room load still works without it.
         RectTransform targetRect = roomNode.GetComponent<RectTransform>();
         if (floorMapPlayerUI != null && targetRect != null)
         {
@@ -86,6 +75,7 @@ public class FloorMapController : MonoBehaviour
 
     void RefreshNodeStates()
     {
+        // Only rooms connected to the current floor node should be selectable.
         RoomNode currentNode = GetNodeById(RunManager.I.CurrentFloorNodeId);
         if (currentNode == null)
             currentNode = startingRoomNode;

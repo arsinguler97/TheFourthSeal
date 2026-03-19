@@ -48,14 +48,11 @@ public class EnemyUnit : CombatUnit
 
     public bool TryMoveOneStep(Vector2Int step)
     {
-        if (Mathf.Abs(step.x) + Mathf.Abs(step.y) != 1)
+        if (!GridMovementUtility.IsSingleCardinalStep(step))
             return false;
 
         Vector2Int requestedGridPosition = _currentGridPosition + step;
-        if (!GridManager.I.IsWalkable(requestedGridPosition))
-            return false;
-
-        if (CombatManager.I != null && CombatManager.I.IsTileOccupiedByAnotherUnit(requestedGridPosition, this))
+        if (!GridMovementUtility.CanUnitEnterTile(requestedGridPosition, this))
             return false;
 
         SetGridPosition(requestedGridPosition);
@@ -64,14 +61,11 @@ public class EnemyUnit : CombatUnit
 
     public IEnumerator MoveOneStepAnimated(Vector2Int step)
     {
-        if (Mathf.Abs(step.x) + Mathf.Abs(step.y) != 1 || GridManager.I == null)
+        if (!GridMovementUtility.IsSingleCardinalStep(step) || GridManager.I == null)
             yield break;
 
         Vector2Int requestedGridPosition = _currentGridPosition + step;
-        if (!GridManager.I.IsWalkable(requestedGridPosition))
-            yield break;
-
-        if (CombatManager.I != null && CombatManager.I.IsTileOccupiedByAnotherUnit(requestedGridPosition, this))
+        if (!GridMovementUtility.CanUnitEnterTile(requestedGridPosition, this))
             yield break;
 
         _currentGridPosition = requestedGridPosition;

@@ -6,6 +6,7 @@ public class TurnManager : MonoBehaviour
 {
     public static TurnManager I { get; private set; }
 
+    // Actions are still data-driven even though turn resolution is handled here.
     [SerializeField] ActionDefinitionSO moveActionDefinition;
     [SerializeField] ActionDefinitionSO attackActionDefinition;
     [SerializeField] ActionDefinitionSO skipActionDefinition;
@@ -32,6 +33,12 @@ public class TurnManager : MonoBehaviour
         }
 
         I = this;
+    }
+
+    void OnDestroy()
+    {
+        if (I == this)
+            I = null;
     }
 
     public bool IsPlayerMoveModeActive => IsPlayerTurn && SelectedPlayerActionType == ActionType.Move;
@@ -120,6 +127,7 @@ public class TurnManager : MonoBehaviour
         if (!IsPlayerMoveModeActive || _playerUsedMoveThisTurn || moveActionDefinition == null)
             return;
 
+        // Move AP is spent only once, when the first valid step actually starts.
         _playerUsedMoveThisTurn = true;
         CurrentActionPoints = Mathf.Max(0, CurrentActionPoints - moveActionDefinition.actionCost);
         Debug.Log($"Move action spent {moveActionDefinition.actionCost} AP. Remaining AP: {CurrentActionPoints}.");
@@ -132,12 +140,7 @@ public class TurnManager : MonoBehaviour
 
         RemainingMoveSteps--;
         if (RemainingMoveSteps <= 0)
-        {
             SelectedPlayerActionType = ActionType.None;
-
-            if (CurrentActionPoints <= 0 || (_playerUsedMoveThisTurn && _playerUsedAttackThisTurn))
-                EndCurrentTurn();
-        }
     }
 
     public void NotifyPlayerAttackResolved()
@@ -145,6 +148,7 @@ public class TurnManager : MonoBehaviour
         if (!IsPlayerAttackModeActive)
             return;
 
+        // Attacks no longer auto-end the turn; Skip is the explicit end-turn action.
         if (attackActionDefinition != null)
         {
             _playerUsedAttackThisTurn = true;
@@ -153,9 +157,6 @@ public class TurnManager : MonoBehaviour
         }
 
         SelectedPlayerActionType = ActionType.None;
-
-        if (CurrentActionPoints <= 0 || (_playerUsedMoveThisTurn && _playerUsedAttackThisTurn))
-            EndCurrentTurn();
     }
 
     public void ExecuteSkipAction()
@@ -203,6 +204,7 @@ public class TurnManager : MonoBehaviour
             if (_isResolvingEnemyTurn)
                 return;
 
+            // Enemy turns are coroutine-driven and call back into FinishEnemyTurn when done.
             _isResolvingEnemyTurn = true;
 
             if (enemyUnit.EnemyAI != null)
@@ -217,11 +219,15 @@ public class TurnManager : MonoBehaviour
         _isResolvingEnemyTurn = false;
         RemoveDeadUnitsFromTurnOrder();
 
+        if (CombatManager.I != null && (CombatManager.I.PlayerUnit == null || !CombatManager.I.PlayerUnit.IsAlive))
+        {
+            ClearTurnState();
+            return;
+        }
+
         if (_turnOrder.Count == 0)
         {
-            _currentTurnIndex = -1;
-            UpdateTurnIndicators();
-            NotifyTurnOrderChanged();
+            ClearTurnState();
             return;
         }
 
@@ -239,6 +245,12 @@ public class TurnManager : MonoBehaviour
         UpdateTurnIndicators();
         NotifyTurnOrderChanged();
         BeginCurrentTurn();
+    }
+
+    public void StopCombatFlow()
+    {
+        _isResolvingEnemyTurn = false;
+        ClearTurnState();
     }
 
     void RemoveDeadUnitsFromTurnOrder()
@@ -304,6 +316,18 @@ public class TurnManager : MonoBehaviour
     void NotifyTurnOrderChanged()
     {
         TurnOrderChanged?.Invoke(_turnOrder, _currentTurnIndex);
+    }
+
+    void ClearTurnState()
+    {
+        // Used when combat is interrupted entirely, for example by player death.
+        _turnOrder.Clear();
+        _currentTurnIndex = -1;
+        SelectedPlayerActionType = ActionType.None;
+        RemainingMoveSteps = 0;
+        CurrentActionPoints = 0;
+        UpdateTurnIndicators();
+        NotifyTurnOrderChanged();
     }
 
     void FinishEnemyTurn()

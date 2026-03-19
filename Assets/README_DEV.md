@@ -2,7 +2,22 @@
 
 ## Current Combat Slice
 
-This project currently has a first-pass room combat loop implemented.
+This project currently has a first-pass floor-to-room combat loop implemented.
+
+## High-Level Flow
+
+### Run flow
+- `RunManager` is the persistent run-state singleton.
+- `FloorScene` lets the player choose the next room node.
+- `RunManager` stores:
+  - selected `RoomTemplateSO`
+  - selected enemy count override
+  - current floor node id
+  - pending floor node id
+  - cleared floor nodes
+- `RoomScene` reads that state, generates the room, and runs combat.
+- clearing the room advances the pending floor node and returns to `FloorScene`.
+- dying in `RoomScene` opens the defeat UI; `Play Again` resets the run and loads `FloorScene`.
 
 ### Room flow
 - `FloorScene` room selection stores the chosen `RoomTemplateSO` in `RunManager`.
@@ -74,7 +89,9 @@ Files:
 - each action can currently be used only once per turn
 - `Move` can be used once
 - `Attack` can be used once
-- if both were used, or AP reaches 0, turn ends
+- turns do not auto-end after actions
+- the player must use `Skip` to end the turn explicitly
+- if AP reaches 0, no more actions can be selected, but the turn still waits for `Skip`
 
 ### Action rules
 - `Move` action:
@@ -102,6 +119,13 @@ Files:
 - `Assets/Scripts/Combat/TurnManager.cs`
 - `Assets/Scripts/PlayerController.cs`
 
+### Combat feedback
+- `CombatUnit` can play:
+  - hit impact particles
+  - floating damage popups
+  - turn indicator pulse
+- `PlayerUnit` can also play a death VFX on defeat.
+
 ## Enemy AI
 
 Current AI is intentionally simple.
@@ -116,6 +140,26 @@ AI now lives in:
 - `Assets/Scripts/Combat/EnemyAIController.cs`
 
 `CombatManager` is now responsible only for shared combat state and helper queries.
+
+## Floor Map
+
+- `FloorMapController` rebuilds the floor UI from `RunManager.CurrentFloorNodeId` on `FloorScene` load.
+- `FloorMapPlayerUI` snaps or animates the player marker to the selected room node.
+- `RoomNode` connectivity decides which next rooms are interactable.
+- `RoomButton` should only open rooms through `FloorMapController`.
+
+Important setup note:
+- `RunManager` is persistent across scenes.
+- `FloorMapController` should stay scene-local in `FloorScene`.
+- do not place `FloorMapController` on the same persistent object as `RunManager`.
+
+## Defeat Flow
+
+- when the player dies, `PlayerUnit` plays its death VFX
+- `CombatManager` opens the defeat UI
+- `TurnManager.StopCombatFlow()` clears the active turn state
+- `Play Again` should call `CombatManager.RestartRunFromDefeat()`
+- restart resets floor progress in `RunManager` and reloads `FloorScene`
 
 ## Current Enemy Spawn Limitation
 
@@ -175,6 +219,7 @@ Recommended future implementation order:
 - `TurnOrderPanelUI` on the top HUD panel if turn order UI is used
 - `Main Camera`
 - UI canvas with action buttons
+- optional defeat UI root
 
 ### Required prefabs/components
 - player object/prefab:
@@ -192,11 +237,15 @@ Recommended future implementation order:
 - `TurnManager.attackActionDefinition`
 - `TurnManager.skipActionDefinition`
 - `GridManager` tile and tile-type references
+- `CombatManager.playerDefeatRoot`
+- `CombatManager.playAgainButton` if button locking is used
+- `PlayerUnit.deathVfxPrefab` if defeat VFX is used
 
 ### UI button bindings
 - Move button -> `TurnManager.SelectMoveAction()`
 - Attack button -> `TurnManager.SelectAttackAction()`
 - Skip button -> `TurnManager.ExecuteSkipAction()`
+- Play Again button -> `CombatManager.RestartRunFromDefeat()`
 
 ## Useful Debug Logs
 
