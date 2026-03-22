@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class TurnManager : MonoBehaviour
 {
@@ -10,6 +11,7 @@ public class TurnManager : MonoBehaviour
     [SerializeField] ActionDefinitionSO moveActionDefinition;
     [SerializeField] ActionDefinitionSO attackActionDefinition;
     [SerializeField] ActionDefinitionSO skipActionDefinition;
+    [SerializeField] ButtonAutoDisable[] buttonsForAutoDisable;
 
     readonly List<CombatUnit> _turnOrder = new List<CombatUnit>();
     int _currentTurnIndex = -1;
@@ -40,6 +42,7 @@ public class TurnManager : MonoBehaviour
         if (I == this)
             I = null;
     }
+
 
     public bool IsPlayerMoveModeActive => IsPlayerTurn && SelectedPlayerActionType == ActionType.Move;
     public bool IsPlayerAttackModeActive => IsPlayerTurn && SelectedPlayerActionType == ActionType.Attack;
@@ -197,6 +200,13 @@ public class TurnManager : MonoBehaviour
             _playerUsedMoveThisTurn = false;
             _playerUsedAttackThisTurn = false;
             Debug.Log($"Player turn started with {CurrentActionPoints} action points.");
+
+
+
+            Invoke("ResetActionBarButtons", 0.2f);
+
+
+
         }
 
         if (CurrentUnit is EnemyUnit enemyUnit)
@@ -213,6 +223,20 @@ public class TurnManager : MonoBehaviour
                 FinishEnemyTurn();
         }
     }
+
+
+
+
+    private void ResetActionBarButtons()
+    {
+        foreach (ButtonAutoDisable button in buttonsForAutoDisable)
+        {
+            button.EnableButton();
+        }
+    }
+
+
+
 
     void EndCurrentTurn()
     {

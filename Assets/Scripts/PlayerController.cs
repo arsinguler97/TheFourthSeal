@@ -25,6 +25,18 @@ public class PlayerController : MonoBehaviour
     public Vector2Int CurrentGridPosition => _currentGridPosition;
     public bool IsMovingToDestination => _isMovingToDestination;
 
+
+
+
+
+
+
+
+
+
+
+
+
     void Start()
     {
         // Keep the player snapped to the same grid cell and world position when the room first loads.
@@ -192,6 +204,12 @@ public class PlayerController : MonoBehaviour
         if (!TurnManager.I.CanPlayerSpendMoveStep())
             return;
 
+
+
+
+
+
+
         int manhattanDistance = Mathf.Abs(clickedGridPosition.x - _currentGridPosition.x)
             + Mathf.Abs(clickedGridPosition.y - _currentGridPosition.y);
         if (manhattanDistance != 1)
@@ -199,6 +217,12 @@ public class PlayerController : MonoBehaviour
             Debug.Log($"Move click ignored because {clickedGridPosition} is not adjacent.");
             return;
         }
+
+
+
+
+
+
 
         Vector2Int requestedStep = clickedGridPosition - _currentGridPosition;
         if (TryMoveOneStep(requestedStep))
