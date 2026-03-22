@@ -54,6 +54,10 @@ public class TurnManager : MonoBehaviour
 
     public void SelectMoveAction()
     {
+        GridManager.I.ResetAttackGrids();
+        ResetButtons();
+
+
         if (!IsPlayerTurn)
         {
             Debug.Log("Move action ignored because it is not currently the player's turn.");
@@ -87,10 +91,18 @@ public class TurnManager : MonoBehaviour
         SelectedPlayerActionType = moveActionDefinition.actionType;
         RemainingMoveSteps = Mathf.Max(0, CombatManager.I.PlayerUnit.Stats.Speed);
         Debug.Log($"Move mode selected. Remaining move steps: {RemainingMoveSteps}. Action points: {CurrentActionPoints}.");
+        
+
+
+        GridManager.I.SetWalkGrids(CurrentUnit.GridPosition, CombatManager.I.PlayerUnit.Stats.Speed, CombatManager.I.PlayerUnit.Stats.Range);
     }
 
     public void SelectAttackAction()
     {
+        GridManager.I.ResetWalkGrids();
+        ResetButtons();
+
+
         if (!IsPlayerTurn)
         {
             Debug.Log("Attack action ignored because it is not currently the player's turn.");
@@ -118,6 +130,9 @@ public class TurnManager : MonoBehaviour
         SelectedPlayerActionType = attackActionDefinition.actionType;
         RemainingMoveSteps = 0;
         Debug.Log($"Attack mode selected. Action points: {CurrentActionPoints}.");
+
+
+        GridManager.I.SetAttackGrids(CurrentUnit.GridPosition, CombatManager.I.PlayerUnit.Stats.Range);
     }
 
     public bool CanPlayerSpendMoveStep()
@@ -164,6 +179,10 @@ public class TurnManager : MonoBehaviour
 
     public void ExecuteSkipAction()
     {
+        GridManager.I.ResetWalkGrids();
+        GridManager.I.ResetAttackGrids();
+
+
         if (!IsPlayerTurn)
             return;
 
@@ -368,5 +387,12 @@ public class TurnManager : MonoBehaviour
         List<CombatUnit> livingUnits = CombatManager.I.GetLivingUnits();
         for (int i = 0; i < livingUnits.Count; i++)
             livingUnits[i].SetTurnIndicatorActive(livingUnits[i] == CurrentUnit);
+    }
+
+
+    private void ResetButtons()
+    {
+        if (!_playerUsedAttackThisTurn) buttonsForAutoDisable[0].EnableButton();
+        if (!_playerUsedMoveThisTurn) buttonsForAutoDisable[1].EnableButton();
     }
 }

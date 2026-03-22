@@ -418,6 +418,8 @@ MonoBehaviour:
   lavaTileType: {fileID: 11400000, guid: 57266ec3f3a9fad42b47f8e1140a67af, type: 2}
   blockedTileType: {fileID: 11400000, guid: c9c32b5ba761ef347beefc16a963279a, type: 2}
   exitTileType: {fileID: 11400000, guid: e3c4a20883ec488418d3c0af5e17985f, type: 2}
+  walkTileType: {fileID: 11400000, guid: 44ccfed7e02b53242acd30e069f00f6b, type: 2}
+  attackTileType: {fileID: 11400000, guid: 412f2f0a3b048ca468f8850f3173bf32, type: 2}
 --- !u!114 &107617980
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -448,9 +450,9 @@ MonoBehaviour:
   attackActionDefinition: {fileID: 11400000, guid: e326ce1f14f585d41a371de1c07488b4, type: 2}
   skipActionDefinition: {fileID: 11400000, guid: 217f79e28585cfa45a36361b58f2a2e8, type: 2}
   buttonsForAutoDisable:
-  - {fileID: 882960546}
   - {fileID: 1334950689}
   - {fileID: 916751553}
+  - {fileID: 882960546}
 --- !u!114 &107617982
 MonoBehaviour:
   m_ObjectHideFlags: 0

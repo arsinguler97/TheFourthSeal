@@ -14,11 +14,22 @@ public class GridManager : MonoBehaviour
     [SerializeField] TileTypeSO blockedTileType;
     [SerializeField] TileTypeSO exitTileType;
 
+    [SerializeField] TileTypeSO walkTileType;
+    [SerializeField] TileTypeSO attackTileType;
+
+
     public int GridWidth => gridWidth;
     public int GridHeight => gridHeight;
 
     TileView[,] _tileViews;
+    TileView[,] _tileViewsWalkGrid;
+    TileView[,] _tileViewsAttackGrid;
+
     Vector3 _gridOriginWorldPosition;
+
+
+
+
 
     void Awake() => I = this;
 
@@ -43,16 +54,33 @@ public class GridManager : MonoBehaviour
     void BuildGrid()
     {
         _tileViews = new TileView[gridWidth, gridHeight];
+        _tileViewsWalkGrid = new TileView[gridWidth, gridHeight];
+        _tileViewsAttackGrid = new TileView[gridWidth, gridHeight];
+
 
         for (int y = 0; y < gridHeight; y++)
         for (int x = 0; x < gridWidth; x++)
         {
-            TileView tileView = Instantiate(tileViewPrefab, transform);
             Vector2Int tileGridPosition = new Vector2Int(x, y);
-            tileView.transform.position = GridToWorld(tileGridPosition);
-            _tileViews[x, y] = tileView;
-        }
+                
+            _tileViews[x, y] = CreateTileView(tileGridPosition);
+            _tileViews[x, y].SetRenderOrder(1);
+            _tileViewsWalkGrid[x, y] = CreateTileView(tileGridPosition);
+            _tileViewsWalkGrid[x, y].SetRenderOrder(2);
+            _tileViewsAttackGrid[x, y] = CreateTileView(tileGridPosition);
+            _tileViewsAttackGrid[x, y].SetRenderOrder(2);
+            }
     }
+
+    
+    private TileView CreateTileView(Vector2Int tileGridPos)
+    {
+        TileView tileView = Instantiate(tileViewPrefab, transform);
+        tileView.transform.position = GridToWorld(tileGridPos);
+        return tileView;
+    }
+
+
 
     public void ApplyConfig(RoomConfig roomConfig)
     {
@@ -70,6 +98,10 @@ public class GridManager : MonoBehaviour
                 _tileViews[x, y].SetSprite(lavaTileType.sprite);
             else
                 _tileViews[x, y].SetSprite(floorTileType.sprite);
+
+
+            _tileViewsWalkGrid[x, y].SetSprite(null);
+            _tileViewsAttackGrid[x, y].SetSprite(null);
         }
     }
 
@@ -107,5 +139,68 @@ public class GridManager : MonoBehaviour
         // Only blocked tiles prevent movement; lava is still treated as a valid floor tile here.
         RoomConfig activeRoomConfig = RunManager.I != null ? RunManager.I.CurrentRoomConfig : null;
         return activeRoomConfig == null || !activeRoomConfig.blockedTiles.Contains(gridPosition);
+    }
+
+
+
+
+    public void SetWalkGrids(Vector2Int unitGridPosition, int unitWalkDistance, int unitAttackRange)
+    {
+        for (int x = -unitWalkDistance - unitAttackRange; x <= unitWalkDistance + unitAttackRange; x++)
+        {
+            for (int y = -unitWalkDistance - unitAttackRange; y <= unitWalkDistance + unitAttackRange; y++)
+            {
+                int tileX = x + unitGridPosition.x;
+                int tileY = y + unitGridPosition.y;
+
+                if (!((tileX >= 0 && tileX < gridWidth) && (tileY >= 0 && tileY < gridHeight))) continue;
+
+                if (_tileViews[tileX, tileY].GetSprite() == blockedTileType.sprite) continue;
+
+                if (Mathf.Abs(x) + Mathf.Abs(y) <= unitWalkDistance)
+                {
+                    _tileViewsWalkGrid[tileX, tileY].SetSprite(walkTileType.sprite);
+                }
+                else if (Mathf.Abs(x) + Mathf.Abs(y) <= unitWalkDistance + unitAttackRange)
+                {
+                    _tileViewsWalkGrid[tileX, tileY].SetSprite(attackTileType.sprite);
+                }
+            }
+        }
+    }
+
+    public void SetAttackGrids(Vector2Int unitGridPosition, int unitAttackRange)
+    {
+        for (int x = -unitAttackRange; x <= unitAttackRange; x++)
+        {
+            for (int y = -unitAttackRange; y <= unitAttackRange; y++)
+            {
+                int tileX = x + unitGridPosition.x;
+                int tileY = y + unitGridPosition.y;
+
+                if (!((tileX >= 0 && tileX < gridWidth) && (tileY >= 0 && tileY < gridHeight))) continue;
+
+                if (_tileViews[tileX, tileY].GetSprite() == blockedTileType.sprite) continue;
+
+                if (Mathf.Abs(x) + Mathf.Abs(y) == unitAttackRange)
+                {
+                    _tileViewsAttackGrid[tileX, tileY].SetSprite(attackTileType.sprite);
+                }
+            }
+        }
+    }
+
+    public void ResetWalkGrids()
+    {
+        for (int x = 0; x < gridWidth; x++)
+            for (int y = 0; y < gridHeight; y++)
+                _tileViewsWalkGrid[x,y].SetSprite(null);
+    }
+
+    public void ResetAttackGrids()
+    {
+        for (int x = 0; x < gridWidth; x++)
+            for (int y = 0; y < gridHeight; y++)
+                _tileViewsAttackGrid[x, y].SetSprite(null);
     }
 }

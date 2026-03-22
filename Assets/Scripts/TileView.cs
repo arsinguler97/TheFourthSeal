@@ -8,4 +8,14 @@ public class TileView : MonoBehaviour
     {
         spriteRenderer.sprite = sprite;
     }
+
+    public void SetRenderOrder(int renderOrder)
+    {
+        spriteRenderer.rendererPriority = renderOrder;
+    }
+
+    public Sprite GetSprite()
+    {
+        return spriteRenderer.sprite;
+    }
 }
