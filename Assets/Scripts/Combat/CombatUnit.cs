@@ -17,6 +17,9 @@ public abstract class CombatUnit : MonoBehaviour
     [SerializeField] Color playerDamagePopupColor = new Color(1f, 0.35f, 0.35f, 1f);
     [SerializeField] Color enemyDamagePopupColor = new Color(1f, 0.95f, 0.35f, 1f);
 
+    [Header("SFX")]
+    [SerializeField] private AudioCue damageSFX;
+
     readonly List<StatModifierData> _activeModifiers = new List<StatModifierData>();
     RuntimeStatBlock _runtimeStats;
     bool _isTurnIndicatorActive;
@@ -100,6 +103,7 @@ public abstract class CombatUnit : MonoBehaviour
         int finalDamage = Mathf.Max(1, reducedDamage);
         CurrentHealth = Mathf.Max(0, CurrentHealth - finalDamage);
         SpawnDamagePopup(finalDamage);
+        AudioManager.Instance.PlaySound(damageSFX);
 
         Debug.Log($"{DisplayName} took {finalDamage} damage. Remaining health: {CurrentHealth}.");
 

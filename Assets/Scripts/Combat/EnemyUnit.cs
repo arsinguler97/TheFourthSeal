@@ -3,8 +3,13 @@ using System.Collections;
 
 public class EnemyUnit : CombatUnit
 {
+    [SerializeField] private AudioCue footstepSFX;
+    [SerializeField] private AudioCue spawnSFX;
+
+    [Header("Enemy General")]
     [SerializeField] float moveSpeedUnitsPerSecond = 8f;
     [SerializeField] EnemyDefinitionSO enemyDefinition;
+
 
     Vector2Int _currentGridPosition;
     EnemyAIController _enemyAI;
@@ -31,6 +36,8 @@ public class EnemyUnit : CombatUnit
 
         if (CombatManager.I != null)
             CombatManager.I.RegisterEnemy(this);
+
+        AudioManager.Instance.PlaySound(spawnSFX);
     }
 
     void Start()
@@ -68,6 +75,7 @@ public class EnemyUnit : CombatUnit
         if (!GridMovementUtility.CanUnitEnterTile(requestedGridPosition, this))
             yield break;
 
+        AudioManager.Instance.PlaySound(footstepSFX);
         _currentGridPosition = requestedGridPosition;
 
         Vector3 destinationWorldPosition = GridManager.I.GridToWorld(requestedGridPosition);

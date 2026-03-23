@@ -28,12 +28,13 @@ public class AudioManager : MonoBehaviour
         }
 
         Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
     private void Start()
     {
         LoadVolume();
-        //PlayMusic(defaultMusic);
+        PlayMusic(defaultMusic);
     }
 
     #region Volume
@@ -95,6 +96,22 @@ public class AudioManager : MonoBehaviour
 
         if (_musicSource.isPlaying) { _musicSource.Pause(); }
         else { _musicSource.Play(); }
+    }
+
+    public void PauseMusic()
+    {
+        if (_musicSource == null) return;
+        if (!_musicSource.isPlaying) return;
+
+        _musicSource.Pause();
+    }
+
+    public void UnPauseMusic()
+    {
+        if (_musicSource == null) return;
+        if (_musicSource.isPlaying) return;
+
+        _musicSource.Play();
     }
 
     private void SetupSource(ref AudioSource source, AudioCue sfx)

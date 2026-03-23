@@ -8,6 +8,8 @@ public class RoomButton : MonoBehaviour
     [SerializeField] Image nodeImage;
     [SerializeField] Color clearedColor = new Color(0.4f, 0.4f, 0.4f, 1f);
 
+    [SerializeField] AudioCue clickSFX;
+
     Color _defaultNodeColor = Color.white;
     bool _isInteractable = true;
 
@@ -25,6 +27,13 @@ public class RoomButton : MonoBehaviour
         if (nodeImage != null)
             _defaultNodeColor = nodeImage.color;
     }
+
+    private void Start()
+    {
+        if (button)
+            button.onClick.AddListener(() => AudioManager.Instance.PlaySound(clickSFX));
+    }
+
 
     public void OpenRoom()
     {

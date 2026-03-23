@@ -8,10 +8,10 @@ public class ButtonAutoDisable : MonoBehaviour
     private void Start()
     {
         TryGetComponent(out _button);
-        _button.onClick.AddListener(AutoDisableSelf);
+        _button.onClick.AddListener(DisableButton);
     }
 
-    public void AutoDisableSelf()
+    public void DisableButton()
     {
         if (_button)
             _button.interactable = false;

@@ -17,6 +17,8 @@ public class RunManager : MonoBehaviour
     public RoomConfig CurrentRoomConfig;
     readonly HashSet<string> _clearedFloorNodeIds = new HashSet<string>();
 
+
+
     void Awake()
     {
         if (I != null && I != this)
@@ -66,5 +68,7 @@ public class RunManager : MonoBehaviour
         PendingFloorNodeId = null;
         CurrentRoomConfig = null;
         _clearedFloorNodeIds.Clear();
+
+        AudioManager.Instance.UnPauseMusic();
     }
 }

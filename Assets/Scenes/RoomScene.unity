@@ -468,9 +468,11 @@ MonoBehaviour:
   roomClearFillRoot: {fileID: 289507264}
   roomClearFillImage: {fileID: 289507266}
   roomClearFillDuration: 2
+  roomClearSFX: {fileID: 11400000, guid: e640e72ab17e0f146afe3b7ccb18d8db, type: 2}
   playerDefeatRoot: {fileID: 734158772}
   playAgainButton: {fileID: 1138662691}
   playAgainEnableDelay: 1
+  gameLossSFX: {fileID: 11400000, guid: 89b0ae8e2db4df0428fc9112c598dc8c, type: 2}
 --- !u!4 &107617983
 Transform:
   m_ObjectHideFlags: 0

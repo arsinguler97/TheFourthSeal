@@ -26,14 +26,8 @@ public class PlayerController : MonoBehaviour
     public bool IsMovingToDestination => _isMovingToDestination;
 
 
-
-
-
-
-
-
-
-
+    // SFX
+    [SerializeField] private AudioCue footstepSFX;
 
 
 
@@ -181,6 +175,8 @@ public class PlayerController : MonoBehaviour
 
     bool TryMoveOneStep(Vector2Int requestedStep)
     {
+        AudioManager.Instance.PlaySound(footstepSFX);
+
         Vector2Int requestedGridPosition = _currentGridPosition + requestedStep;
         return TryStartMoveToGridPosition(requestedGridPosition);
     }

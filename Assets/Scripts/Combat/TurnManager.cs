@@ -199,6 +199,7 @@ public class TurnManager : MonoBehaviour
         }
 
         Debug.Log($"{CurrentUnit.DisplayName} skipped the turn.");
+        DisableActionButtons();
         EndCurrentTurn();
     }
 
@@ -245,13 +246,16 @@ public class TurnManager : MonoBehaviour
 
 
 
+    private void DisableActionButtons()
+    {
+        foreach (ButtonAutoDisable button in buttonsForAutoDisable)
+            button.DisableButton();
+    }
 
     private void ResetActionBarButtons()
     {
         foreach (ButtonAutoDisable button in buttonsForAutoDisable)
-        {
             button.EnableButton();
-        }
     }
 
 

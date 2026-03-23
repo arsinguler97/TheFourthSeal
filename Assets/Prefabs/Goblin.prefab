@@ -171,6 +171,9 @@ MonoBehaviour:
   damagePopupOffset: {x: 0.35, y: 0.5, z: 0}
   playerDamagePopupColor: {r: 1, g: 0.35, b: 0.35, a: 1}
   enemyDamagePopupColor: {r: 1, g: 0.95, b: 0.35, a: 1}
+  damageSFX: {fileID: 11400000, guid: 54be664b08a93c444a4fe9e3b8a0edd8, type: 2}
+  footstepSFX: {fileID: 11400000, guid: 61a6706fa2fc8d744a951abf4b1c6124, type: 2}
+  spawnSFX: {fileID: 11400000, guid: 2e9a8b83a0c69a74c8cf3a084d692d37, type: 2}
   moveSpeedUnitsPerSecond: 2
   enemyDefinition: {fileID: 11400000, guid: e6d2d86e4f01ab14d876b8ffa3c2cc2a, type: 2}
 --- !u!1 &7155097901744101324

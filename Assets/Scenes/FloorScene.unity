@@ -742,6 +742,7 @@ MonoBehaviour:
   button: {fileID: 757295713}
   nodeImage: {fileID: 757295709}
   clearedColor: {r: 0.4, g: 0.4, b: 0.4, a: 1}
+  clickSFX: {fileID: 11400000, guid: 46279d26ae1f7984b94c0edc986ef895, type: 2}
 --- !u!114 &757295713
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -798,6 +799,54 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!1 &819332058
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 819332060}
+  - component: {fileID: 819332059}
+  m_Layer: 0
+  m_Name: AudioManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &819332059
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 819332058}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a02e4c09bce40b54286a93d095cc6684, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AudioManager
+  audioMixer: {fileID: 24100000, guid: e11c1cd8182888a459d7f8411a5586c4, type: 2}
+  musicMixer: {fileID: -5346771738945615252, guid: e11c1cd8182888a459d7f8411a5586c4, type: 2}
+  sfxMixer: {fileID: -4346034124485963336, guid: e11c1cd8182888a459d7f8411a5586c4, type: 2}
+  defaultMusic: {fileID: 11400000, guid: bd2c6995882d09d4e9ad5402bd1e9917, type: 2}
+--- !u!4 &819332060
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 819332058}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1.78376, y: -3.66512, z: 0.92415}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &960766480
 GameObject:
   m_ObjectHideFlags: 0
@@ -947,6 +996,7 @@ MonoBehaviour:
   button: {fileID: 960766487}
   nodeImage: {fileID: 960766483}
   clearedColor: {r: 0.4, g: 0.4, b: 0.4, a: 1}
+  clickSFX: {fileID: 11400000, guid: 46279d26ae1f7984b94c0edc986ef895, type: 2}
 --- !u!114 &960766487
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1322,6 +1372,7 @@ MonoBehaviour:
   button: {fileID: 1081653985}
   nodeImage: {fileID: 1081653981}
   clearedColor: {r: 0.4, g: 0.4, b: 0.4, a: 1}
+  clickSFX: {fileID: 11400000, guid: 46279d26ae1f7984b94c0edc986ef895, type: 2}
 --- !u!114 &1081653985
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1529,6 +1580,7 @@ MonoBehaviour:
   button: {fileID: 1101751982}
   nodeImage: {fileID: 1101751978}
   clearedColor: {r: 0.4, g: 0.4, b: 0.4, a: 1}
+  clickSFX: {fileID: 11400000, guid: 46279d26ae1f7984b94c0edc986ef895, type: 2}
 --- !u!114 &1101751982
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1735,6 +1787,7 @@ MonoBehaviour:
   button: {fileID: 1118871512}
   nodeImage: {fileID: 1118871508}
   clearedColor: {r: 0.4, g: 0.4, b: 0.4, a: 1}
+  clickSFX: {fileID: 11400000, guid: 46279d26ae1f7984b94c0edc986ef895, type: 2}
 --- !u!114 &1118871512
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1941,6 +1994,7 @@ MonoBehaviour:
   button: {fileID: 1216931667}
   nodeImage: {fileID: 1216931663}
   clearedColor: {r: 0.4, g: 0.4, b: 0.4, a: 1}
+  clickSFX: {fileID: 11400000, guid: 46279d26ae1f7984b94c0edc986ef895, type: 2}
 --- !u!114 &1216931667
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2400,6 +2454,7 @@ MonoBehaviour:
   button: {fileID: 1518101043}
   nodeImage: {fileID: 1518101039}
   clearedColor: {r: 0.4, g: 0.4, b: 0.4, a: 1}
+  clickSFX: {fileID: 11400000, guid: 46279d26ae1f7984b94c0edc986ef895, type: 2}
 --- !u!114 &1518101043
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2606,6 +2661,7 @@ MonoBehaviour:
   button: {fileID: 1901893200}
   nodeImage: {fileID: 1901893196}
   clearedColor: {r: 0.4, g: 0.4, b: 0.4, a: 1}
+  clickSFX: {fileID: 11400000, guid: 46279d26ae1f7984b94c0edc986ef895, type: 2}
 --- !u!114 &1901893200
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2886,6 +2942,7 @@ MonoBehaviour:
   button: {fileID: 1962364014}
   nodeImage: {fileID: 1962364010}
   clearedColor: {r: 0.4, g: 0.4, b: 0.4, a: 1}
+  clickSFX: {fileID: 11400000, guid: 46279d26ae1f7984b94c0edc986ef895, type: 2}
 --- !u!114 &1962364014
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3031,3 +3088,4 @@ SceneRoots:
   - {fileID: 248610977}
   - {fileID: 2116709224}
   - {fileID: 538849677}
+  - {fileID: 819332060}

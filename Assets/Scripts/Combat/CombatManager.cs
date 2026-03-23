@@ -12,11 +12,17 @@ public class CombatManager : MonoBehaviour
     [SerializeField] GameObject roomClearFillRoot;
     [SerializeField] Image roomClearFillImage;
     [SerializeField] float roomClearFillDuration = 2f;
+
+    [SerializeField] private AudioCue roomClearSFX;
+
     [Header("Player Defeat")]
     // Defeat UI is enabled when the player dies and stays open until restart.
     [SerializeField] GameObject playerDefeatRoot;
     [SerializeField] Button playAgainButton;
     [SerializeField] float playAgainEnableDelay = 1f;
+
+    [SerializeField] private AudioCue gameLossSFX;
+
 
     public PlayerUnit PlayerUnit { get; private set; }
     readonly List<EnemyUnit> _enemyUnits = new List<EnemyUnit>();
@@ -168,6 +174,7 @@ public class CombatManager : MonoBehaviour
             return;
 
         StartCoroutine(FillRoomClearAndReturnToFloorScene());
+        AudioManager.Instance.PlaySound(roomClearSFX);
     }
 
     public void HandlePlayerDeath(PlayerUnit playerUnit)
@@ -175,6 +182,8 @@ public class CombatManager : MonoBehaviour
         if (_isPlayerDefeatSequenceRunning)
             return;
 
+        AudioManager.Instance.PauseMusic();
+        AudioManager.Instance.PlaySound(gameLossSFX);
         StartCoroutine(ShowPlayerDefeatSequence(playerUnit));
     }
 
