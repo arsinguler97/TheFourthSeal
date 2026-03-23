@@ -53,6 +53,8 @@ public class PlayerController : MonoBehaviour
                 destinationWorldPosition,
                 moveSpeedUnitsPerSecond * Time.deltaTime);
 
+            TryOpenRewardTileAtCurrentPosition();
+
             if (Vector3.Distance(transform.position, destinationWorldPosition) < 0.001f)
             {
                 _currentGridPosition = _destinationGridPosition;
@@ -61,7 +63,6 @@ public class PlayerController : MonoBehaviour
                 if (CombatManager.I != null && _playerUnit != null)
                     CombatManager.I.ApplyLavaDamageIfNeeded(_playerUnit);
 
-                TryOpenRewardTileAtCurrentPosition();
                 LoadFloorSceneWhenStandingOnExit();
             }
 
@@ -199,7 +200,7 @@ public class PlayerController : MonoBehaviour
     void TryOpenRewardTileAtCurrentPosition()
     {
         RoomConfig activeRoomConfig = RunManager.I != null ? RunManager.I.CurrentRoomConfig : null;
-        if (activeRoomConfig == null || activeRoomConfig.isRewardOpened || _currentGridPosition != activeRoomConfig.reward)
+        if (activeRoomConfig == null || activeRoomConfig.isRewardOpened || GridManager.I.WorldToGrid(transform.position) != activeRoomConfig.reward)
             return;
 
         activeRoomConfig.isRewardOpened = true;
