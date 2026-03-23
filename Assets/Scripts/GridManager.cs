@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class GridManager : MonoBehaviour
@@ -167,6 +168,61 @@ public class GridManager : MonoBehaviour
 
     public void SetWalkGrids(Vector2Int unitGridPosition, int unitWalkDistance, int unitAttackRange)
     {
+        // Uses Breadth-First Search https://www.geeksforgeeks.org/dsa/breadth-first-search-or-bfs-for-a-graph/
+        // Loops over the grid from the center point outwards (Player pos is center)
+        Queue<(Vector2Int pos, int cost)> tilesQueued = new();
+        HashSet<Vector2Int> tilesVisited = new();
+
+        tilesQueued.Enqueue((unitGridPosition, 0));
+        tilesVisited.Add(unitGridPosition);
+
+        Vector2Int[] directions =
+        {
+            Vector2Int.up,
+            Vector2Int.down,
+            Vector2Int.left,
+            Vector2Int.right
+        };
+
+        while (tilesQueued.Count > 0)
+        {
+            var (pos, cost) = tilesQueued.Dequeue();
+
+            if (cost <= unitWalkDistance)
+            {
+                _tileViewsWalkGrid[pos.x, pos.y].SetSprite(walkTileType.sprite);
+            }
+            else if (cost <= unitWalkDistance + unitAttackRange)
+            {
+                _tileViewsWalkGrid[pos.x, pos.y].SetSprite(attackTileType.sprite);
+            }
+            else
+                continue;
+
+
+            if (cost >= unitWalkDistance + unitAttackRange)
+                continue;
+
+
+            foreach (Vector2Int dir in directions)
+            {
+                Vector2Int next = pos + dir;
+
+                if (next.x < 0 || next.x >= gridWidth || next.y < 0 || next.y >= gridHeight)
+                    continue;
+
+                if (tilesVisited.Contains(next))
+                    continue;
+
+                if (_tileViews[next.x, next.y].GetSprite() == blockedTileType.sprite)
+                    continue;
+
+                tilesVisited.Add(next);
+                tilesQueued.Enqueue((next, cost + 1));
+            }
+        }
+
+        /* Old Version - Loops over the Grid from corner to corner
         for (int x = -unitWalkDistance - unitAttackRange; x <= unitWalkDistance + unitAttackRange; x++)
         {
             for (int y = -unitWalkDistance - unitAttackRange; y <= unitWalkDistance + unitAttackRange; y++)
@@ -187,7 +243,7 @@ public class GridManager : MonoBehaviour
                     _tileViewsWalkGrid[tileX, tileY].SetSprite(attackTileType.sprite);
                 }
             }
-        }
+        }*/
     }
 
     public void SetAttackGrids(Vector2Int unitGridPosition, int unitAttackRange)
