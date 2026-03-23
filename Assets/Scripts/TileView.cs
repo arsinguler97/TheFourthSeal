@@ -11,7 +11,7 @@ public class TileView : MonoBehaviour
 
     public void SetRenderOrder(int renderOrder)
     {
-        spriteRenderer.rendererPriority = renderOrder;
+        spriteRenderer.sortingOrder = renderOrder;
     }
 
     public Sprite GetSprite()
