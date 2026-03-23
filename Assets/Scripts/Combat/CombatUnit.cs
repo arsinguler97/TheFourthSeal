@@ -14,6 +14,8 @@ public abstract class CombatUnit : MonoBehaviour
     [SerializeField] Color damageFlashColor = new Color(1f, 0.4f, 0.4f, 1f);
     [SerializeField] float damageFlashDuration = 0.12f;
 
+    private HealthBar _healthBar;
+
     [Header("Damage Popup")]
     [SerializeField] GameObject damagePopupPrefab;
     [SerializeField] Vector3 damagePopupOffset = new Vector3(0.35f, 0.5f, 0f);
@@ -59,6 +61,14 @@ public abstract class CombatUnit : MonoBehaviour
 
         if (hitImpactEffect != null)
             hitImpactEffect.gameObject.SetActive(false);
+
+
+        _healthBar = GetComponentInChildren<HealthBar>();
+
+        if (_healthBar == null)
+            Debug.LogError("CombatUnit missing Canvas_Healthbar Prefab!");
+
+        _healthBar.SetMaxHealth(CurrentHealth);
     }
 
     protected virtual void Update()
@@ -79,7 +89,10 @@ public abstract class CombatUnit : MonoBehaviour
         _runtimeStats.SetModifiers(_activeModifiers);
 
         if (CurrentHealth > _runtimeStats.Health)
+        {
             CurrentHealth = _runtimeStats.Health;
+            _healthBar.SetCurrentHealth(CurrentHealth);
+        }
     }
 
     public void SetModifiers(IEnumerable<StatModifierData> modifiers)
@@ -119,6 +132,7 @@ public abstract class CombatUnit : MonoBehaviour
         int reducedDamage = incomingDamage - _runtimeStats.Defence;
         int finalDamage = Mathf.Max(1, reducedDamage);
         CurrentHealth = Mathf.Max(0, CurrentHealth - finalDamage);
+        _healthBar.SetCurrentHealth(CurrentHealth);
         SpawnDamagePopup(finalDamage);
         AudioManager.Instance.PlaySound(damageSFX);
 
@@ -138,12 +152,14 @@ public abstract class CombatUnit : MonoBehaviour
             return;
 
         CurrentHealth += healedAmount;
+        _healthBar.SetCurrentHealth(CurrentHealth);
         Debug.Log($"{DisplayName} healed {healedAmount}. Current health: {CurrentHealth}.");
     }
 
     public void SetCurrentHealth(int currentHealth)
     {
         CurrentHealth = Mathf.Clamp(currentHealth, 0, Mathf.Max(1, _runtimeStats.Health));
+        _healthBar.SetCurrentHealth(CurrentHealth);
     }
 
     void PlayHitImpactEffect()

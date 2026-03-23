@@ -28,7 +28,10 @@ public class PlayerUnit : CombatUnit
 
         if (EquipmentManager.Instance != null)
             EquipmentManager.Instance.ApplyEquippedStatsToPlayer(this);
+    }
 
+    private void Start()
+    {
         if (RunManager.I != null)
             SetCurrentHealth(RunManager.I.GetPlayerHealthForNextRoom(MaxHealth));
     }
