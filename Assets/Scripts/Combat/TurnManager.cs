@@ -156,9 +156,9 @@ public class TurnManager : MonoBehaviour
         GridManager.I.SetAttackGrids(CurrentUnit.GridPosition, CombatManager.I.PlayerUnit.Stats.Range);
     }
 
-    public bool CanPlayerSpendMoveStep()
+    public bool CanPlayerSpendMoveStep(int numberOfMoveSteps)
     {
-        return IsPlayerMoveModeActive && RemainingMoveSteps > 0;
+        return IsPlayerMoveModeActive && RemainingMoveSteps - numberOfMoveSteps >= 0;
     }
 
     public void NotifyPlayerStartedMoveAction()
@@ -174,12 +174,12 @@ public class TurnManager : MonoBehaviour
         UpdateConsumableActionAvailability();
     }
 
-    public void NotifyPlayerMovedOneStep()
+    public void NotifyPlayerMovedStep(int numberOfMoveSteps)
     {
-        if (!CanPlayerSpendMoveStep())
+        if (!CanPlayerSpendMoveStep(numberOfMoveSteps))
             return;
 
-        RemainingMoveSteps--;
+        RemainingMoveSteps -= numberOfMoveSteps;
         if (RemainingMoveSteps <= 0)
             SelectedPlayerActionType = ActionType.None;
     }

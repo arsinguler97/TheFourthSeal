@@ -111,7 +111,7 @@ public class PlayerController : MonoBehaviour
         if (EquipmentManager.Instance != null && !EquipmentManager.Instance.IsLoadoutLockedForCurrentRoom)
             return;
 
-        if (TurnManager.I == null || !TurnManager.I.CanPlayerSpendMoveStep())
+        if (TurnManager.I == null || !TurnManager.I.CanPlayerSpendMoveStep(1))
         {
             Debug.Log("Move input ignored because move mode is not active or no move steps remain.");
             return;
@@ -124,7 +124,7 @@ public class PlayerController : MonoBehaviour
         if (TryMoveOneStep(requestedStep))
         {
             TurnManager.I.NotifyPlayerStartedMoveAction();
-            TurnManager.I.NotifyPlayerMovedOneStep();
+            TurnManager.I.NotifyPlayerMovedStep(1);
         }
     }
 
@@ -237,34 +237,22 @@ public class PlayerController : MonoBehaviour
 
     void TryHandleMoveClick(Vector2Int clickedGridPosition)
     {
-        if (!TurnManager.I.CanPlayerSpendMoveStep())
-            return;
-
-
-
-
-
-
-
         int manhattanDistance = Mathf.Abs(clickedGridPosition.x - _currentGridPosition.x)
             + Mathf.Abs(clickedGridPosition.y - _currentGridPosition.y);
-        if (manhattanDistance != 1)
+        if (manhattanDistance > _playerUnit.Stats.Speed)
         {
             Debug.Log($"Move click ignored because {clickedGridPosition} is not adjacent.");
             return;
         }
 
-
-
-
-
-
+        if (!TurnManager.I.CanPlayerSpendMoveStep(manhattanDistance))
+            return;
 
         Vector2Int requestedStep = clickedGridPosition - _currentGridPosition;
         if (TryMoveOneStep(requestedStep))
         {
             TurnManager.I.NotifyPlayerStartedMoveAction();
-            TurnManager.I.NotifyPlayerMovedOneStep();
+            TurnManager.I.NotifyPlayerMovedStep(manhattanDistance);
         }
     }
 
