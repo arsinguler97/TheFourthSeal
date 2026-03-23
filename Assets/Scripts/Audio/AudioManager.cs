@@ -80,7 +80,7 @@ public class AudioManager : MonoBehaviour
 
         public void PlayRandomSound(List<AudioCue> listOfSFX)
         {
-            PlaySound(listOfSFX[Random.Range(0, listOfSFX.Count - 1)]);
+            PlaySound(listOfSFX[Random.Range(0, listOfSFX.Count)]);
         }
 
         public void StopMusic()
