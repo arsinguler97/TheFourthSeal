@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 public class EnemyCardUI : MonoBehaviour
@@ -119,13 +120,12 @@ public class EnemyCardUI : MonoBehaviour
         if (Camera.main == null)
             return;
 
-        Vector3 mouseWorldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector3 mouseWorldPosition = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
         mouseWorldPosition.z = 0f;
 
         Collider2D hoveredCollider = Physics2D.OverlapPoint(mouseWorldPosition);
-        EnemyHoverCardTarget hoveredTarget = hoveredCollider != null
-            ? hoveredCollider.GetComponentInParent<EnemyHoverCardTarget>()
-            : null;
+
+        EnemyHoverCardTarget hoveredTarget = hoveredCollider != null ? hoveredCollider.GetComponentInParent<EnemyHoverCardTarget>() : null;
 
         EnemyUnit hoveredEnemy = hoveredTarget != null ? hoveredTarget.EnemyUnit : null;
         if (hoveredEnemy != null && hoveredEnemy.IsAlive)
