@@ -105,17 +105,11 @@ public class RoomGenerator : MonoBehaviour
 
     void SpawnEnemiesAtGridPositions(List<Vector2Int> spawnGridPositions)
     {
-        // Existing enemies are reused when possible so repeated room loads do not instantiate endlessly.
+        _spawnedEnemyUnits.RemoveAll(enemyUnit => enemyUnit == null);
+
+        // Spawn exactly the amount this room asks for; extra scene enemies are disabled.
         while (_spawnedEnemyUnits.Count < spawnGridPositions.Count)
         {
-            EnemyUnit enemyUnit = FindFirstObjectByType<EnemyUnit>();
-
-            if (enemyUnit != null && !_spawnedEnemyUnits.Contains(enemyUnit))
-            {
-                _spawnedEnemyUnits.Add(enemyUnit);
-                continue;
-            }
-
             if (enemyUnitPrefab == null)
                 break;
 

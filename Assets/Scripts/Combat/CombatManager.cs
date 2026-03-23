@@ -14,6 +14,7 @@ public class CombatManager : MonoBehaviour
     [SerializeField] float roomClearFillDuration = 2f;
 
     [SerializeField] private AudioCue roomClearSFX;
+    [SerializeField] int lavaDamage = 1;
 
     [Header("Player Defeat")]
     // Defeat UI is enabled when the player dies and stays open until restart.
@@ -157,6 +158,17 @@ public class CombatManager : MonoBehaviour
         return false;
     }
 
+    public void ApplyLavaDamageIfNeeded(CombatUnit unit)
+    {
+        if (unit == null || !unit.IsAlive || GridManager.I == null)
+            return;
+
+        if (!GridManager.I.IsLavaTile(unit.GridPosition))
+            return;
+
+        unit.ReceiveDamage(Mathf.Max(1, lavaDamage));
+    }
+
     public bool IsStraightLineTargetInRange(Vector2Int origin, Vector2Int target, int range)
     {
         bool sameColumn = origin.x == target.x;
@@ -195,12 +207,20 @@ public class CombatManager : MonoBehaviour
         if (RunManager.I != null)
             RunManager.I.ResetRunState();
 
+        if (EquipmentManager.Instance != null)
+            EquipmentManager.Instance.ResetEquipmentState();
+
         SceneManager.LoadScene("FloorScene");
     }
 
     IEnumerator FillRoomClearAndReturnToFloorScene()
     {
         _isRoomClearTransitionRunning = true;
+
+        if (RunManager.I != null && PlayerUnit != null)
+            RunManager.I.SavePlayerHealth(PlayerUnit.CurrentHealth);
+
+        TryGrantRoomRewardBeforeLeaving();
 
         // Advancing floor state happens before the scene swap so the next FloorScene can resolve the new node.
         if (RunManager.I != null)
@@ -230,6 +250,23 @@ public class CombatManager : MonoBehaviour
 
         roomClearFillImage.fillAmount = 1f;
         SceneManager.LoadScene("FloorScene");
+    }
+
+    void TryGrantRoomRewardBeforeLeaving()
+    {
+        if (RunManager.I == null || EquipmentManager.Instance == null)
+            return;
+
+        RoomConfig activeRoomConfig = RunManager.I.CurrentRoomConfig;
+        if (activeRoomConfig == null || activeRoomConfig.hasGrantedExitReward)
+            return;
+
+        bool shouldGrantReward = activeRoomConfig.isRewardOpened || !HasLivingEnemies();
+        if (!shouldGrantReward)
+            return;
+
+        if (EquipmentManager.Instance.TryGrantRandomReward())
+            activeRoomConfig.hasGrantedExitReward = true;
     }
 
     IEnumerator ShowPlayerDefeatSequence(PlayerUnit playerUnit)

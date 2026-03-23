@@ -12,8 +12,9 @@ GameObject:
   - component: {fileID: 6007536282010359694}
   - component: {fileID: 1014062100297672555}
   - component: {fileID: -5712125358562796877}
+  - component: {fileID: -4862740895965986398}
   m_Layer: 7
-  m_Name: Goblin
+  m_Name: Enemy
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -84,7 +85,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 10
-  m_Sprite: {fileID: 21300000, guid: bd91985042c383842af3e0e914228dcf, type: 3}
+  m_Sprite: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -92,7 +93,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!61 &1014062100297672555
@@ -139,7 +140,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 5.12, y: 5.12}
+  m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
 --- !u!114 &-5712125358562796877
 MonoBehaviour:
@@ -176,6 +177,19 @@ MonoBehaviour:
   spawnSFX: {fileID: 11400000, guid: 2e9a8b83a0c69a74c8cf3a084d692d37, type: 2}
   moveSpeedUnitsPerSecond: 2
   enemyDefinition: {fileID: 11400000, guid: e6d2d86e4f01ab14d876b8ffa3c2cc2a, type: 2}
+  visualSpriteRenderer: {fileID: 6007536282010359694}
+--- !u!114 &-4862740895965986398
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3946341566760763454}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0fcf023d7f60fd4b81fa89fdb2669a2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyHoverCardTarget
 --- !u!1 &7155097901744101324
 GameObject:
   m_ObjectHideFlags: 0

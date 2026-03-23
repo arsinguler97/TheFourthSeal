@@ -7,6 +7,12 @@ public class PlayerUnit : CombatUnit
     [SerializeField] GameObject deathVfxPrefab;
     [SerializeField] Vector3 deathVfxOffset = new Vector3(0f, 0.2f, 0f);
 
+    [Header("Action VFX")]
+    [SerializeField] GameObject consumableUseVfxPrefab;
+    [SerializeField] Vector3 consumableUseVfxOffset = new Vector3(0f, 0.2f, 0f);
+    [SerializeField] GameObject rewardOpenVfxPrefab;
+    [SerializeField] Vector3 rewardOpenVfxOffset = new Vector3(0f, 0.2f, 0f);
+
     PlayerController _playerController;
 
     public override Vector2Int GridPosition => _playerController != null ? _playerController.CurrentGridPosition : Vector2Int.zero;
@@ -19,6 +25,34 @@ public class PlayerUnit : CombatUnit
 
         if (CombatManager.I != null)
             CombatManager.I.RegisterPlayer(this);
+
+        if (EquipmentManager.Instance != null)
+            EquipmentManager.Instance.ApplyEquippedStatsToPlayer(this);
+
+        if (RunManager.I != null)
+            SetCurrentHealth(RunManager.I.GetPlayerHealthForNextRoom(MaxHealth));
+    }
+
+    protected override int GetAttackDieSize()
+    {
+        if (EquipmentManager.Instance != null)
+        {
+            int weaponAttackOverride = EquipmentManager.Instance.GetEquippedWeaponAttackOverride();
+            if (weaponAttackOverride > 0)
+                return weaponAttackOverride;
+        }
+
+        return base.GetAttackDieSize();
+    }
+
+    public void PlayConsumableUseVfx()
+    {
+        PlayOneShotVfx(consumableUseVfxPrefab, consumableUseVfxOffset);
+    }
+
+    public void PlayRewardOpenVfx()
+    {
+        PlayOneShotVfx(rewardOpenVfxPrefab, rewardOpenVfxOffset);
     }
 
     protected override void HandleDeath()
@@ -30,5 +64,11 @@ public class PlayerUnit : CombatUnit
             CombatManager.I.HandlePlayerDeath(this);
 
         base.HandleDeath();
+    }
+
+    void PlayOneShotVfx(GameObject vfxPrefab, Vector3 offset)
+    {
+        if (vfxPrefab != null)
+            Instantiate(vfxPrefab, transform.position + offset, Quaternion.identity);
     }
 }

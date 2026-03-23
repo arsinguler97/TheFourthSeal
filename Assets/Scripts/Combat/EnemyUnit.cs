@@ -9,6 +9,7 @@ public class EnemyUnit : CombatUnit
     [Header("Enemy General")]
     [SerializeField] float moveSpeedUnitsPerSecond = 8f;
     [SerializeField] EnemyDefinitionSO enemyDefinition;
+    [SerializeField] SpriteRenderer visualSpriteRenderer;
 
 
     Vector2Int _currentGridPosition;
@@ -29,6 +30,12 @@ public class EnemyUnit : CombatUnit
         }
 
         base.Awake();
+
+        if (visualSpriteRenderer == null)
+            visualSpriteRenderer = GetComponentInChildren<SpriteRenderer>();
+
+        if (visualSpriteRenderer != null && enemyDefinition != null && enemyDefinition.worldSprite != null)
+            visualSpriteRenderer.sprite = enemyDefinition.worldSprite;
 
         _enemyAI = GetComponent<EnemyAIController>();
         if (_enemyAI == null)
@@ -89,6 +96,9 @@ public class EnemyUnit : CombatUnit
         }
 
         transform.position = destinationWorldPosition;
+
+        if (CombatManager.I != null)
+            CombatManager.I.ApplyLavaDamageIfNeeded(this);
     }
 
     public override Sprite GetTurnOrderSprite()

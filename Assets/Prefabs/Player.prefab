@@ -5261,6 +5261,10 @@ MonoBehaviour:
   damageSFX: {fileID: 11400000, guid: 54be664b08a93c444a4fe9e3b8a0edd8, type: 2}
   deathVfxPrefab: {fileID: 5985634496115995773, guid: 463cf9f7af4680240898f6aeba3fe3e6, type: 3}
   deathVfxOffset: {x: 0, y: 0.2, z: 0}
+  consumableUseVfxPrefab: {fileID: 6855314210357232287, guid: 7c2a9b83b809a0848915fabd9596b68b, type: 3}
+  consumableUseVfxOffset: {x: 0, y: 0.2, z: 0}
+  rewardOpenVfxPrefab: {fileID: 8791802859087666345, guid: ae07f2a45f14a82428409cfe410e6002, type: 3}
+  rewardOpenVfxOffset: {x: 0, y: 0.2, z: 0}
 --- !u!1 &4809646789632825486
 GameObject:
   m_ObjectHideFlags: 0

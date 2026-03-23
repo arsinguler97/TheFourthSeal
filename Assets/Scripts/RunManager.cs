@@ -12,6 +12,7 @@ public class RunManager : MonoBehaviour
     public int SelectedRoomEnemyCount { get; private set; }
     public string CurrentFloorNodeId { get; private set; } = StartFloorNodeId;
     public string PendingFloorNodeId { get; private set; }
+    public int SavedPlayerHealth { get; private set; } = -1;
 
     // Holds the concrete positions generated for the currently active room.
     public RoomConfig CurrentRoomConfig;
@@ -66,9 +67,23 @@ public class RunManager : MonoBehaviour
         SelectedRoomEnemyCount = 0;
         CurrentFloorNodeId = StartFloorNodeId;
         PendingFloorNodeId = null;
+        SavedPlayerHealth = -1;
         CurrentRoomConfig = null;
         _clearedFloorNodeIds.Clear();
 
         AudioManager.Instance.UnPauseMusic();
+    }
+
+    public void SavePlayerHealth(int currentHealth)
+    {
+        SavedPlayerHealth = Mathf.Max(0, currentHealth);
+    }
+
+    public int GetPlayerHealthForNextRoom(int maxHealth)
+    {
+        if (SavedPlayerHealth < 0)
+            return Mathf.Max(1, maxHealth);
+
+        return Mathf.Clamp(SavedPlayerHealth + 2, 1, Mathf.Max(1, maxHealth));
     }
 }

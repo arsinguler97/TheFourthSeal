@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using System.Collections;
 
 public abstract class CombatUnit : MonoBehaviour
 {
@@ -10,6 +11,8 @@ public abstract class CombatUnit : MonoBehaviour
     [SerializeField] float turnIndicatorPulseSpeed = 3f;
     [SerializeField] float turnIndicatorMinAlpha = 0.25f;
     [SerializeField] float turnIndicatorMaxAlpha = 1f;
+    [SerializeField] Color damageFlashColor = new Color(1f, 0.4f, 0.4f, 1f);
+    [SerializeField] float damageFlashDuration = 0.12f;
 
     [Header("Damage Popup")]
     [SerializeField] GameObject damagePopupPrefab;
@@ -23,12 +26,17 @@ public abstract class CombatUnit : MonoBehaviour
     readonly List<StatModifierData> _activeModifiers = new List<StatModifierData>();
     RuntimeStatBlock _runtimeStats;
     bool _isTurnIndicatorActive;
+    Coroutine _damageFlashRoutine;
+    SpriteRenderer _damageFlashRenderer;
+    Color _defaultDamageFlashRendererColor = Color.white;
 
     public string DisplayName => displayName;
     public int CurrentHealth { get; private set; }
     public bool IsAlive => CurrentHealth > 0;
     public RuntimeStatBlock Stats => _runtimeStats;
     public int LastInitiativeRoll { get; private set; }
+    public int AttackDieSize => GetAttackDieSize();
+    public int MaxHealth => _runtimeStats.Health;
 
     public abstract Vector2Int GridPosition { get; }
 
@@ -45,6 +53,9 @@ public abstract class CombatUnit : MonoBehaviour
         RefreshStats();
         CurrentHealth = Mathf.Max(1, _runtimeStats.Health);
         SetTurnIndicatorActive(false);
+        _damageFlashRenderer = ResolveDamageFlashRenderer();
+        if (_damageFlashRenderer != null)
+            _defaultDamageFlashRendererColor = _damageFlashRenderer.color;
 
         if (hitImpactEffect != null)
             hitImpactEffect.gameObject.SetActive(false);
@@ -83,8 +94,13 @@ public abstract class CombatUnit : MonoBehaviour
 
     public int GetAttackDamage()
     {
-        int rolledAttackDamage = Random.Range(1, _runtimeStats.Attack + 1);
+        int rolledAttackDamage = Random.Range(1, GetAttackDieSize() + 1);
         return rolledAttackDamage + _runtimeStats.Strength;
+    }
+
+    protected virtual int GetAttackDieSize()
+    {
+        return Mathf.Max(1, _runtimeStats.Attack);
     }
 
     public int RollInitiative()
@@ -97,6 +113,7 @@ public abstract class CombatUnit : MonoBehaviour
     public void ReceiveDamage(int incomingDamage)
     {
         PlayHitImpactEffect();
+        PlayDamageFlash();
 
         // Defence can reduce damage, but every successful hit still deals at least 1.
         int reducedDamage = incomingDamage - _runtimeStats.Defence;
@@ -109,6 +126,24 @@ public abstract class CombatUnit : MonoBehaviour
 
         if (!IsAlive)
             HandleDeath();
+    }
+
+    public void Heal(int amount)
+    {
+        if (amount <= 0 || !IsAlive)
+            return;
+
+        int healedAmount = Mathf.Min(amount, Mathf.Max(0, _runtimeStats.Health - CurrentHealth));
+        if (healedAmount <= 0)
+            return;
+
+        CurrentHealth += healedAmount;
+        Debug.Log($"{DisplayName} healed {healedAmount}. Current health: {CurrentHealth}.");
+    }
+
+    public void SetCurrentHealth(int currentHealth)
+    {
+        CurrentHealth = Mathf.Clamp(currentHealth, 0, Mathf.Max(1, _runtimeStats.Health));
     }
 
     void PlayHitImpactEffect()
@@ -151,6 +186,40 @@ public abstract class CombatUnit : MonoBehaviour
         SetTurnIndicatorActive(false);
         Debug.Log($"{DisplayName} died.");
         gameObject.SetActive(false);
+    }
+
+    void PlayDamageFlash()
+    {
+        if (_damageFlashRenderer == null)
+            return;
+
+        if (_damageFlashRoutine != null)
+            StopCoroutine(_damageFlashRoutine);
+
+        _damageFlashRoutine = StartCoroutine(DamageFlashRoutine());
+    }
+
+    IEnumerator DamageFlashRoutine()
+    {
+        _damageFlashRenderer.color = Color.Lerp(_defaultDamageFlashRendererColor, damageFlashColor, 0.65f);
+        yield return new WaitForSeconds(damageFlashDuration);
+
+        if (_damageFlashRenderer != null)
+            _damageFlashRenderer.color = _defaultDamageFlashRendererColor;
+
+        _damageFlashRoutine = null;
+    }
+
+    SpriteRenderer ResolveDamageFlashRenderer()
+    {
+        SpriteRenderer[] spriteRenderers = GetComponentsInChildren<SpriteRenderer>(true);
+        for (int i = 0; i < spriteRenderers.Length; i++)
+        {
+            if (spriteRenderers[i] != null && spriteRenderers[i] != turnIndicatorRenderer)
+                return spriteRenderers[i];
+        }
+
+        return null;
     }
 
     public void SetTurnIndicatorActive(bool isActive)

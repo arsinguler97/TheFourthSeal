@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class TurnManager : MonoBehaviour
 {
@@ -11,13 +12,18 @@ public class TurnManager : MonoBehaviour
     [SerializeField] ActionDefinitionSO moveActionDefinition;
     [SerializeField] ActionDefinitionSO attackActionDefinition;
     [SerializeField] ActionDefinitionSO skipActionDefinition;
+    [SerializeField] ActionDefinitionSO consumableActionDefinition;
     [SerializeField] ButtonAutoDisable[] buttonsForAutoDisable;
+    [SerializeField] TMP_Text actionPointText;
 
     readonly List<CombatUnit> _turnOrder = new List<CombatUnit>();
     int _currentTurnIndex = -1;
     bool _playerUsedMoveThisTurn;
     bool _playerUsedAttackThisTurn;
     bool _isResolvingEnemyTurn;
+    bool _isWaitingForLoadoutSelection;
+    Button _runtimeConsumableActionButton;
+    Image _runtimeConsumableActionIconImage;
 
     public bool IsPlayerTurn => CurrentUnit is PlayerUnit;
     public ActionType SelectedPlayerActionType { get; private set; } = ActionType.None;
@@ -35,10 +41,23 @@ public class TurnManager : MonoBehaviour
         }
 
         I = this;
+
+        if (EquipmentManager.Instance != null)
+            EquipmentManager.Instance.OnLoadoutSlotChanged += HandleLoadoutSlotChanged;
+    }
+
+    void Start()
+    {
+        EnsureConsumableActionButtonBound();
+        UpdateConsumableActionAvailability();
+        UpdateActionPointUI();
     }
 
     void OnDestroy()
     {
+        if (EquipmentManager.Instance != null)
+            EquipmentManager.Instance.OnLoadoutSlotChanged -= HandleLoadoutSlotChanged;
+
         if (I == this)
             I = null;
     }
@@ -85,6 +104,7 @@ public class TurnManager : MonoBehaviour
         if (CurrentActionPoints < moveActionDefinition.actionCost)
         {
             Debug.Log("Move action ignored because there are not enough action points.");
+            UpdateConsumableActionAvailability();
             return;
         }
 
@@ -124,6 +144,7 @@ public class TurnManager : MonoBehaviour
         if (CurrentActionPoints < attackActionDefinition.actionCost)
         {
             Debug.Log("Attack action ignored because there are not enough action points.");
+            UpdateConsumableActionAvailability();
             return;
         }
 
@@ -149,6 +170,8 @@ public class TurnManager : MonoBehaviour
         _playerUsedMoveThisTurn = true;
         CurrentActionPoints = Mathf.Max(0, CurrentActionPoints - moveActionDefinition.actionCost);
         Debug.Log($"Move action spent {moveActionDefinition.actionCost} AP. Remaining AP: {CurrentActionPoints}.");
+        UpdateActionPointUI();
+        UpdateConsumableActionAvailability();
     }
 
     public void NotifyPlayerMovedOneStep()
@@ -172,9 +195,11 @@ public class TurnManager : MonoBehaviour
             _playerUsedAttackThisTurn = true;
             CurrentActionPoints = Mathf.Max(0, CurrentActionPoints - attackActionDefinition.actionCost);
             Debug.Log($"Attack action spent {attackActionDefinition.actionCost} AP. Remaining AP: {CurrentActionPoints}.");
+            UpdateActionPointUI();
         }
 
         SelectedPlayerActionType = ActionType.None;
+        UpdateConsumableActionAvailability();
     }
 
     public void ExecuteSkipAction()
@@ -203,6 +228,67 @@ public class TurnManager : MonoBehaviour
         EndCurrentTurn();
     }
 
+    public void ExecuteConsumableAction()
+    {
+        GridManager.I.ResetWalkGrids();
+        GridManager.I.ResetAttackGrids();
+
+        if (!IsPlayerTurn)
+            return;
+
+        if (consumableActionDefinition == null)
+        {
+            Debug.LogWarning("TurnManager needs a HealthPotion ActionDefinitionSO assigned.");
+            UpdateConsumableActionAvailability();
+            return;
+        }
+
+        if (consumableActionDefinition.actionType != ActionType.HealthPotion)
+        {
+            Debug.LogWarning($"Consumable action asset '{consumableActionDefinition.name}' is configured as {consumableActionDefinition.actionType}.");
+            UpdateConsumableActionAvailability();
+            return;
+        }
+
+        if (CurrentActionPoints < consumableActionDefinition.actionCost)
+        {
+            Debug.Log("Consumable action ignored because there are not enough action points.");
+            UpdateConsumableActionAvailability();
+            return;
+        }
+
+        if (CombatManager.I == null || CombatManager.I.PlayerUnit == null || EquipmentManager.Instance == null)
+        {
+            UpdateConsumableActionAvailability();
+            return;
+        }
+
+        ItemSO consumableItem = EquipmentManager.Instance.GetEquippedConsumable();
+        if (consumableItem == null)
+        {
+            UpdateConsumableActionAvailability();
+            return;
+        }
+
+        int healAmount = Mathf.Max(0, consumableItem.consumableHealAmount);
+        if (healAmount <= 0)
+        {
+            Debug.LogWarning($"Consumable '{consumableItem.itemName}' has no heal amount configured.");
+            UpdateConsumableActionAvailability();
+            return;
+        }
+
+        CombatManager.I.PlayerUnit.Heal(healAmount);
+        CombatManager.I.PlayerUnit.PlayConsumableUseVfx();
+        CurrentActionPoints = Mathf.Max(0, CurrentActionPoints - consumableActionDefinition.actionCost);
+        UpdateActionPointUI();
+
+        EquipmentManager.Instance.ConsumeEquippedConsumable();
+        SelectedPlayerActionType = ActionType.None;
+        Debug.Log($"Used consumable '{consumableItem.itemName}' for {healAmount} healing. Remaining AP: {CurrentActionPoints}.");
+        UpdateConsumableActionAvailability();
+    }
+
     void BeginCurrentTurn()
     {
         SelectedPlayerActionType = ActionType.None;
@@ -212,6 +298,18 @@ public class TurnManager : MonoBehaviour
         if (CurrentUnit == null)
             return;
 
+        if (EquipmentManager.Instance != null
+            && !EquipmentManager.Instance.IsLoadoutLockedForCurrentRoom
+            && EquipmentManager.Instance.HasPendingLoadoutChoice)
+        {
+            _isWaitingForLoadoutSelection = true;
+            DisableActionButtons();
+            UpdateActionPointUI();
+            return;
+        }
+
+        _isWaitingForLoadoutSelection = false;
+
         Debug.Log($"{CurrentUnit.DisplayName} started the turn.");
 
         if (CurrentUnit is PlayerUnit playerUnit)
@@ -220,6 +318,8 @@ public class TurnManager : MonoBehaviour
             _playerUsedMoveThisTurn = false;
             _playerUsedAttackThisTurn = false;
             Debug.Log($"Player turn started with {CurrentActionPoints} action points.");
+            UpdateActionPointUI();
+            UpdateConsumableActionAvailability();
 
 
 
@@ -250,12 +350,17 @@ public class TurnManager : MonoBehaviour
     {
         foreach (ButtonAutoDisable button in buttonsForAutoDisable)
             button.DisableButton();
+
+        if (_runtimeConsumableActionButton != null)
+            _runtimeConsumableActionButton.interactable = false;
     }
 
     private void ResetActionBarButtons()
     {
         foreach (ButtonAutoDisable button in buttonsForAutoDisable)
             button.EnableButton();
+
+        UpdateConsumableActionAvailability();
     }
 
 
@@ -264,6 +369,10 @@ public class TurnManager : MonoBehaviour
     void EndCurrentTurn()
     {
         _isResolvingEnemyTurn = false;
+
+        if (CombatManager.I != null && CurrentUnit != null && CurrentUnit.IsAlive)
+            CombatManager.I.ApplyLavaDamageIfNeeded(CurrentUnit);
+
         RemoveDeadUnitsFromTurnOrder();
 
         if (CombatManager.I != null && (CombatManager.I.PlayerUnit == null || !CombatManager.I.PlayerUnit.IsAlive))
@@ -289,6 +398,7 @@ public class TurnManager : MonoBehaviour
         SelectedPlayerActionType = ActionType.None;
         RemainingMoveSteps = 0;
         CurrentActionPoints = 0;
+        UpdateActionPointUI();
         UpdateTurnIndicators();
         NotifyTurnOrderChanged();
         BeginCurrentTurn();
@@ -297,7 +407,17 @@ public class TurnManager : MonoBehaviour
     public void StopCombatFlow()
     {
         _isResolvingEnemyTurn = false;
+        _isWaitingForLoadoutSelection = false;
         ClearTurnState();
+    }
+
+    public void ResumeCurrentTurnAfterLoadoutSelection()
+    {
+        if (!_isWaitingForLoadoutSelection || CurrentUnit == null)
+            return;
+
+        _isWaitingForLoadoutSelection = false;
+        BeginCurrentTurn();
     }
 
     void RemoveDeadUnitsFromTurnOrder()
@@ -343,6 +463,7 @@ public class TurnManager : MonoBehaviour
         SelectedPlayerActionType = ActionType.None;
         RemainingMoveSteps = 0;
         CurrentActionPoints = 0;
+        UpdateActionPointUI();
 
         DebugTurnOrder();
         UpdateTurnIndicators();
@@ -373,6 +494,7 @@ public class TurnManager : MonoBehaviour
         SelectedPlayerActionType = ActionType.None;
         RemainingMoveSteps = 0;
         CurrentActionPoints = 0;
+        UpdateActionPointUI();
         UpdateTurnIndicators();
         NotifyTurnOrderChanged();
     }
@@ -398,5 +520,98 @@ public class TurnManager : MonoBehaviour
     {
         if (!_playerUsedAttackThisTurn) buttonsForAutoDisable[0].EnableButton();
         if (!_playerUsedMoveThisTurn) buttonsForAutoDisable[1].EnableButton();
+        UpdateConsumableActionAvailability();
+    }
+
+    void HandleLoadoutSlotChanged(LoadoutSlotType slotType)
+    {
+        if (slotType != LoadoutSlotType.Consumable)
+            return;
+
+        UpdateConsumableActionAvailability();
+    }
+
+    void UpdateConsumableActionAvailability()
+    {
+        EnsureConsumableActionButtonBound();
+
+        if (_runtimeConsumableActionButton == null)
+            return;
+
+        ItemSO consumableItem = EquipmentManager.Instance != null ? EquipmentManager.Instance.GetEquippedConsumable() : null;
+        bool hasConsumable = consumableItem != null;
+
+        if (_runtimeConsumableActionIconImage != null)
+        {
+            Sprite actionIcon = hasConsumable
+                ? (consumableItem.icon != null ? consumableItem.icon : consumableItem.card)
+                : null;
+            _runtimeConsumableActionIconImage.sprite = actionIcon;
+            _runtimeConsumableActionIconImage.enabled = actionIcon != null;
+            _runtimeConsumableActionIconImage.preserveAspect = true;
+        }
+
+        if (!hasConsumable)
+        {
+            _runtimeConsumableActionButton.interactable = false;
+            return;
+        }
+
+        bool canUseConsumable = IsPlayerTurn
+            && !_isWaitingForLoadoutSelection
+            && consumableActionDefinition != null
+            && CurrentActionPoints >= consumableActionDefinition.actionCost;
+
+        if (canUseConsumable)
+            _runtimeConsumableActionButton.interactable = true;
+        else
+            _runtimeConsumableActionButton.interactable = false;
+    }
+
+    void UpdateActionPointUI()
+    {
+        if (actionPointText != null)
+            actionPointText.text = $"Action Points: {CurrentActionPoints}";
+    }
+
+    void EnsureConsumableActionButtonBound()
+    {
+        if (_runtimeConsumableActionButton != null)
+            return;
+
+        GameObject actionBarObject = GameObject.Find("ActionBar");
+        if (actionBarObject == null)
+            return;
+
+        Button[] actionButtons = actionBarObject.GetComponentsInChildren<Button>(true);
+        for (int i = 0; i < actionButtons.Length; i++)
+        {
+            Button button = actionButtons[i];
+            if (button == null)
+                continue;
+
+            if (button.onClick.GetPersistentEventCount() != 0)
+                continue;
+
+            _runtimeConsumableActionButton = button;
+            _runtimeConsumableActionButton.onClick.RemoveListener(ExecuteConsumableAction);
+            _runtimeConsumableActionButton.onClick.AddListener(ExecuteConsumableAction);
+            _runtimeConsumableActionIconImage = ResolveActionButtonIcon(button);
+            break;
+        }
+    }
+
+    Image ResolveActionButtonIcon(Button button)
+    {
+        Image[] images = button.GetComponentsInChildren<Image>(true);
+        for (int i = 0; i < images.Length; i++)
+        {
+            if (images[i] == null || images[i].gameObject == button.gameObject)
+                continue;
+
+            return images[i];
+        }
+
+        return button.targetGraphic as Image;
     }
 }

@@ -27,7 +27,7 @@ public class TEMPFORTEST : MonoBehaviour
         {
             if (EquipmentManager.Instance)
             {
-                EquipmentManager.Instance.TryEquip(item);
+                EquipmentManager.Instance.TryStoreRewardInSpare(item);
             }
         }
     }

@@ -5,7 +5,7 @@ public class EnemyDefinitionSO : ScriptableObject
 {
     public string displayName = "Enemy";
     public EnemyStatBlockData baseStats = new EnemyStatBlockData();
+    public Sprite worldSprite;
     public Sprite turnOrderIcon;
-    public Sprite cardArt;
     [TextArea] public string description;
 }

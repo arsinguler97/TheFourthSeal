@@ -28,11 +28,14 @@ public class PlayerController : MonoBehaviour
 
     // SFX
     [SerializeField] private AudioCue footstepSFX;
+    PlayerUnit _playerUnit;
 
 
 
     void Start()
     {
+        _playerUnit = GetComponent<PlayerUnit>();
+
         // Keep the player snapped to the same grid cell and world position when the room first loads.
         _destinationGridPosition = _currentGridPosition;
         transform.position = GridManager.I.GridToWorld(_currentGridPosition);
@@ -54,6 +57,11 @@ public class PlayerController : MonoBehaviour
             {
                 _currentGridPosition = _destinationGridPosition;
                 _isMovingToDestination = false;
+
+                if (CombatManager.I != null && _playerUnit != null)
+                    CombatManager.I.ApplyLavaDamageIfNeeded(_playerUnit);
+
+                TryOpenRewardTileAtCurrentPosition();
                 LoadFloorSceneWhenStandingOnExit();
             }
 
@@ -100,6 +108,9 @@ public class PlayerController : MonoBehaviour
         if (!context.performed || _isMovingToDestination)
             return;
 
+        if (EquipmentManager.Instance != null && !EquipmentManager.Instance.IsLoadoutLockedForCurrentRoom)
+            return;
+
         if (TurnManager.I == null || !TurnManager.I.CanPlayerSpendMoveStep())
         {
             Debug.Log("Move input ignored because move mode is not active or no move steps remain.");
@@ -126,12 +137,18 @@ public class PlayerController : MonoBehaviour
     public void OnClick(InputAction.CallbackContext context)
     {
         // Do not move immediately here; just queue the click so gameplay stays in one place: Update.
+        if (EquipmentManager.Instance != null && !EquipmentManager.Instance.IsLoadoutLockedForCurrentRoom)
+            return;
+
         if (context.performed) _hasPendingClickMove = true;
     }
 
     public void OnAttack(InputAction.CallbackContext context)
     {
         if (!context.performed || TurnManager.I == null)
+            return;
+
+        if (EquipmentManager.Instance != null && !EquipmentManager.Instance.IsLoadoutLockedForCurrentRoom)
             return;
 
         TurnManager.I.SelectAttackAction();
@@ -147,6 +164,12 @@ public class PlayerController : MonoBehaviour
     {
         if (TurnManager.I != null)
             TurnManager.I.SelectAttackAction();
+    }
+
+    public void UseConsumableAction()
+    {
+        if (TurnManager.I != null)
+            TurnManager.I.ExecuteConsumableAction();
     }
 
     public void SetGridPosition(Vector2Int gridPos)
@@ -173,10 +196,23 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    void TryOpenRewardTileAtCurrentPosition()
+    {
+        RoomConfig activeRoomConfig = RunManager.I != null ? RunManager.I.CurrentRoomConfig : null;
+        if (activeRoomConfig == null || activeRoomConfig.isRewardOpened || _currentGridPosition != activeRoomConfig.reward)
+            return;
+
+        activeRoomConfig.isRewardOpened = true;
+
+        if (GridManager.I != null)
+            GridManager.I.RefreshRewardTile(activeRoomConfig);
+
+        if (_playerUnit != null)
+            _playerUnit.PlayRewardOpenVfx();
+    }
+
     bool TryMoveOneStep(Vector2Int requestedStep)
     {
-        AudioManager.Instance.PlaySound(footstepSFX);
-
         Vector2Int requestedGridPosition = _currentGridPosition + requestedStep;
         return TryStartMoveToGridPosition(requestedGridPosition);
     }
@@ -191,6 +227,10 @@ public class PlayerController : MonoBehaviour
 
         _destinationGridPosition = requestedGridPosition;
         _isMovingToDestination = true;
+
+        if (AudioManager.Instance != null && footstepSFX != null)
+            AudioManager.Instance.PlaySound(footstepSFX);
+
         Debug.Log($"Player moving to {requestedGridPosition}.");
         return true;
     }

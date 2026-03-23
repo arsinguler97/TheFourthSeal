@@ -20,8 +20,6 @@ MonoBehaviour:
     speed: 2
     strength: 0
     range: 1
+  worldSprite: {fileID: 21300000, guid: bd91985042c383842af3e0e914228dcf, type: 3}
   turnOrderIcon: {fileID: 21300000, guid: bd91985042c383842af3e0e914228dcf, type: 3}
-  cardArt: {fileID: 21300000, guid: d9fd1d6d5f2d4444b9bafb04169927b7, type: 3}
-  description: 'Goblin
-
-'
+  description: He is pretty chill.

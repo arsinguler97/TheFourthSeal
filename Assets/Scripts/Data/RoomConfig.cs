@@ -7,6 +7,8 @@ public class RoomConfig
     public Vector2Int start;
     public Vector2Int exit;
     public Vector2Int reward;
+    public bool isRewardOpened;
+    public bool hasGrantedExitReward;
 
     // Every enemy spawn is reserved before hazards are generated so rooms stay playable.
     public List<Vector2Int> enemySpawns = new List<Vector2Int>();

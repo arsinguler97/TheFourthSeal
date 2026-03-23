@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29df230fbb55532418ad6abc37a792a4, type: 3}
   m_Name: Reward
   m_EditorClassIdentifier: Assembly-CSharp::TileTypeSO
-  sprite: {fileID: 21300000, guid: ac6a2c35e332dbd4fa4ccb91d09fc55c, type: 3}
+  sprite: {fileID: 21300000, guid: d56886372497a5443afdae2a75dca886, type: 3}

@@ -13,6 +13,8 @@ public class GridManager : MonoBehaviour
     [SerializeField] TileTypeSO lavaTileType;
     [SerializeField] TileTypeSO blockedTileType;
     [SerializeField] TileTypeSO exitTileType;
+    [SerializeField] TileTypeSO rewardTileType;
+    [SerializeField] TileTypeSO rewardOpenedTileType;
 
     [SerializeField] TileTypeSO walkTileType;
     [SerializeField] TileTypeSO attackTileType;
@@ -92,6 +94,8 @@ public class GridManager : MonoBehaviour
 
             if (tileGridPosition == roomConfig.exit)
                 _tileViews[x, y].SetSprite(exitTileType.sprite);
+            else if (tileGridPosition == roomConfig.reward)
+                _tileViews[x, y].SetSprite(GetRewardSprite(roomConfig));
             else if (roomConfig.blockedTiles.Contains(tileGridPosition))
                 _tileViews[x, y].SetSprite(blockedTileType.sprite);
             else if (roomConfig.lavaTiles.Contains(tileGridPosition))
@@ -103,6 +107,14 @@ public class GridManager : MonoBehaviour
             _tileViewsWalkGrid[x, y].SetSprite(null);
             _tileViewsAttackGrid[x, y].SetSprite(null);
         }
+    }
+
+    public void RefreshRewardTile(RoomConfig roomConfig)
+    {
+        if (roomConfig == null || !InBounds(roomConfig.reward))
+            return;
+
+        _tileViews[roomConfig.reward.x, roomConfig.reward.y].SetSprite(GetRewardSprite(roomConfig));
     }
 
     public Vector3 GridToWorld(Vector2Int gridPosition)
@@ -139,6 +151,15 @@ public class GridManager : MonoBehaviour
         // Only blocked tiles prevent movement; lava is still treated as a valid floor tile here.
         RoomConfig activeRoomConfig = RunManager.I != null ? RunManager.I.CurrentRoomConfig : null;
         return activeRoomConfig == null || !activeRoomConfig.blockedTiles.Contains(gridPosition);
+    }
+
+    public bool IsLavaTile(Vector2Int gridPosition)
+    {
+        if (!InBounds(gridPosition))
+            return false;
+
+        RoomConfig activeRoomConfig = RunManager.I != null ? RunManager.I.CurrentRoomConfig : null;
+        return activeRoomConfig != null && activeRoomConfig.lavaTiles.Contains(gridPosition);
     }
 
 
@@ -202,5 +223,13 @@ public class GridManager : MonoBehaviour
         for (int x = 0; x < gridWidth; x++)
             for (int y = 0; y < gridHeight; y++)
                 _tileViewsAttackGrid[x, y].SetSprite(null);
+    }
+
+    Sprite GetRewardSprite(RoomConfig roomConfig)
+    {
+        if (roomConfig != null && roomConfig.isRewardOpened && rewardOpenedTileType != null)
+            return rewardOpenedTileType.sprite;
+
+        return rewardTileType != null ? rewardTileType.sprite : floorTileType.sprite;
     }
 }
