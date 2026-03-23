@@ -1,9 +1,11 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class EquipmentUIController : MonoBehaviour
 {
     public static EquipmentUIController Instance;
+    public event Action OnInventoryClosed;
 
     enum InventoryInteractionMode
     {
@@ -28,9 +30,11 @@ public class EquipmentUIController : MonoBehaviour
         }
 
         Instance = this;
+
+        equipmentInventoryUI.SetActive(false);
     }
 
-    void Start()
+    public void OpenEquipmentInventory()
     {
         if (EquipmentManager.Instance == null)
             return;
@@ -56,6 +60,9 @@ public class EquipmentUIController : MonoBehaviour
     {
         if (equipmentInventoryUI != null)
             equipmentInventoryUI.SetActive(setActive);
+
+        if (!setActive)
+            OnInventoryClosed?.Invoke();
     }
 
     public void SelectLoadoutSlot(LoadoutSlotType slotType)

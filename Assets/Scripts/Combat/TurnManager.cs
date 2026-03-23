@@ -3,6 +3,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Threading.Tasks;
 
 public class TurnManager : MonoBehaviour
 {
@@ -14,6 +15,7 @@ public class TurnManager : MonoBehaviour
     [SerializeField] ActionDefinitionSO skipActionDefinition;
     [SerializeField] ActionDefinitionSO consumableActionDefinition;
     [SerializeField] ButtonAutoDisable[] buttonsForAutoDisable;
+    [SerializeField] TMP_Text whoStartsText;
     [SerializeField] TMP_Text actionPointText;
 
     readonly List<CombatUnit> _turnOrder = new List<CombatUnit>();
@@ -51,6 +53,8 @@ public class TurnManager : MonoBehaviour
         EnsureConsumableActionButtonBound();
         UpdateConsumableActionAvailability();
         UpdateActionPointUI();
+
+        whoStartsText.gameObject.SetActive(false);
     }
 
     void OnDestroy()
@@ -68,7 +72,7 @@ public class TurnManager : MonoBehaviour
 
     public void InitializeTurnOrder()
     {
-        RebuildInitiativeOrder();
+        BeginInitiativeOrder();
     }
 
     public void SelectMoveAction()
@@ -438,18 +442,45 @@ public class TurnManager : MonoBehaviour
             Debug.Log($"Turn {i + 1}: {_turnOrder[i].DisplayName} with initiative {_turnOrder[i].LastInitiativeRoll}.");
     }
 
-    public void RebuildInitiativeOrder()
+
+    public void BeginInitiativeOrder()
     {
         if (CombatManager.I == null)
             return;
 
+        DisableActionButtons();
+
+        EquipmentUIController.Instance.OnInventoryClosed -= RebuildInitiativeOrder;
+        EquipmentUIController.Instance.OnInventoryClosed += RebuildInitiativeOrder;
+
+        EquipmentUIController.Instance.OpenEquipmentInventory();
+    }
+
+    public async void RebuildInitiativeOrder()
+    {
+        EquipmentUIController.Instance.OnInventoryClosed -= RebuildInitiativeOrder;
+
+        List<Task<int>> initiativeRolls = new List<Task<int>>();
+
         List<CombatUnit> livingUnits = CombatManager.I.GetLivingUnits();
         for (int i = 0; i < livingUnits.Count; i++)
-            livingUnits[i].RollInitiative();
+            initiativeRolls.Add(livingUnits[i].RollInitiative());
+
+        await Task.WhenAll(initiativeRolls);
 
         _turnOrder.Clear();
         _turnOrder.AddRange(livingUnits);
         _turnOrder.Sort((left, right) => right.LastInitiativeRoll.CompareTo(left.LastInitiativeRoll));
+
+        whoStartsText.gameObject.SetActive(true);
+        whoStartsText.text = _turnOrder[0].DisplayName + whoStartsText.text;
+
+        await Task.Delay(5000);
+        whoStartsText.gameObject.SetActive(false);
+
+        for (int i = 0; i < livingUnits.Count; i++)
+            livingUnits[i].HideDice();
+
 
         if (_turnOrder.Count == 0)
         {
@@ -470,6 +501,7 @@ public class TurnManager : MonoBehaviour
         NotifyTurnOrderChanged();
         BeginCurrentTurn();
     }
+
 
     public IReadOnlyList<CombatUnit> GetTurnOrder()
     {

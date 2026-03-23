@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Collections;
+using System.Threading.Tasks;
 
 public abstract class CombatUnit : MonoBehaviour
 {
@@ -15,6 +16,7 @@ public abstract class CombatUnit : MonoBehaviour
     [SerializeField] float damageFlashDuration = 0.12f;
 
     private HealthBar _healthBar;
+    private Dice _dice;
 
     [Header("Damage Popup")]
     [SerializeField] GameObject damagePopupPrefab;
@@ -65,11 +67,13 @@ public abstract class CombatUnit : MonoBehaviour
 
 
         _healthBar = GetComponentInChildren<HealthBar>();
-
         if (_healthBar == null)
             Debug.LogError("CombatUnit missing Canvas_Healthbar Prefab!");
-
         _healthBar.SetMaxHealth(CurrentHealth);
+
+        _dice = GetComponentInChildren<Dice>();
+        if (_dice == null)
+            Debug.LogError("CombatUnit missing Dice Prefab"!);
     }
 
     protected virtual void Update()
@@ -117,12 +121,21 @@ public abstract class CombatUnit : MonoBehaviour
         return Mathf.Max(1, _runtimeStats.Attack);
     }
 
-    public int RollInitiative()
+    public async Task<int> RollInitiative()
     {
-        LastInitiativeRoll = Random.Range(1, 21) + _runtimeStats.Speed;
-        Debug.Log($"{DisplayName} rolled initiative {LastInitiativeRoll}.");
+        //LastInitiativeRoll = Random.Range(1, 21) + _runtimeStats.Speed;
+        LastInitiativeRoll = await _dice.RollDice();// + _runtimeStats.Speed;
         return LastInitiativeRoll;
+        //Debug.Log($"{DisplayName} rolled initiative {LastInitiativeRoll}.");
+        //return LastInitiativeRoll;
     }
+
+    public void HideDice()
+    {
+        _dice.gameObject.SetActive(false);
+    }
+
+
 
     public void ReceiveDamage(int incomingDamage)
     {
