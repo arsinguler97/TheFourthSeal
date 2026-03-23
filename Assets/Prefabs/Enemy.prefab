@@ -176,6 +176,7 @@ MonoBehaviour:
   playerDamagePopupColor: {r: 1, g: 0.35, b: 0.35, a: 1}
   enemyDamagePopupColor: {r: 1, g: 0.95, b: 0.35, a: 1}
   damageSFX: {fileID: 11400000, guid: 54be664b08a93c444a4fe9e3b8a0edd8, type: 2}
+  healSFX: {fileID: 11400000, guid: e21ab594cd3e90d46b5559c1c3e3f4c8, type: 2}
   footstepSFX: {fileID: 11400000, guid: 61a6706fa2fc8d744a951abf4b1c6124, type: 2}
   spawnSFX: {fileID: 11400000, guid: 2e9a8b83a0c69a74c8cf3a084d692d37, type: 2}
   moveSpeedUnitsPerSecond: 2

@@ -24,6 +24,7 @@ public abstract class CombatUnit : MonoBehaviour
 
     [Header("SFX")]
     [SerializeField] private AudioCue damageSFX;
+    [SerializeField] private AudioCue healSFX;
 
     readonly List<StatModifierData> _activeModifiers = new List<StatModifierData>();
     RuntimeStatBlock _runtimeStats;
@@ -153,6 +154,7 @@ public abstract class CombatUnit : MonoBehaviour
 
         CurrentHealth += healedAmount;
         _healthBar.SetCurrentHealth(CurrentHealth);
+        AudioManager.Instance.PlaySound(healSFX);
         Debug.Log($"{DisplayName} healed {healedAmount}. Current health: {CurrentHealth}.");
     }
 

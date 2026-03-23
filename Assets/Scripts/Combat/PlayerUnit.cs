@@ -3,6 +3,8 @@ using UnityEngine;
 [RequireComponent(typeof(PlayerController))]
 public class PlayerUnit : CombatUnit
 {
+    [SerializeField] private AudioCue rewardPickupSFX;
+
     [Header("Death VFX")]
     [SerializeField] GameObject deathVfxPrefab;
     [SerializeField] Vector3 deathVfxOffset = new Vector3(0f, 0.2f, 0f);
@@ -50,11 +52,13 @@ public class PlayerUnit : CombatUnit
 
     public void PlayConsumableUseVfx()
     {
+        AudioManager.Instance.PlaySound(rewardPickupSFX);
         PlayOneShotVfx(consumableUseVfxPrefab, consumableUseVfxOffset);
     }
 
     public void PlayRewardOpenVfx()
     {
+        AudioManager.Instance.PlaySound(rewardPickupSFX);
         PlayOneShotVfx(rewardOpenVfxPrefab, rewardOpenVfxOffset);
     }
 
