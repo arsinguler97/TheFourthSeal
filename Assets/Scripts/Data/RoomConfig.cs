@@ -12,6 +12,7 @@ public class RoomConfig
 
     // Every enemy spawn is reserved before hazards are generated so rooms stay playable.
     public List<Vector2Int> enemySpawns = new List<Vector2Int>();
+    public List<EnemyDefinitionSO> enemyDefinitions = new List<EnemyDefinitionSO>();
 
     // Hazard and obstacle cells generated for this specific room instance.
     public HashSet<Vector2Int> lavaTiles = new HashSet<Vector2Int>();

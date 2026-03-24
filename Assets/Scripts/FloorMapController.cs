@@ -59,7 +59,7 @@ public class FloorMapController : MonoBehaviour
         if (RunManager.I.IsFloorNodeCleared(roomNode.NodeId))
             return;
 
-        RunManager.I.PrepareRoomSelection(roomNode.NodeId, roomTemplate, enemyCountOverride);
+        RunManager.I.PrepareRoomSelection(roomNode.NodeId, roomTemplate, enemyCountOverride, roomNode.EnemyOverrides);
         _isTransitioningToRoom = true;
 
         // The map marker animation is cosmetic; the room load still works without it.

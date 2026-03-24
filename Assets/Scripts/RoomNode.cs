@@ -7,10 +7,12 @@ public class RoomNode : MonoBehaviour
     [SerializeField] RoomButton roomButton;
     [SerializeField] int additionalEnemyCount;
     [SerializeField] List<RoomNode> connectedNodes = new List<RoomNode>();
+    [SerializeField] List<EnemyDefinitionSO> enemyOverrides = new List<EnemyDefinitionSO>();
 
     public string NodeId => nodeId;
     public RoomButton RoomButton => roomButton;
     public IReadOnlyList<RoomNode> ConnectedNodes => connectedNodes;
+    public IReadOnlyList<EnemyDefinitionSO> EnemyOverrides => enemyOverrides;
 
     // Final enemy count for this specific node is template base plus this node bonus.
     public int AdditionalEnemyCount => additionalEnemyCount;

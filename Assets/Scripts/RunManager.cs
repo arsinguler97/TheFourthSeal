@@ -10,6 +10,7 @@ public class RunManager : MonoBehaviour
     // Stores the room selected on the floor map so the next scene knows what to generate.
     public RoomTemplateSO SelectedRoomTemplate { get; private set; }
     public int SelectedRoomEnemyCount { get; private set; }
+    public IReadOnlyList<EnemyDefinitionSO> SelectedEnemyOverrides => _selectedEnemyOverrides;
     public string CurrentFloorNodeId { get; private set; } = StartFloorNodeId;
     public string PendingFloorNodeId { get; private set; }
     public int SavedPlayerHealth { get; private set; } = -1;
@@ -17,6 +18,7 @@ public class RunManager : MonoBehaviour
     // Holds the concrete positions generated for the currently active room.
     public RoomConfig CurrentRoomConfig;
     readonly HashSet<string> _clearedFloorNodeIds = new HashSet<string>();
+    readonly List<EnemyDefinitionSO> _selectedEnemyOverrides = new List<EnemyDefinitionSO>();
 
 
 
@@ -32,17 +34,27 @@ public class RunManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
-    public void SelectRoom(RoomTemplateSO roomTemplate, int enemyCountOverride = -1)
+    public void SelectRoom(RoomTemplateSO roomTemplate, int enemyCountOverride = -1, IReadOnlyList<EnemyDefinitionSO> enemyOverrides = null)
     {
         SelectedRoomTemplate = roomTemplate;
         SelectedRoomEnemyCount = enemyCountOverride >= 0 ? enemyCountOverride : roomTemplate.enemyCount;
+        _selectedEnemyOverrides.Clear();
+
+        if (enemyOverrides != null)
+        {
+            for (int i = 0; i < enemyOverrides.Count; i++)
+            {
+                if (enemyOverrides[i] != null)
+                    _selectedEnemyOverrides.Add(enemyOverrides[i]);
+            }
+        }
     }
 
-    public void PrepareRoomSelection(string floorNodeId, RoomTemplateSO roomTemplate, int enemyCountOverride = -1)
+    public void PrepareRoomSelection(string floorNodeId, RoomTemplateSO roomTemplate, int enemyCountOverride = -1, IReadOnlyList<EnemyDefinitionSO> enemyOverrides = null)
     {
         // PendingFloorNodeId is committed only after the room is actually cleared.
         PendingFloorNodeId = floorNodeId;
-        SelectRoom(roomTemplate, enemyCountOverride);
+        SelectRoom(roomTemplate, enemyCountOverride, enemyOverrides);
     }
 
     public void MarkPendingRoomClearedAndAdvanceFloorPosition()
@@ -65,6 +77,7 @@ public class RunManager : MonoBehaviour
         // Used by defeat/restart to bring the floor run back to its initial state.
         SelectedRoomTemplate = null;
         SelectedRoomEnemyCount = 0;
+        _selectedEnemyOverrides.Clear();
         CurrentFloorNodeId = StartFloorNodeId;
         PendingFloorNodeId = null;
         SavedPlayerHealth = -1;

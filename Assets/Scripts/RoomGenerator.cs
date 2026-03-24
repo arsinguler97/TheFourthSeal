@@ -45,7 +45,8 @@ public class RoomGenerator : MonoBehaviour
         };
 
         int enemyCount = RunManager.I != null ? RunManager.I.SelectedRoomEnemyCount : selectedTemplate.enemyCount;
-        PlaceEnemySpawns(generatedRoomConfig, enemyCount, reservedPositions, gridWidth, gridHeight);
+        IReadOnlyList<EnemyDefinitionSO> selectedEnemyOverrides = RunManager.I != null ? RunManager.I.SelectedEnemyOverrides : null;
+        PlaceEnemySpawns(generatedRoomConfig, selectedTemplate, selectedEnemyOverrides, enemyCount, reservedPositions, gridWidth, gridHeight);
         PlaceRandomPositions(
             generatedRoomConfig.lavaTiles,
             selectedTemplate.lavaTileCount,
@@ -61,7 +62,7 @@ public class RoomGenerator : MonoBehaviour
             gridHeight);
         reservedPositions.UnionWith(generatedRoomConfig.blockedTiles);
 
-        SpawnEnemiesAtGridPositions(generatedRoomConfig.enemySpawns);
+        SpawnEnemiesAtGridPositions(generatedRoomConfig.enemySpawns, generatedRoomConfig.enemyDefinitions);
         RunManager.I.CurrentRoomConfig = generatedRoomConfig;
         GridManager.I.ApplyConfig(generatedRoomConfig);
 
@@ -103,7 +104,7 @@ public class RoomGenerator : MonoBehaviour
             _spawnedPlayerController.SetGridPosition(spawnGridPosition);
     }
 
-    void SpawnEnemiesAtGridPositions(List<Vector2Int> spawnGridPositions)
+    void SpawnEnemiesAtGridPositions(List<Vector2Int> spawnGridPositions, List<EnemyDefinitionSO> enemyDefinitions)
     {
         _spawnedEnemyUnits.RemoveAll(enemyUnit => enemyUnit == null);
 
@@ -122,16 +123,38 @@ public class RoomGenerator : MonoBehaviour
             _spawnedEnemyUnits[i].gameObject.SetActive(shouldBeActive);
 
             if (shouldBeActive)
+            {
+                EnemyDefinitionSO enemyDefinition = i < enemyDefinitions.Count ? enemyDefinitions[i] : null;
+                if (enemyDefinition != null)
+                    _spawnedEnemyUnits[i].ConfigureFromDefinition(enemyDefinition);
+
                 _spawnedEnemyUnits[i].SetGridPosition(spawnGridPositions[i]);
+            }
         }
     }
 
-    void PlaceEnemySpawns(RoomConfig roomConfig, int enemyCount, HashSet<Vector2Int> reservedPositions, int gridWidth, int gridHeight)
+    void PlaceEnemySpawns(RoomConfig roomConfig, RoomTemplateSO roomTemplate, IReadOnlyList<EnemyDefinitionSO> enemyOverrides, int enemyCount, HashSet<Vector2Int> reservedPositions, int gridWidth, int gridHeight)
     {
         roomConfig.enemySpawns.Clear();
+        roomConfig.enemyDefinitions.Clear();
+
+        bool hasBossEnemy = roomTemplate != null && roomTemplate.bossEnemy != null;
+        if (hasBossEnemy)
+        {
+            Vector2Int bossSpawnGridPosition = FindRandomEnemySpawnPosition(
+                reservedPositions,
+                roomConfig.start,
+                gridWidth,
+                gridHeight);
+            roomConfig.enemySpawns.Add(bossSpawnGridPosition);
+            roomConfig.enemyDefinitions.Add(roomTemplate.bossEnemy);
+            reservedPositions.Add(bossSpawnGridPosition);
+        }
+
+        int remainingEnemyCount = Mathf.Max(enemyCount, hasBossEnemy ? 1 : 0) - (hasBossEnemy ? 1 : 0);
 
         // Enemy spawns are reserved before hazards so combat spaces stay playable.
-        for (int enemyIndex = 0; enemyIndex < enemyCount; enemyIndex++)
+        for (int enemyIndex = 0; enemyIndex < remainingEnemyCount; enemyIndex++)
         {
             Vector2Int enemySpawnGridPosition = FindRandomEnemySpawnPosition(
                 reservedPositions,
@@ -139,8 +162,40 @@ public class RoomGenerator : MonoBehaviour
                 gridWidth,
                 gridHeight);
             roomConfig.enemySpawns.Add(enemySpawnGridPosition);
+            roomConfig.enemyDefinitions.Add(GetRandomEnemyDefinition(roomTemplate, enemyOverrides));
             reservedPositions.Add(enemySpawnGridPosition);
         }
+    }
+
+    EnemyDefinitionSO GetRandomEnemyDefinition(RoomTemplateSO roomTemplate, IReadOnlyList<EnemyDefinitionSO> enemyOverrides)
+    {
+        if (enemyOverrides != null)
+        {
+            List<EnemyDefinitionSO> validOverrideEnemies = new List<EnemyDefinitionSO>();
+            for (int i = 0; i < enemyOverrides.Count; i++)
+            {
+                if (enemyOverrides[i] != null)
+                    validOverrideEnemies.Add(enemyOverrides[i]);
+            }
+
+            if (validOverrideEnemies.Count > 0)
+                return validOverrideEnemies[Random.Range(0, validOverrideEnemies.Count)];
+        }
+
+        if (roomTemplate == null || roomTemplate.possibleEnemies == null || roomTemplate.possibleEnemies.Count == 0)
+            return null;
+
+        List<EnemyDefinitionSO> validEnemies = new List<EnemyDefinitionSO>();
+        for (int i = 0; i < roomTemplate.possibleEnemies.Count; i++)
+        {
+            if (roomTemplate.possibleEnemies[i] != null && roomTemplate.possibleEnemies[i] != roomTemplate.bossEnemy)
+                validEnemies.Add(roomTemplate.possibleEnemies[i]);
+        }
+
+        if (validEnemies.Count == 0)
+            return null;
+
+        return validEnemies[Random.Range(0, validEnemies.Count)];
     }
 
     Vector2Int FindRandomEnemySpawnPosition(

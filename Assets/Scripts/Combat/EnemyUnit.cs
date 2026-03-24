@@ -21,13 +21,7 @@ public class EnemyUnit : CombatUnit
 
     protected override void Awake()
     {
-        if (enemyDefinition != null)
-        {
-            displayName = string.IsNullOrWhiteSpace(enemyDefinition.displayName) ? displayName : enemyDefinition.displayName;
-            baseStats = enemyDefinition.baseStats != null
-                ? enemyDefinition.baseStats.ToStatBlockData()
-                : baseStats;
-        }
+        ApplyDefinitionData();
 
         base.Awake();
 
@@ -58,6 +52,46 @@ public class EnemyUnit : CombatUnit
 
         if (GridManager.I != null)
             transform.position = GridManager.I.GridToWorld(gridPosition);
+    }
+
+    public void ConfigureFromDefinition(EnemyDefinitionSO definition)
+    {
+        enemyDefinition = definition;
+        ApplyDefinitionData();
+
+        if (isActiveAndEnabled)
+            ResetBaseStats(enemyDefinition != null && enemyDefinition.baseStats != null
+                ? enemyDefinition.baseStats.ToStatBlockData()
+                : baseStats);
+
+        if (visualSpriteRenderer == null)
+            visualSpriteRenderer = GetComponentInChildren<SpriteRenderer>();
+
+        if (visualSpriteRenderer != null && enemyDefinition != null && enemyDefinition.worldSprite != null)
+            visualSpriteRenderer.sprite = enemyDefinition.worldSprite;
+    }
+
+    public override void ReceiveDamage(int incomingDamage)
+    {
+        if (enemyDefinition != null
+            && enemyDefinition.immuneToOddDamage
+            && Mathf.Abs(incomingDamage) % 2 == 1)
+        {
+            PlayMissedHitVfx();
+            Debug.Log($"{DisplayName} ignored odd damage value {incomingDamage}.");
+            return;
+        }
+
+        if (enemyDefinition != null
+            && enemyDefinition.immuneToDamageAtOrBelow > 0
+            && incomingDamage <= enemyDefinition.immuneToDamageAtOrBelow)
+        {
+            PlayMissedHitVfx();
+            Debug.Log($"{DisplayName} ignored damage value {incomingDamage} because it is at or below {enemyDefinition.immuneToDamageAtOrBelow}.");
+            return;
+        }
+
+        base.ReceiveDamage(incomingDamage);
     }
 
     public bool TryMoveOneStep(Vector2Int step)
@@ -107,5 +141,51 @@ public class EnemyUnit : CombatUnit
             return enemyDefinition.turnOrderIcon;
 
         return base.GetTurnOrderSprite();
+    }
+
+    void ApplyDefinitionData()
+    {
+        if (enemyDefinition == null)
+            return;
+
+        displayName = string.IsNullOrWhiteSpace(enemyDefinition.displayName) ? displayName : enemyDefinition.displayName;
+        baseStats = enemyDefinition.baseStats != null
+            ? enemyDefinition.baseStats.ToStatBlockData()
+            : baseStats;
+    }
+
+    void PlayMissedHitVfx()
+    {
+        if (enemyDefinition == null || enemyDefinition.missedHitVfxPrefab == null)
+            return;
+
+        GameObject missedVfxInstance = Instantiate(
+            enemyDefinition.missedHitVfxPrefab,
+            transform.position + enemyDefinition.missedHitVfxOffset,
+            Quaternion.identity,
+            transform);
+
+        missedVfxInstance.transform.localPosition = enemyDefinition.missedHitVfxOffset;
+        MatchMissedVfxSorting(missedVfxInstance);
+    }
+
+    void MatchMissedVfxSorting(GameObject missedVfxInstance)
+    {
+        if (missedVfxInstance == null || visualSpriteRenderer == null)
+            return;
+
+        ParticleSystemRenderer[] particleRenderers = missedVfxInstance.GetComponentsInChildren<ParticleSystemRenderer>(true);
+        for (int i = 0; i < particleRenderers.Length; i++)
+        {
+            particleRenderers[i].sortingLayerID = visualSpriteRenderer.sortingLayerID;
+            particleRenderers[i].sortingOrder = visualSpriteRenderer.sortingOrder + 1;
+        }
+
+        SpriteRenderer[] spriteRenderers = missedVfxInstance.GetComponentsInChildren<SpriteRenderer>(true);
+        for (int i = 0; i < spriteRenderers.Length; i++)
+        {
+            spriteRenderers[i].sortingLayerID = visualSpriteRenderer.sortingLayerID;
+            spriteRenderers[i].sortingOrder = visualSpriteRenderer.sortingOrder + 1;
+        }
     }
 }

@@ -96,8 +96,9 @@ public abstract class CombatUnit : MonoBehaviour
         if (CurrentHealth > _runtimeStats.Health)
         {
             CurrentHealth = _runtimeStats.Health;
-            _healthBar.SetCurrentHealth(CurrentHealth);
         }
+
+        SyncHealthBar();
     }
 
     public void SetModifiers(IEnumerable<StatModifierData> modifiers)
@@ -137,7 +138,7 @@ public abstract class CombatUnit : MonoBehaviour
 
 
 
-    public void ReceiveDamage(int incomingDamage)
+    public virtual void ReceiveDamage(int incomingDamage)
     {
         PlayHitImpactEffect();
         PlayDamageFlash();
@@ -166,7 +167,7 @@ public abstract class CombatUnit : MonoBehaviour
             return;
 
         CurrentHealth += healedAmount;
-        _healthBar.SetCurrentHealth(CurrentHealth);
+        SyncHealthBar();
         AudioManager.Instance.PlaySound(healSFX);
         Debug.Log($"{DisplayName} healed {healedAmount}. Current health: {CurrentHealth}.");
     }
@@ -174,7 +175,7 @@ public abstract class CombatUnit : MonoBehaviour
     public void SetCurrentHealth(int currentHealth)
     {
         CurrentHealth = Mathf.Clamp(currentHealth, 0, Mathf.Max(1, _runtimeStats.Health));
-        _healthBar.SetCurrentHealth(CurrentHealth);
+        SyncHealthBar();
     }
 
     void PlayHitImpactEffect()
@@ -217,6 +218,24 @@ public abstract class CombatUnit : MonoBehaviour
         SetTurnIndicatorActive(false);
         Debug.Log($"{DisplayName} died.");
         gameObject.SetActive(false);
+    }
+
+    protected void ResetBaseStats(StatBlockData newBaseStats)
+    {
+        baseStats = newBaseStats != null ? newBaseStats : new StatBlockData();
+        _runtimeStats = new RuntimeStatBlock(baseStats);
+        RefreshStats();
+        CurrentHealth = Mathf.Max(1, _runtimeStats.Health);
+        SyncHealthBar();
+    }
+
+    void SyncHealthBar()
+    {
+        if (_healthBar == null)
+            return;
+
+        _healthBar.SetMaxHealth(Mathf.Max(1, _runtimeStats.Health));
+        _healthBar.SetCurrentHealth(CurrentHealth);
     }
 
     void PlayDamageFlash()

@@ -16,6 +16,7 @@ public class PlayerUnit : CombatUnit
     [SerializeField] Vector3 rewardOpenVfxOffset = new Vector3(0f, 0.2f, 0f);
 
     PlayerController _playerController;
+    SpriteRenderer _visualSpriteRenderer;
 
     public override Vector2Int GridPosition => _playerController != null ? _playerController.CurrentGridPosition : Vector2Int.zero;
     public bool IsMoving => _playerController != null && _playerController.IsMovingToDestination;
@@ -24,6 +25,7 @@ public class PlayerUnit : CombatUnit
     {
         base.Awake();
         _playerController = GetComponent<PlayerController>();
+        _visualSpriteRenderer = GetComponentInChildren<SpriteRenderer>();
 
         if (CombatManager.I != null)
             CombatManager.I.RegisterPlayer(this);
@@ -65,7 +67,7 @@ public class PlayerUnit : CombatUnit
     protected override void HandleDeath()
     {
         if (deathVfxPrefab != null)
-            Instantiate(deathVfxPrefab, transform.position + deathVfxOffset, Quaternion.identity);
+            PlayOneShotVfx(deathVfxPrefab, deathVfxOffset);
 
         if (CombatManager.I != null)
             CombatManager.I.HandlePlayerDeath(this);
@@ -75,7 +77,31 @@ public class PlayerUnit : CombatUnit
 
     void PlayOneShotVfx(GameObject vfxPrefab, Vector3 offset)
     {
-        if (vfxPrefab != null)
-            Instantiate(vfxPrefab, transform.position + offset, Quaternion.identity);
+        if (vfxPrefab == null)
+            return;
+
+        GameObject vfxInstance = Instantiate(vfxPrefab, transform.position + offset, Quaternion.identity, transform);
+        vfxInstance.transform.localPosition = offset;
+        MatchVfxSorting(vfxInstance);
+    }
+
+    void MatchVfxSorting(GameObject vfxInstance)
+    {
+        if (vfxInstance == null || _visualSpriteRenderer == null)
+            return;
+
+        ParticleSystemRenderer[] particleRenderers = vfxInstance.GetComponentsInChildren<ParticleSystemRenderer>(true);
+        for (int i = 0; i < particleRenderers.Length; i++)
+        {
+            particleRenderers[i].sortingLayerID = _visualSpriteRenderer.sortingLayerID;
+            particleRenderers[i].sortingOrder = _visualSpriteRenderer.sortingOrder + 1;
+        }
+
+        SpriteRenderer[] spriteRenderers = vfxInstance.GetComponentsInChildren<SpriteRenderer>(true);
+        for (int i = 0; i < spriteRenderers.Length; i++)
+        {
+            spriteRenderers[i].sortingLayerID = _visualSpriteRenderer.sortingLayerID;
+            spriteRenderers[i].sortingOrder = _visualSpriteRenderer.sortingOrder + 1;
+        }
     }
 }

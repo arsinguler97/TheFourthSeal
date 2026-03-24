@@ -726,6 +726,9 @@ MonoBehaviour:
   connectedNodes:
   - {fileID: 1216931665}
   - {fileID: 1518101041}
+  enemyOverrides:
+  - {fileID: 11400000, guid: 0297180a5a546934480a5df86a2d7bea, type: 2}
+  - {fileID: 11400000, guid: e6d2d86e4f01ab14d876b8ffa3c2cc2a, type: 2}
 --- !u!114 &757295712
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -980,6 +983,9 @@ MonoBehaviour:
   connectedNodes:
   - {fileID: 1901893198}
   - {fileID: 1518101041}
+  enemyOverrides:
+  - {fileID: 11400000, guid: 0297180a5a546934480a5df86a2d7bea, type: 2}
+  - {fileID: 11400000, guid: e6d2d86e4f01ab14d876b8ffa3c2cc2a, type: 2}
 --- !u!114 &960766486
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1223,6 +1229,7 @@ MonoBehaviour:
   - {fileID: 1216931665}
   - {fileID: 1962364012}
   - {fileID: 757295711}
+  enemyOverrides: []
 --- !u!1 &1081653978
 GameObject:
   m_ObjectHideFlags: 0
@@ -1356,6 +1363,9 @@ MonoBehaviour:
   connectedNodes:
   - {fileID: 1901893198}
   - {fileID: 1118871510}
+  enemyOverrides:
+  - {fileID: 11400000, guid: 0297180a5a546934480a5df86a2d7bea, type: 2}
+  - {fileID: 11400000, guid: e6d2d86e4f01ab14d876b8ffa3c2cc2a, type: 2}
 --- !u!114 &1081653984
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1558,12 +1568,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RoomNode
   nodeId: Middle
   roomButton: {fileID: 1101751981}
-  additionalEnemyCount: 1
+  additionalEnemyCount: 2
   connectedNodes:
   - {fileID: 1216931665}
   - {fileID: 1901893198}
   - {fileID: 1118871510}
   - {fileID: 1518101041}
+  enemyOverrides:
+  - {fileID: 11400000, guid: 0297180a5a546934480a5df86a2d7bea, type: 2}
+  - {fileID: 11400000, guid: e6d2d86e4f01ab14d876b8ffa3c2cc2a, type: 2}
 --- !u!114 &1101751981
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1576,7 +1589,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2e52e78418055a4caed2ef8be567a85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomButton
-  roomTemplate: {fileID: 11400000, guid: c701eaca06e899248addf50a09ab5fd9, type: 2}
+  roomTemplate: {fileID: 11400000, guid: 1580726809cdfea4abc01e2c483d4997, type: 2}
   button: {fileID: 1101751982}
   nodeImage: {fileID: 1101751978}
   clearedColor: {r: 0.4, g: 0.4, b: 0.4, a: 1}
@@ -1771,6 +1784,9 @@ MonoBehaviour:
   - {fileID: 1081653983}
   - {fileID: 1962364012}
   - {fileID: 1101751980}
+  enemyOverrides:
+  - {fileID: 11400000, guid: 0297180a5a546934480a5df86a2d7bea, type: 2}
+  - {fileID: 11400000, guid: e6d2d86e4f01ab14d876b8ffa3c2cc2a, type: 2}
 --- !u!114 &1118871511
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1978,6 +1994,9 @@ MonoBehaviour:
   - {fileID: 1962364012}
   - {fileID: 757295711}
   - {fileID: 1101751980}
+  enemyOverrides:
+  - {fileID: 11400000, guid: 0297180a5a546934480a5df86a2d7bea, type: 2}
+  - {fileID: 11400000, guid: e6d2d86e4f01ab14d876b8ffa3c2cc2a, type: 2}
 --- !u!114 &1216931666
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2438,6 +2457,9 @@ MonoBehaviour:
   - {fileID: 960766485}
   - {fileID: 1101751980}
   - {fileID: 757295711}
+  enemyOverrides:
+  - {fileID: 11400000, guid: 0297180a5a546934480a5df86a2d7bea, type: 2}
+  - {fileID: 11400000, guid: e6d2d86e4f01ab14d876b8ffa3c2cc2a, type: 2}
 --- !u!114 &1518101042
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2645,6 +2667,9 @@ MonoBehaviour:
   - {fileID: 1081653983}
   - {fileID: 1101751980}
   - {fileID: 960766485}
+  enemyOverrides:
+  - {fileID: 11400000, guid: 0297180a5a546934480a5df86a2d7bea, type: 2}
+  - {fileID: 11400000, guid: e6d2d86e4f01ab14d876b8ffa3c2cc2a, type: 2}
 --- !u!114 &1901893199
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2926,6 +2951,9 @@ MonoBehaviour:
   connectedNodes:
   - {fileID: 1118871510}
   - {fileID: 1216931665}
+  enemyOverrides:
+  - {fileID: 11400000, guid: 0297180a5a546934480a5df86a2d7bea, type: 2}
+  - {fileID: 11400000, guid: e6d2d86e4f01ab14d876b8ffa3c2cc2a, type: 2}
 --- !u!114 &1962364013
 MonoBehaviour:
   m_ObjectHideFlags: 0
