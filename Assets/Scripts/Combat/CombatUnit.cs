@@ -16,7 +16,7 @@ public abstract class CombatUnit : MonoBehaviour
     [SerializeField] float damageFlashDuration = 0.12f;
 
     private HealthBar _healthBar;
-    private Dice _dice;
+    public DiceCanvas DiceCanvas { get; private set; }
 
     [Header("Damage Popup")]
     [SerializeField] GameObject damagePopupPrefab;
@@ -39,7 +39,7 @@ public abstract class CombatUnit : MonoBehaviour
     public int CurrentHealth { get; private set; }
     public bool IsAlive => CurrentHealth > 0;
     public RuntimeStatBlock Stats => _runtimeStats;
-    public int LastInitiativeRoll { get; private set; }
+    public int LastInitiativeRoll { get; set; }
     public int AttackDieSize => GetAttackDieSize();
     public int MaxHealth => _runtimeStats.Health;
 
@@ -71,9 +71,11 @@ public abstract class CombatUnit : MonoBehaviour
             Debug.LogError("CombatUnit missing Canvas_Healthbar Prefab!");
         _healthBar.SetMaxHealth(CurrentHealth);
 
-        _dice = GetComponentInChildren<Dice>();
-        if (_dice == null)
-            Debug.LogError("CombatUnit missing Dice Prefab"!);
+        DiceCanvas = GetComponentInChildren<DiceCanvas>();
+        if (DiceCanvas == null)
+            Debug.LogError("CombatUnit missing DiceCanvas!");
+        else
+            DiceCanvas.gameObject.SetActive(false);
     }
 
     protected virtual void Update()
@@ -111,29 +113,22 @@ public abstract class CombatUnit : MonoBehaviour
         RefreshStats();
     }
 
-    public int GetAttackDamage()
-    {
-        int rolledAttackDamage = Random.Range(1, GetAttackDieSize() + 1);
-        return rolledAttackDamage + _runtimeStats.Strength;
-    }
 
     protected virtual int GetAttackDieSize()
     {
         return Mathf.Max(1, _runtimeStats.Attack);
     }
 
-    public async Task<int> RollInitiative()
+
+
+    public void ShowDice()
     {
-        //LastInitiativeRoll = Random.Range(1, 21) + _runtimeStats.Speed;
-        LastInitiativeRoll = await _dice.RollDice();// + _runtimeStats.Speed;
-        return LastInitiativeRoll;
-        //Debug.Log($"{DisplayName} rolled initiative {LastInitiativeRoll}.");
-        //return LastInitiativeRoll;
+        DiceCanvas.gameObject.SetActive(true);
     }
 
     public void HideDice()
     {
-        _dice.gameObject.SetActive(false);
+        DiceCanvas.gameObject.SetActive(false);
     }
 
 

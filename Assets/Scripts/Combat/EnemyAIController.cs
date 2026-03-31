@@ -1,6 +1,8 @@
 using UnityEngine;
 using System;
 using System.Collections;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
 [RequireComponent(typeof(EnemyUnit))]
 public class EnemyAIController : MonoBehaviour
@@ -9,6 +11,9 @@ public class EnemyAIController : MonoBehaviour
 
     EnemyUnit _enemyUnit;
     Coroutine _activeTurnRoutine;
+
+    Action OnDamageDealtCompleted;
+
 
     void Awake()
     {
@@ -55,15 +60,35 @@ public class EnemyAIController : MonoBehaviour
                 yield return new WaitForSeconds(delayBetweenMoveSteps);
         }
 
+        _activeTurnRoutine = null;
+
         if (CombatManager.I.IsStraightLineTargetInRange(_enemyUnit.GridPosition, playerUnit.GridPosition, _enemyUnit.Stats.Range))
         {
-            int dealtDamage = _enemyUnit.GetAttackDamage();
-            Debug.Log($"{_enemyUnit.DisplayName} attacked {playerUnit.DisplayName} for {dealtDamage} rolled damage.");
-            playerUnit.ReceiveDamage(dealtDamage);
+            OnDamageDealtCompleted = onTurnComplete;
+            DealDamage();
         }
+        else
+        {
+            onTurnComplete?.Invoke();
+        }
+    }
 
-        _activeTurnRoutine = null;
-        onTurnComplete?.Invoke();
+    private void DealDamage()
+    {
+        DiceManager.Instance.OnDiceRollCompleted += DealDamageOfficially;
+        _enemyUnit.ShowDice();
+        DiceManager.Instance.RollDice(_enemyUnit.AttackDieSize, _enemyUnit.DiceCanvas);
+    }
+
+    private void DealDamageOfficially(int amount)
+    {
+        _enemyUnit.HideDice();
+        DiceManager.Instance.OnDiceRollCompleted -= DealDamageOfficially;
+
+        CombatManager.I.PlayerUnit.ReceiveDamage(amount);
+        Debug.Log($"{_enemyUnit.DisplayName} attacked {CombatManager.I.PlayerUnit.DisplayName} for {amount} rolled damage.");
+
+        OnDamageDealtCompleted?.Invoke();
     }
 
     Vector2Int GetStepTowardTarget(Vector2Int currentPosition, Vector2Int targetPosition)

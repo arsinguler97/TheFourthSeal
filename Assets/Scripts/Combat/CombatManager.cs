@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using System.Threading.Tasks;
 
 public class CombatManager : MonoBehaviour
 {
@@ -27,6 +28,7 @@ public class CombatManager : MonoBehaviour
 
     public PlayerUnit PlayerUnit { get; private set; }
     readonly List<EnemyUnit> _enemyUnits = new List<EnemyUnit>();
+    private EnemyUnit _currentTarget;
     public IReadOnlyList<EnemyUnit> EnemyUnits => _enemyUnits;
     bool _isRoomClearTransitionRunning;
     bool _isPlayerDefeatSequenceRunning;
@@ -116,17 +118,31 @@ public class CombatManager : MonoBehaviour
             return false;
 
         // Player attacks are grid-based and only work on a living enemy in straight-line range.
-        EnemyUnit targetEnemy = GetEnemyAt(targetGridPosition);
-        if (targetEnemy == null)
+        _currentTarget = GetEnemyAt(targetGridPosition);
+        if (_currentTarget == null)
             return false;
 
-        if (!IsStraightLineTargetInRange(PlayerUnit.GridPosition, targetEnemy.GridPosition, PlayerUnit.Stats.Range))
+        if (!IsStraightLineTargetInRange(PlayerUnit.GridPosition, _currentTarget.GridPosition, PlayerUnit.Stats.Range))
             return false;
 
-        int dealtDamage = PlayerUnit.GetAttackDamage();
-        Debug.Log($"{PlayerUnit.DisplayName} attacked {targetEnemy.DisplayName} for {dealtDamage} rolled damage.");
-        targetEnemy.ReceiveDamage(dealtDamage);
+
+        DiceManager.Instance.OnDiceRollCompleted += DealDamageOfficially;
+        PlayerUnit.ShowDice();
+        DiceManager.Instance.RollDice(PlayerUnit.AttackDieSize, PlayerUnit.DiceCanvas);
+
         return true;
+    }
+
+    private void DealDamageOfficially(int amount)
+    {
+        PlayerUnit.HideDice();
+        DiceManager.Instance.OnDiceRollCompleted -= DealDamageOfficially;
+
+        if (_currentTarget)
+        {
+            _currentTarget.ReceiveDamage(amount);
+            Debug.Log($"{PlayerUnit.DisplayName} attacked {_currentTarget.DisplayName} for {amount} rolled damage.");
+        }
     }
 
     public List<CombatUnit> GetLivingUnits()

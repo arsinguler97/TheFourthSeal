@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Threading.Tasks;
+using System.Collections;
 
 public class TurnManager : MonoBehaviour
 {
@@ -33,6 +34,7 @@ public class TurnManager : MonoBehaviour
     public int CurrentActionPoints { get; private set; }
     public CombatUnit CurrentUnit => _currentTurnIndex >= 0 && _currentTurnIndex < _turnOrder.Count ? _turnOrder[_currentTurnIndex] : null;
     public event Action<IReadOnlyList<CombatUnit>, int> TurnOrderChanged;
+    public int DelayBeforeHidingDice = 5;
 
     void Awake()
     {
@@ -456,26 +458,48 @@ public class TurnManager : MonoBehaviour
         EquipmentUIController.Instance.OpenEquipmentInventory();
     }
 
-    public async void RebuildInitiativeOrder()
+    public void RebuildInitiativeOrder()
     {
         EquipmentUIController.Instance.OnInventoryClosed -= RebuildInitiativeOrder;
 
-        List<Task<int>> initiativeRolls = new List<Task<int>>();
+        List<(int, DiceCanvas)> diceList = new();
+
+        _turnOrder.Clear();
 
         List<CombatUnit> livingUnits = CombatManager.I.GetLivingUnits();
         for (int i = 0; i < livingUnits.Count; i++)
-            initiativeRolls.Add(livingUnits[i].RollInitiative());
+        {
+            diceList.Add((6, livingUnits[i].DiceCanvas));
+            _turnOrder.Add(livingUnits[i]);
+            livingUnits[i].ShowDice();
+        }
 
-        await Task.WhenAll(initiativeRolls);
+        DiceManager.Instance.OnMultiDiceRollCompleted += SortInitiativeResults;
+        DiceManager.Instance.RollMultiDice(diceList);
+    }
 
-        _turnOrder.Clear();
-        _turnOrder.AddRange(livingUnits);
+    
+    private void SortInitiativeResults(List<int> diceResults)
+    {
+        DiceManager.Instance.OnMultiDiceRollCompleted -= SortInitiativeResults;
+
+        for (int i = 0; i < _turnOrder.Count; i++)
+        {
+            _turnOrder[i].LastInitiativeRoll = diceResults[i];
+        }
+
         _turnOrder.Sort((left, right) => right.LastInitiativeRoll.CompareTo(left.LastInitiativeRoll));
 
         whoStartsText.gameObject.SetActive(true);
         whoStartsText.text = _turnOrder[0].DisplayName + whoStartsText.text;
 
-        await Task.Delay(5000);
+        StartCoroutine(FinishInitiativeOrder(_turnOrder));
+    }
+
+    IEnumerator FinishInitiativeOrder(List<CombatUnit> livingUnits)
+    {
+        yield return new WaitForSeconds(DelayBeforeHidingDice);
+
         whoStartsText.gameObject.SetActive(false);
 
         for (int i = 0; i < livingUnits.Count; i++)
@@ -487,19 +511,20 @@ public class TurnManager : MonoBehaviour
             _currentTurnIndex = -1;
             UpdateTurnIndicators();
             NotifyTurnOrderChanged();
-            return;
         }
+        else
+        {
+            _currentTurnIndex = 0;
+            SelectedPlayerActionType = ActionType.None;
+            RemainingMoveSteps = 0;
+            CurrentActionPoints = 0;
+            UpdateActionPointUI();
 
-        _currentTurnIndex = 0;
-        SelectedPlayerActionType = ActionType.None;
-        RemainingMoveSteps = 0;
-        CurrentActionPoints = 0;
-        UpdateActionPointUI();
-
-        DebugTurnOrder();
-        UpdateTurnIndicators();
-        NotifyTurnOrderChanged();
-        BeginCurrentTurn();
+            DebugTurnOrder();
+            UpdateTurnIndicators();
+            NotifyTurnOrderChanged();
+            BeginCurrentTurn();
+        }
     }
 
 
