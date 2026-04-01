@@ -85,8 +85,9 @@ public class EnemyAIController : MonoBehaviour
         _enemyUnit.HideDice();
         DiceManager.Instance.OnDiceRollCompleted -= DealDamageOfficially;
 
-        CombatManager.I.PlayerUnit.ReceiveDamage(amount);
-        Debug.Log($"{_enemyUnit.DisplayName} attacked {CombatManager.I.PlayerUnit.DisplayName} for {amount} rolled damage.");
+        int finalDamageBeforeDefence = amount + _enemyUnit.Stats.Strength;
+        CombatManager.I.PlayerUnit.ReceiveAttackRoll(_enemyUnit, amount);
+        Debug.Log($"{_enemyUnit.DisplayName} attacked {CombatManager.I.PlayerUnit.DisplayName} with a roll of {amount} and {finalDamageBeforeDefence} raw damage before defence.");
 
         OnDamageDealtCompleted?.Invoke();
     }

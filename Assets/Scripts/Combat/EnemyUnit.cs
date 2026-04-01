@@ -71,27 +71,31 @@ public class EnemyUnit : CombatUnit
             visualSpriteRenderer.sprite = enemyDefinition.worldSprite;
     }
 
-    public override void ReceiveDamage(int incomingDamage)
+    public override void ReceiveAttackRoll(CombatUnit attacker, int attackRoll)
     {
-        if (enemyDefinition != null
+        bool isPlayerAttack = attacker is PlayerUnit;
+
+        if (isPlayerAttack
+            && enemyDefinition != null
             && enemyDefinition.immuneToOddDamage
-            && Mathf.Abs(incomingDamage) % 2 == 1)
+            && Mathf.Abs(attackRoll) % 2 == 1)
         {
             PlayMissedHitVfx();
-            Debug.Log($"{DisplayName} ignored odd damage value {incomingDamage}.");
+            Debug.Log($"{DisplayName} ignored odd player attack roll {attackRoll}.");
             return;
         }
 
-        if (enemyDefinition != null
+        if (isPlayerAttack
+            && enemyDefinition != null
             && enemyDefinition.immuneToDamageAtOrBelow > 0
-            && incomingDamage <= enemyDefinition.immuneToDamageAtOrBelow)
+            && attackRoll < enemyDefinition.immuneToDamageAtOrBelow)
         {
             PlayMissedHitVfx();
-            Debug.Log($"{DisplayName} ignored damage value {incomingDamage} because it is at or below {enemyDefinition.immuneToDamageAtOrBelow}.");
+            Debug.Log($"{DisplayName} ignored player attack roll {attackRoll} because it is below {enemyDefinition.immuneToDamageAtOrBelow}.");
             return;
         }
 
-        base.ReceiveDamage(incomingDamage);
+        base.ReceiveAttackRoll(attacker, attackRoll);
     }
 
     public bool TryMoveOneStep(Vector2Int step)

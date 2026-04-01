@@ -152,6 +152,13 @@ public abstract class CombatUnit : MonoBehaviour
             HandleDeath();
     }
 
+    public virtual void ReceiveAttackRoll(CombatUnit attacker, int attackRoll)
+    {
+        int attackerStrength = attacker != null ? attacker.Stats.Strength : 0;
+        int incomingDamage = attackRoll + attackerStrength;
+        ReceiveDamage(incomingDamage);
+    }
+
     public void Heal(int amount)
     {
         if (amount <= 0 || !IsAlive)

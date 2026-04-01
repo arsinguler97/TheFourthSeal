@@ -12,7 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29df230fbb55532418ad6abc37a792a4, type: 3}
   m_Name: Exit
   m_EditorClassIdentifier: Assembly-CSharp::TileTypeSO
-  id: Exit
-  walkable: 1
-  allowSpawn: 1
-  sprite: {fileID: 21300000, guid: 4b8c51b27e71f9c479dcd087e3f9d3bb, type: 3}
+  sprite: {fileID: 21300000, guid: bf0a28dedad19ab43a085238f8f4ecb9, type: 3}

@@ -24,6 +24,7 @@ public class DiceManager : MonoBehaviour
     private List<int> _rollsCompleted = new List<int>();
 
     [SerializeField] private AudioCue diceRollSFX;
+    [SerializeField] private float finalResultHoldDuration = 1f;
     
     
     private void Awake()
@@ -46,14 +47,15 @@ public class DiceManager : MonoBehaviour
 
     public void RollDice(int numberOfSides, DiceCanvas diceCanvas)
     {
-        if (!_diceDictionary.ContainsKey(numberOfSides))
+        if (numberOfSides <= 0 || diceCanvas == null)
         {
             Debug.LogError("No Valid Dice with " + numberOfSides + " sides!");
             return;
         }
 
         AudioManager.Instance.PlaySound(diceRollSFX);
-        StartCoroutine(RollDiceCoroutine(numberOfSides, diceCanvas.GetImage(), false));
+        diceCanvas.ResetDisplay();
+        StartCoroutine(RollDiceCoroutine(numberOfSides, diceCanvas, false));
     }
 
     public void RollMultiDice(List<(int numberOfSides, DiceCanvas diceCanvas)> diceList)
@@ -63,30 +65,41 @@ public class DiceManager : MonoBehaviour
         foreach (var dice in diceList)
         {
             _rollsPending++;
-            StartCoroutine(RollDiceCoroutine(dice.numberOfSides, dice.diceCanvas.GetImage(), true));
+            if (dice.diceCanvas != null)
+                dice.diceCanvas.ResetDisplay();
+            StartCoroutine(RollDiceCoroutine(dice.numberOfSides, dice.diceCanvas, true));
         }
     }
 
-    private IEnumerator RollDiceCoroutine(int numberOfSides, Image diceImage, bool isMulti)
+    private IEnumerator RollDiceCoroutine(int numberOfSides, DiceCanvas diceCanvas, bool isMulti)
     {
-        int randomDiceSide = 0;
+        if (diceCanvas == null)
+            yield break;
+
+        bool hasExactDiceSprites = _diceDictionary.ContainsKey(numberOfSides);
+        int rolledValue = 1;
 
         // Loop to switch dice sides randomly
         // before final side appears. 20 itterations here.
         for (int i = 0; i <= 20; i++)
         {
-            randomDiceSide = Random.Range(0, _diceDictionary[numberOfSides].Length);
+            rolledValue = Random.Range(1, numberOfSides + 1);
 
-            diceImage.sprite = _diceDictionary[numberOfSides][randomDiceSide];
+            if (hasExactDiceSprites)
+                diceCanvas.ShowSprite(_diceDictionary[numberOfSides][rolledValue - 1]);
+            else
+                diceCanvas.ShowOverflowResult(rolledValue);
 
             yield return new WaitForSeconds(0.05f);
         }
+
+        yield return new WaitForSeconds(finalResultHoldDuration);
 
 
         if (isMulti)
         {
             _rollsPending--;
-            _rollsCompleted.Add(randomDiceSide + 1);
+            _rollsCompleted.Add(rolledValue);
 
             if (_rollsPending == 0)
             {
@@ -95,9 +108,9 @@ public class DiceManager : MonoBehaviour
         }
         else
         {
-            OnDiceRollCompleted?.Invoke(randomDiceSide + 1);
+            OnDiceRollCompleted?.Invoke(rolledValue);
         }
 
-        Debug.Log(randomDiceSide + 1);
+        Debug.Log(rolledValue);
     }
 }

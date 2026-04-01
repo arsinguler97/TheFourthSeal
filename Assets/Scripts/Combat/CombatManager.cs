@@ -140,8 +140,9 @@ public class CombatManager : MonoBehaviour
 
         if (_currentTarget)
         {
-            _currentTarget.ReceiveDamage(amount);
-            Debug.Log($"{PlayerUnit.DisplayName} attacked {_currentTarget.DisplayName} for {amount} rolled damage.");
+            int finalDamageBeforeDefence = amount + PlayerUnit.Stats.Strength;
+            _currentTarget.ReceiveAttackRoll(PlayerUnit, amount);
+            Debug.Log($"{PlayerUnit.DisplayName} attacked {_currentTarget.DisplayName} with a roll of {amount} and {finalDamageBeforeDefence} raw damage before defence.");
         }
     }
 

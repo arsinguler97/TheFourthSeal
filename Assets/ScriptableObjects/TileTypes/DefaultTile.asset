@@ -10,6 +10,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 29df230fbb55532418ad6abc37a792a4, type: 3}
-  m_Name: Reward
+  m_Name: DefaultTile
   m_EditorClassIdentifier: Assembly-CSharp::TileTypeSO
-  sprite: {fileID: 21300000, guid: d56886372497a5443afdae2a75dca886, type: 3}
+  sprite: {fileID: 21300000, guid: 6775577fe64fecf42968725ac19f033b, type: 3}
