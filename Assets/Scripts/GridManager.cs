@@ -75,7 +75,7 @@ public class GridManager : MonoBehaviour
             }
     }
 
-    
+       
     private TileView CreateTileView(Vector2Int tileGridPos)
     {
         TileView tileView = Instantiate(tileViewPrefab, transform);
@@ -287,5 +287,28 @@ public class GridManager : MonoBehaviour
             return rewardOpenedTileType.sprite;
 
         return rewardTileType != null ? rewardTileType.sprite : floorTileType.sprite;
+    }
+
+
+    public bool IsTileBlocked(Vector2Int tilePos)
+    {
+        if (tilePos.x < 0 || tilePos.x >= gridWidth || tilePos.y < 0 || tilePos.y >= gridHeight)
+            return true;
+
+        return _tileViews[tilePos.x, tilePos.y].GetSprite() == blockedTileType.sprite;
+    }
+
+    public int GetTileCost(Vector2Int tilePos)
+    {
+        if (tilePos.x < 0 || tilePos.x >= gridWidth || tilePos.y < 0 || tilePos.y >= gridHeight)
+            return 1000000000;
+
+        if (_tileViews[tilePos.x, tilePos.y].GetSprite() == blockedTileType.sprite)
+            return 1000000000;
+
+        if (_tileViews[tilePos.x, tilePos.y].GetSprite() == lavaTileType.sprite)
+            return 3;
+
+        return 1;
     }
 }

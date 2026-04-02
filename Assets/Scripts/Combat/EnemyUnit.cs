@@ -113,10 +113,10 @@ public class EnemyUnit : CombatUnit
 
     public IEnumerator MoveOneStepAnimated(Vector2Int step)
     {
-        if (!GridMovementUtility.IsSingleCardinalStep(step) || GridManager.I == null)
-            yield break;
+        //if (!GridMovementUtility.IsSingleCardinalStep(step) || GridManager.I == null)
+        //    yield break;
 
-        Vector2Int requestedGridPosition = _currentGridPosition + step;
+        Vector2Int requestedGridPosition = step; //_currentGridPosition + 
         if (!GridMovementUtility.CanUnitEnterTile(requestedGridPosition, this))
             yield break;
 
