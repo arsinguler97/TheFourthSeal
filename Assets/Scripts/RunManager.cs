@@ -84,6 +84,8 @@ public class RunManager : MonoBehaviour
         CurrentRoomConfig = null;
         _clearedFloorNodeIds.Clear();
 
+        PlayerWallet.I.ResetWallet();
+
         AudioManager.Instance.UnPauseMusic();
     }
 

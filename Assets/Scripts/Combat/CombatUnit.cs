@@ -220,6 +220,11 @@ public abstract class CombatUnit : MonoBehaviour
         SetTurnIndicatorActive(false);
         Debug.Log($"{DisplayName} died.");
         gameObject.SetActive(false);
+
+
+        EnemyUnit enemy = this as EnemyUnit;
+        if (enemy != null)
+            PlayerWallet.I.AddToWallet(enemy.EnemyDefinition.goldValue);
     }
 
     protected void ResetBaseStats(StatBlockData newBaseStats)

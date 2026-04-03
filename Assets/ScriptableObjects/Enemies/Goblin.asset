@@ -20,6 +20,11 @@ MonoBehaviour:
     speed: 2
     strength: 0
     range: 1
+  goldValue: 10
   worldSprite: {fileID: 21300000, guid: bd91985042c383842af3e0e914228dcf, type: 3}
   turnOrderIcon: {fileID: 21300000, guid: bd91985042c383842af3e0e914228dcf, type: 3}
   description: He is pretty chill.
+  immuneToOddDamage: 0
+  immuneToDamageAtOrBelow: 0
+  missedHitVfxPrefab: {fileID: 0}
+  missedHitVfxOffset: {x: 0, y: 0.2, z: 0}
