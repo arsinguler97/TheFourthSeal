@@ -1,11 +1,19 @@
 using UnityEngine;
 
+public enum EnemyAttackStyle
+{
+    Melee,
+    Ranged
+}
+
 [CreateAssetMenu(menuName = "ScriptableObjects/EnemyDefinition")]
 public class EnemyDefinitionSO : ScriptableObject
 {
     public string displayName = "Enemy";
     public EnemyStatBlockData baseStats = new EnemyStatBlockData();
     public int goldValue;
+    public EnemyAttackStyle attackStyle = EnemyAttackStyle.Melee;
+    public GameObject projectilePrefab;
     public Sprite worldSprite;
     public Sprite turnOrderIcon;
     [TextArea] public string description;

@@ -267,3 +267,111 @@ Likely next implementation steps:
 - add item/equipment/consumable systems on top of current combat/stat foundation
 - hovering over enemies display their corresponding card on top of them
 - inventory system
+
+## Planned Roadmap
+
+### 1. Wallet and shop economy
+- confirm and stabilize the current wallet / gold system
+- keep earned gold across floors during the same run
+- add item cost data to item definitions
+- add item tier data to item definitions
+- add cursed item data / definitions
+
+### 2. Shop scene
+- create a dedicated `ShopScene`
+- enter the shop at the end of each floor
+- show 4 random shop items
+- require at least 1 of those 4 items to be a cursed item
+- shop inventory should be tier-based:
+  - first shop: tier 1 items
+  - second shop: tier 2 items
+  - third shop: tier 3 items
+  - fourth shop: tier 4 items
+- allow purchase only if the player has enough gold
+- reuse the current inventory/loadout UI for purchases:
+  - shop items on the left
+  - player inventory/loadout on the right
+- purchase flow:
+  - if the matching equipment slot is empty, buy and equip the item directly
+  - if the matching slot is occupied, send the purchased item to `Spare`
+  - if both the matching slot and `Spare` are occupied, the purchase should be blocked
+- after shopping, continue into the next floor
+
+### 3. Multi-floor progression
+- expand the game from the current single-floor loop into multiple floors
+- keep a single reusable `FloorScene`
+- do not create separate floor scenes unless data-driven reuse becomes impossible
+- each floor should have its own floor-map state and progression data
+- expected flow:
+  - `Floor 1 -> Shop -> Floor 2 -> Shop -> Floor 3 ...`
+
+### 4. Floor-map movement update
+- cleared rooms should remain non-enterable
+- however, the player marker should still be able to move across already cleared floor nodes
+- this keeps traversal readable without allowing room re-entry
+
+### 5. Miniboss key system
+- each floor should contain one miniboss room
+- miniboss rooms should generate a `Key Tile`
+- the key tile should behave like the reward tile:
+  - it exists only in miniboss rooms
+  - it is placed during room generation
+  - it can visually switch from closed to opened
+- the player gets the key if:
+  - they step on the key tile
+  - or they clear the miniboss room by killing all enemies
+
+### 6. Floor exit gate
+- each floor should have an exit gate / top door on the floor map
+- the exit should be visible but locked by default
+- if the player has the floor key, the exit should visually switch to an opened state
+- only then can the player leave the floor and enter the shop / next floor flow
+
+### 7. Data and implementation order
+Recommended implementation order:
+1. inspect the current wallet work and decide what can be reused
+2. add item costs and cursed item support
+3. add floor-level key state to `RunManager`
+4. add miniboss room key tile generation and key acquisition rules
+5. add locked/open floor exit logic on `FloorScene`
+6. update floor-map traversal so cleared nodes are walkable but not enterable
+7. build `ShopScene`
+8. connect `ShopScene` to multi-floor progression
+
+### 8. Ranged weapon and projectile plan
+- only weapons need a `melee / ranged` split
+- enemies should also have an attack-style split:
+  - `Melee`
+  - `Ranged`
+- item `icon` is currently unused and should be removed later if no longer needed
+
+#### Weapon-side plan
+- melee weapons keep the current attack logic
+- ranged weapons still use the same targeting rules:
+  - no diagonal attacks
+  - same row or same column only
+  - target must be within `Range`
+- ranged weapons should reference a projectile prefab
+- examples:
+  - bow -> arrow projectile
+  - magic weapon -> fireball projectile
+
+#### Enemy-side plan
+- enemy definitions should support melee or ranged attack style
+- ranged enemies should also reference a projectile prefab
+- examples:
+  - archer -> arrow projectile
+  - fire mage -> fireball projectile
+
+#### Projectile behavior rules
+- projectile prefabs are preferred over sprite-only data
+- projectile should move visually from attacker toward the target line
+- projectile should not be affected by lava tiles
+- projectile should be blocked by blocked tiles
+- if another valid target is standing between attacker and intended target, the projectile should hit the first target in the path
+- when the projectile hits, damage should resolve using the existing combat pipeline
+
+#### AI update for ranged enemies
+- melee enemies should keep their current approach behavior
+- ranged enemies should only move until the player is within valid attack range
+- ranged enemies should not walk adjacent to the player unless required by range constraints

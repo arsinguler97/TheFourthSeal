@@ -247,6 +247,24 @@ public class EquipmentManager : MonoBehaviour
         return Mathf.Max(0, weapon.stats.attack);
     }
 
+    public WeaponAttackStyle GetEquippedWeaponAttackStyle()
+    {
+        ItemSO weapon = GetEquippedItem(LoadoutSlotType.Weapon);
+        if (weapon == null || weapon.type != ItemType.Weapon)
+            return WeaponAttackStyle.Melee;
+
+        return weapon.weaponAttackStyle;
+    }
+
+    public GameObject GetEquippedWeaponProjectilePrefab()
+    {
+        ItemSO weapon = GetEquippedItem(LoadoutSlotType.Weapon);
+        if (weapon == null || weapon.type != ItemType.Weapon || weapon.weaponAttackStyle != WeaponAttackStyle.Ranged)
+            return null;
+
+        return weapon.projectilePrefab;
+    }
+
     bool CanPlaceItemInSlot(ItemSO item, LoadoutSlotType slotType)
     {
         if (item == null)

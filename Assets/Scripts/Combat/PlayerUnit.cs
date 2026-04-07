@@ -52,6 +52,19 @@ public class PlayerUnit : CombatUnit
         return base.GetAttackDieSize();
     }
 
+    public bool IsUsingRangedWeapon()
+    {
+        return EquipmentManager.Instance != null
+            && EquipmentManager.Instance.GetEquippedWeaponAttackStyle() == WeaponAttackStyle.Ranged;
+    }
+
+    public GameObject GetEquippedProjectilePrefab()
+    {
+        return EquipmentManager.Instance != null
+            ? EquipmentManager.Instance.GetEquippedWeaponProjectilePrefab()
+            : null;
+    }
+
     public void PlayConsumableUseVfx()
     {
         AudioManager.Instance.PlaySound(rewardPickupSFX);

@@ -10,9 +10,12 @@ public class PlayerWallet : MonoBehaviour
 
     [SerializeField] private AudioCue goldSFX;
 
+    [Header("Gain/Loss Popup")]
     [SerializeField] private TextMeshProUGUI textTotal;
     [SerializeField] private TextMeshProUGUI textChange;
     [SerializeField] private GameObject panel;
+
+    public int CurrentGold => _wallet;
 
 
     private void Awake()
@@ -33,16 +36,23 @@ public class PlayerWallet : MonoBehaviour
     {
         _wallet = 0;
 
-        textTotal.text = _wallet.ToString();
-        textChange.text = "";
-        panel.SetActive(false);
+        if (textTotal != null)
+            textTotal.text = _wallet.ToString();
+
+        if (textChange != null)
+            textChange.text = "";
+
+        if (panel != null)
+            panel.SetActive(false);
     }
 
     public void AddToWallet(int amount)
     {
         _wallet += amount;
         StartCoroutine(UpdateDisplay(amount, true));
-        AudioManager.Instance.PlaySound(goldSFX);
+
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySound(goldSFX);
     }
 
     // For Shop to Display whether the Item is Purchaseable or Not (ex: Greyed out if Below is False)
@@ -55,7 +65,9 @@ public class PlayerWallet : MonoBehaviour
 
         _wallet -= amount;
         StartCoroutine(UpdateDisplay(amount, false));
-        AudioManager.Instance.PlaySound(goldSFX);
+
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySound(goldSFX);
 
         return true;
     }
@@ -63,18 +75,26 @@ public class PlayerWallet : MonoBehaviour
 
     private IEnumerator UpdateDisplay(int amount, bool wasAddition)
     {
-        textTotal.text = (_wallet + (wasAddition ? -amount : amount)).ToString();
-        textChange.text = wasAddition ? "+" + (amount) : "-" + (amount).ToString();
+        if (textTotal != null)
+            textTotal.text = (_wallet + (wasAddition ? -amount : amount)).ToString();
 
-        panel.SetActive(true);
+        if (textChange != null)
+            textChange.text = wasAddition ? "+" + amount : "-" + amount.ToString();
+
+        if (panel != null)
+            panel.SetActive(true);
 
         yield return new WaitForSeconds(1);
 
-        textTotal.text = _wallet.ToString();
-        textChange.text = "";
+        if (textTotal != null)
+            textTotal.text = _wallet.ToString();
+
+        if (textChange != null)
+            textChange.text = "";
 
         yield return new WaitForSeconds(2);
 
-        panel.SetActive(false);
+        if (panel != null)
+            panel.SetActive(false);
     }
 }

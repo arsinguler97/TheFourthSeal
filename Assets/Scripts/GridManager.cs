@@ -259,7 +259,8 @@ public class GridManager : MonoBehaviour
 
                 if (_tileViews[tileX, tileY].GetSprite() == blockedTileType.sprite) continue;
 
-                if (Mathf.Abs(x) + Mathf.Abs(y) == unitAttackRange)
+                int manhattanDistance = Mathf.Abs(x) + Mathf.Abs(y);
+                if (manhattanDistance > 0 && manhattanDistance <= unitAttackRange)
                 {
                     _tileViewsAttackGrid[tileX, tileY].SetSprite(attackTileType.sprite);
                 }

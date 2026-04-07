@@ -95,7 +95,7 @@ public class EquipmentSlotUI : MonoBehaviour, IPointerDownHandler, IPointerUpHan
 
         if (cardImage != null)
         {
-            cardImage.sprite = item.card != null ? item.card : item.icon;
+            cardImage.sprite = item.card;
             cardImage.enabled = true;
         }
     }

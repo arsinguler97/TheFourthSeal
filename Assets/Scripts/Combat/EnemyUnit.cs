@@ -18,6 +18,8 @@ public class EnemyUnit : CombatUnit
     public override Vector2Int GridPosition => _currentGridPosition;
     public EnemyAIController EnemyAI => _enemyAI;
     public EnemyDefinitionSO EnemyDefinition => enemyDefinition;
+    public EnemyAttackStyle AttackStyle => enemyDefinition != null ? enemyDefinition.attackStyle : EnemyAttackStyle.Melee;
+    public GameObject ProjectilePrefab => enemyDefinition != null ? enemyDefinition.projectilePrefab : null;
 
     protected override void Awake()
     {

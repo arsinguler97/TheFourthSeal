@@ -10,23 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 002baee080d8c304fbdc19195650d255, type: 3}
-  m_Name: Bandit
+  m_Name: Archer
   m_EditorClassIdentifier: Assembly-CSharp::EnemyDefinitionSO
-  displayName: Bandit
+  displayName: Archer
   baseStats:
-    health: 3
-    attack: 3
+    health: 4
+    attack: 2
     defence: 0
     speed: 2
     strength: 0
-    range: 1
-  goldValue: 15
-  attackStyle: 0
-  projectilePrefab: {fileID: 0}
-  worldSprite: {fileID: 21300000, guid: 2864680c7bd7f094b89277eb5771b7da, type: 3}
-  turnOrderIcon: {fileID: 21300000, guid: 2864680c7bd7f094b89277eb5771b7da, type: 3}
-  description: Immune to odd attacks.
-  immuneToOddDamage: 1
+    range: 2
+  goldValue: 10
+  attackStyle: 1
+  projectilePrefab: {fileID: 1780809659637726124, guid: 34478e70411ec604891c4f85ab167255, type: 3}
+  worldSprite: {fileID: 21300000, guid: 959054875a12b5f40911796de8ced5ac, type: 3}
+  turnOrderIcon: {fileID: 21300000, guid: 959054875a12b5f40911796de8ced5ac, type: 3}
+  description: He is pretty chill.
+  immuneToOddDamage: 0
   immuneToDamageAtOrBelow: 0
-  missedHitVfxPrefab: {fileID: 8547867254204328264, guid: 0290b291d3aacc04da556270e0a29e70, type: 3}
+  missedHitVfxPrefab: {fileID: 0}
   missedHitVfxOffset: {x: 0, y: 0.2, z: 0}

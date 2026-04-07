@@ -601,7 +601,7 @@ public class TurnManager : MonoBehaviour
         if (_runtimeConsumableActionIconImage != null)
         {
             Sprite actionIcon = hasConsumable
-                ? (consumableItem.icon != null ? consumableItem.icon : consumableItem.card)
+                ? consumableItem.card
                 : null;
             _runtimeConsumableActionIconImage.sprite = actionIcon;
             _runtimeConsumableActionIconImage.enabled = actionIcon != null;

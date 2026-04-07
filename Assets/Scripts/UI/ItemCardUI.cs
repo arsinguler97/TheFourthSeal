@@ -29,7 +29,7 @@ public class ItemCardUI : MonoBehaviour
 
         if (portraitImage != null)
         {
-            Sprite sprite = item.card != null ? item.card : item.icon;
+            Sprite sprite = item.card;
             portraitImage.sprite = sprite;
             portraitImage.enabled = sprite != null;
         }
@@ -50,6 +50,6 @@ public class ItemCardUI : MonoBehaviour
         if (targetText == null)
             return;
 
-        targetText.text = value != 0 ? value.ToString() : string.Empty;
+        targetText.text = value.ToString();
     }
 }

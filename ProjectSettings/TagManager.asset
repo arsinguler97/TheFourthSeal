@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Grid
   - Enemy
+  - Projectile
   layers:
   - Default
   - TransparentFX
@@ -38,7 +39,7 @@ TagManager:
   - 
   - 
   - 
-  - 
+  - Projectile
   m_SortingLayers:
   - name: Default
     uniqueID: 0

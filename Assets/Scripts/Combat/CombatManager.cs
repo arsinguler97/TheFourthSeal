@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Collections;
+using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -28,6 +29,7 @@ public class CombatManager : MonoBehaviour
     public PlayerUnit PlayerUnit { get; private set; }
     readonly List<EnemyUnit> _enemyUnits = new List<EnemyUnit>();
     private EnemyUnit _currentTarget;
+    Vector2Int _pendingPlayerAttackTargetGrid;
     public IReadOnlyList<EnemyUnit> EnemyUnits => _enemyUnits;
     bool _isRoomClearTransitionRunning;
     bool _isPlayerDefeatSequenceRunning;
@@ -124,6 +126,8 @@ public class CombatManager : MonoBehaviour
         if (!IsStraightLineTargetInRange(PlayerUnit.GridPosition, _currentTarget.GridPosition, PlayerUnit.Stats.Range))
             return false;
 
+        _pendingPlayerAttackTargetGrid = targetGridPosition;
+
 
         DiceManager.Instance.OnDiceRollCompleted += DealDamageOfficially;
         PlayerUnit.ShowDice();
@@ -136,6 +140,15 @@ public class CombatManager : MonoBehaviour
     {
         PlayerUnit.HideDice();
         DiceManager.Instance.OnDiceRollCompleted -= DealDamageOfficially;
+
+        if (_currentTarget == null)
+            return;
+
+        if (PlayerUnit != null && PlayerUnit.IsUsingRangedWeapon())
+        {
+            ResolvePlayerRangedAttack(amount);
+            return;
+        }
 
         if (_currentTarget)
         {
@@ -194,6 +207,167 @@ public class CombatManager : MonoBehaviour
 
         int manhattanDistance = Mathf.Abs(origin.x - target.x) + Mathf.Abs(origin.y - target.y);
         return manhattanDistance <= range;
+    }
+
+    public void ResolveEnemyAttack(EnemyUnit attacker, CombatUnit target, int attackRoll, Action onResolved)
+    {
+        if (attacker == null || target == null)
+        {
+            onResolved?.Invoke();
+            return;
+        }
+
+        if (attacker.AttackStyle != EnemyAttackStyle.Ranged || attacker.ProjectilePrefab == null)
+        {
+            target.ReceiveAttackRoll(attacker, attackRoll);
+            onResolved?.Invoke();
+            return;
+        }
+
+        Vector2Int direction = GetAttackDirection(attacker.GridPosition, target.GridPosition);
+        ProjectileResolution resolution = ResolveProjectilePath(attacker.GridPosition, direction, GetLineDistance(attacker.GridPosition, target.GridPosition));
+        SpawnProjectileVisual(
+            attacker.ProjectilePrefab,
+            attacker.transform.position,
+            resolution.impactWorldPosition,
+            attacker.GetComponentInChildren<SpriteRenderer>(),
+            () =>
+            {
+                if (resolution.hitPlayer && PlayerUnit != null && PlayerUnit.IsAlive)
+                    PlayerUnit.ReceiveAttackRoll(attacker, attackRoll);
+
+                onResolved?.Invoke();
+            });
+    }
+
+    void ResolvePlayerRangedAttack(int attackRoll)
+    {
+        GameObject projectilePrefab = PlayerUnit != null ? PlayerUnit.GetEquippedProjectilePrefab() : null;
+        if (projectilePrefab == null)
+        {
+            int finalDamageBeforeDefence = attackRoll + PlayerUnit.Stats.Strength;
+            _currentTarget.ReceiveAttackRoll(PlayerUnit, attackRoll);
+            Debug.Log($"{PlayerUnit.DisplayName} attacked {_currentTarget.DisplayName} with a roll of {attackRoll} and {finalDamageBeforeDefence} raw damage before defence.");
+            return;
+        }
+
+        Vector2Int direction = GetAttackDirection(PlayerUnit.GridPosition, _pendingPlayerAttackTargetGrid);
+        ProjectileResolution resolution = ResolveProjectilePath(PlayerUnit.GridPosition, direction, GetLineDistance(PlayerUnit.GridPosition, _pendingPlayerAttackTargetGrid));
+        SpawnProjectileVisual(
+            projectilePrefab,
+            PlayerUnit.transform.position,
+            resolution.impactWorldPosition,
+            PlayerUnit.GetComponentInChildren<SpriteRenderer>(),
+            () =>
+            {
+                if (resolution.hitEnemy != null && resolution.hitEnemy.IsAlive)
+                {
+                    int finalDamageBeforeDefence = attackRoll + PlayerUnit.Stats.Strength;
+                    resolution.hitEnemy.ReceiveAttackRoll(PlayerUnit, attackRoll);
+                    Debug.Log($"{PlayerUnit.DisplayName} attacked {resolution.hitEnemy.DisplayName} with a roll of {attackRoll} and {finalDamageBeforeDefence} raw damage before defence.");
+                }
+            });
+    }
+
+    ProjectileResolution ResolveProjectilePath(Vector2Int origin, Vector2Int direction, int maxDistance)
+    {
+        ProjectileResolution resolution = new ProjectileResolution
+        {
+            impactWorldPosition = GridManager.I != null ? GridManager.I.GridToWorld(origin) : Vector3.zero
+        };
+
+        if (GridManager.I == null || direction == Vector2Int.zero || maxDistance <= 0)
+            return resolution;
+
+        Vector2Int currentGridPosition = origin;
+        for (int step = 1; step <= maxDistance; step++)
+        {
+            currentGridPosition += direction;
+
+            if (!GridManager.I.InBounds(currentGridPosition))
+                break;
+
+            resolution.impactWorldPosition = GridManager.I.GridToWorld(currentGridPosition);
+
+            if (GridManager.I.IsTileBlocked(currentGridPosition))
+                break;
+
+            EnemyUnit enemy = GetEnemyAt(currentGridPosition);
+            if (enemy != null)
+            {
+                resolution.hitEnemy = enemy;
+                break;
+            }
+
+            if (PlayerUnit != null && PlayerUnit.IsAlive && PlayerUnit.GridPosition == currentGridPosition)
+            {
+                resolution.hitPlayer = true;
+                break;
+            }
+        }
+
+        return resolution;
+    }
+
+    void SpawnProjectileVisual(GameObject projectilePrefab, Vector3 startWorldPosition, Vector3 endWorldPosition, SpriteRenderer sourceRenderer, Action onArrived)
+    {
+        if (projectilePrefab == null)
+        {
+            onArrived?.Invoke();
+            return;
+        }
+
+        GameObject projectileInstance = Instantiate(projectilePrefab, startWorldPosition, Quaternion.identity);
+        MatchProjectileSorting(projectileInstance, sourceRenderer);
+
+        ProjectileVisual projectileVisual = projectileInstance.GetComponent<ProjectileVisual>();
+        if (projectileVisual == null)
+            projectileVisual = projectileInstance.AddComponent<ProjectileVisual>();
+
+        projectileVisual.Initialize(startWorldPosition, endWorldPosition, onArrived);
+    }
+
+    void MatchProjectileSorting(GameObject projectileInstance, SpriteRenderer sourceRenderer)
+    {
+        if (projectileInstance == null || sourceRenderer == null)
+            return;
+
+        ParticleSystemRenderer[] particleRenderers = projectileInstance.GetComponentsInChildren<ParticleSystemRenderer>(true);
+        for (int i = 0; i < particleRenderers.Length; i++)
+        {
+            particleRenderers[i].sortingLayerID = sourceRenderer.sortingLayerID;
+            particleRenderers[i].sortingOrder = sourceRenderer.sortingOrder + 1;
+        }
+
+        SpriteRenderer[] spriteRenderers = projectileInstance.GetComponentsInChildren<SpriteRenderer>(true);
+        for (int i = 0; i < spriteRenderers.Length; i++)
+        {
+            spriteRenderers[i].sortingLayerID = sourceRenderer.sortingLayerID;
+            spriteRenderers[i].sortingOrder = sourceRenderer.sortingOrder + 1;
+        }
+    }
+
+    Vector2Int GetAttackDirection(Vector2Int origin, Vector2Int target)
+    {
+        if (origin.x == target.x)
+            return target.y > origin.y ? Vector2Int.up : Vector2Int.down;
+
+        if (origin.y == target.y)
+            return target.x > origin.x ? Vector2Int.right : Vector2Int.left;
+
+        return Vector2Int.zero;
+    }
+
+    int GetLineDistance(Vector2Int origin, Vector2Int target)
+    {
+        return Mathf.Abs(origin.x - target.x) + Mathf.Abs(origin.y - target.y);
+    }
+
+    struct ProjectileResolution
+    {
+        public EnemyUnit hitEnemy;
+        public bool hitPlayer;
+        public Vector3 impactWorldPosition;
     }
 
     public void BeginReturnToFloorSceneTransition()

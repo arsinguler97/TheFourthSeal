@@ -10,24 +10,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9e05953932de6ac4eb1fda248b08e71c, type: 3}
-  m_Name: Sword
+  m_Name: Bow
   m_EditorClassIdentifier: Assembly-CSharp::Item
-  itemName: Sword
-  itemDescription: Has a base damage of 1d8.
+  itemName: Bow
+  itemDescription: Simple geometry.
   type: 0
   tier: 1
   cost: 0
   isCursed: 0
   equipmentSubtype: 0
-  weaponHandedness: 1
-  weaponAttackStyle: 0
-  projectilePrefab: {fileID: 0}
+  weaponHandedness: 2
+  weaponAttackStyle: 1
+  projectilePrefab: {fileID: 1780809659637726124, guid: 34478e70411ec604891c4f85ab167255, type: 3}
   consumableHealAmount: 0
   stats:
-    attack: 8
-    defence: 1
-    speed: 0
-    strength: 1
-    range: 0
+    attack: 6
+    defence: 0
+    speed: 1
+    strength: 0
+    range: 1
     actionPoints: 0
-  card: {fileID: 21300000, guid: ae3fe5243a0f3ce47bc9b3aba4be337c, type: 3}
+  card: {fileID: 21300000, guid: 66c6e6f4a4e11094497bd10c5171ae2a, type: 3}

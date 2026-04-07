@@ -24,6 +24,20 @@ public enum WeaponHandedness
     TwoHanded
 }
 
+public enum WeaponAttackStyle
+{
+    Melee,
+    Ranged
+}
+
+public enum ItemTier
+{
+    Tier1 = 1,
+    Tier2 = 2,
+    Tier3 = 3,
+    Tier4 = 4
+}
+
 public enum LoadoutSlotType
 {
     None,
@@ -43,11 +57,15 @@ public class ItemSO : ScriptableObject
     public string itemName;
     public string itemDescription;
     public ItemType type;
+    public ItemTier tier = ItemTier.Tier1;
+    public int cost = 0;
+    public bool isCursed;
     public EquipmentSubtype equipmentSubtype;
     public WeaponHandedness weaponHandedness = WeaponHandedness.None;
+    public WeaponAttackStyle weaponAttackStyle = WeaponAttackStyle.Melee;
+    public GameObject projectilePrefab;
     public int consumableHealAmount;
     public ItemStatBlockData stats;
-    public Sprite icon;
     public Sprite card;
 
     public LoadoutSlotType GetDefaultLoadoutSlot()
