@@ -1,52 +1,113 @@
 # TheFourthSeal Dev Notes
 
-## Current Combat Slice
+## Project State
 
-This project currently has a first-pass floor-to-room combat loop implemented.
+This project currently has a working floor-to-room combat loop in Unity.
 
-## High-Level Flow
+Implemented at a usable prototype level:
+- floor map selection
+- room generation
+- turn-based combat
+- player and enemy stat systems
+- equipment and consumables
+- reward tiles
+- miniboss / boss support
+- enemy hover cards
+- player stat card
+- item cards in inventory
+- wallet / gold gain from enemy kills
+- ranged weapon and ranged enemy projectile support
 
-### Run flow
+Still planned / not finished:
+- full shop flow
+- cursed item flow
+- multi-floor progression with key + exit gate
+- more enemy and item variety
+- more cleanup of scene/editor setup
+
+---
+
+## Core Run Flow
+
+### Current flow
 - `RunManager` is the persistent run-state singleton.
-- `FloorScene` lets the player choose the next room node.
-- `RunManager` stores:
-  - selected `RoomTemplateSO`
-  - selected enemy count override
-  - current floor node id
-  - pending floor node id
-  - cleared floor nodes
-- `RoomScene` reads that state, generates the room, and runs combat.
-- clearing the room advances the pending floor node and returns to `FloorScene`.
-- dying in `RoomScene` opens the defeat UI; `Play Again` resets the run and loads `FloorScene`.
+- `FloorScene` is used to pick the next room.
+- entering a room loads `RoomScene`.
+- `RoomScene` generates a combat room from current run state.
+- clearing the room returns the player to `FloorScene`.
+- player death resets the run and returns to the start flow.
 
-### Room flow
-- `FloorScene` room selection stores the chosen `RoomTemplateSO` in `RunManager`.
-- `RoomNode` can add a node-specific enemy count bonus through `additionalEnemyCount`.
-- `RoomButton` passes the final enemy count override into `RunManager`.
-- `RoomScene` uses `RoomGenerator` to generate:
-  - player start: first row, random column
-  - exit: last row, random column
-  - reward: random row excluding first and last
-  - enemies: reserved before lava/blocked placement
-  - lava / blocked tiles after all reserved positions are chosen
-- enemy spawns must not be within Manhattan distance 2 of player start.
+### Current persistent state in `RunManager`
+- selected room template
+- selected enemy count override
+- current floor node id
+- pending floor node id
+- cleared floor nodes
+- current room config
+- player health carried between rooms
 
-### Room data
-- `RoomTemplateSO`
-  - `enemyCount`
-  - `lavaTileCount`
-  - `blockedTileCount`
-- `RoomConfig`
-  - `start`
-  - `exit`
-  - `reward`
-  - `enemySpawns`
-  - `lavaTiles`
-  - `blockedTiles`
+---
 
-## Combat System
+## Floor Map
 
-### Stats
+### Current behavior
+- `FloorMapController` rebuilds the floor map UI on `FloorScene`.
+- `FloorMapPlayerUI` moves the player marker to the current node.
+- `RoomNode` stores connectivity between nodes.
+- `RoomButton` should route room entry through `FloorMapController`.
+- cleared rooms are tracked in run state.
+
+### Planned update
+- cleared rooms should remain non-enterable
+- but the player marker should still be able to move across cleared nodes on the floor map
+
+---
+
+## Room Generation
+
+### Current room generation
+`RoomScene` currently generates:
+- player start tile
+- exit tile
+- reward tile
+- enemy spawn positions
+- lava tiles
+- blocked tiles
+
+### `RoomConfig`
+Current room config data includes:
+- `start`
+- `exit`
+- `reward`
+- `enemySpawns`
+- `enemyDefinitions`
+- `lavaTiles`
+- `blockedTiles`
+- `isRewardOpened`
+
+### `RoomTemplateSO`
+Room templates currently support:
+- `enemyCount`
+- `lavaTileCount`
+- `blockedTileCount`
+- `possibleEnemies`
+- optional `bossEnemy`
+
+### Current special room behavior
+- if `bossEnemy` is assigned:
+  - that boss always spawns
+  - that boss spawns only once
+  - remaining enemy slots are filled from normal room enemy pool
+
+### Node-specific enemy overrides
+- `RoomNode` can override enemy pool per node
+- if node overrides are set, they are used first
+- otherwise the room template enemy pool is used
+
+---
+
+## Combat Stats
+
 Implemented combat stats:
 - `Health`
 - `Attack`
@@ -56,322 +117,399 @@ Implemented combat stats:
 - `Range`
 - `ActionPoints`
 
-Files:
-- `Assets/Scripts/Combat/StatType.cs`
-- `Assets/Scripts/Combat/StatBlockData.cs`
-- `Assets/Scripts/Combat/RuntimeStatBlock.cs`
-- `Assets/Scripts/Combat/StatModifierData.cs`
+### Current damage model
+- attack roll is `1..Attack`
+- strength is added after the roll
+- defence reduces final incoming damage
+- minimum damage taken from a successful hit is `1`
 
-### Units
-- `CombatUnit` is the base class for combat actors.
-- `PlayerUnit` wraps the player runtime combat state.
-- `EnemyUnit` wraps enemy runtime combat state.
+### Important rule
+- dice display should reflect the raw attack roll
+- damage popup should reflect final damage after strength and defence
 
-Implemented behavior:
-- attack damage is rolled as `1..Attack`, then `Strength` is added
-- defence reduces incoming damage
-- minimum damage taken is currently `1`
-- initiative roll is `1d20 + speed`
+---
 
-Files:
-- `Assets/Scripts/Combat/CombatUnit.cs`
-- `Assets/Scripts/Combat/PlayerUnit.cs`
-- `Assets/Scripts/Combat/EnemyUnit.cs`
+## Units
 
-### Turn order
-- `TurnManager` must exist in `RoomScene`
-- initiative is rolled after player/enemies are spawned
-- living units are sorted by initiative
-- turns advance through that ordered list
+### Current combat actors
+- `CombatUnit` = shared combat base
+- `PlayerUnit` = runtime player combat state
+- `EnemyUnit` = runtime enemy combat state
+
+### Current behavior
+- health bars
+- damage popups
+- hit VFX
+- turn indicators
+- damage flash
+- death handling
+- initiative participation
+
+### Health persistence
+- the player no longer fully heals every room
+- current HP carries between rooms
+- on entering the next room, the player recovers a small amount instead of full heal
+
+---
+
+## Turn System
+
+### Current turn behavior
+- initiative is rolled at the start of room combat
+- units are sorted by initiative
+- each unit acts in order
 
 ### Player turn rules
-- player starts turn with `CurrentActionPoints = Stats.ActionPoints`
-- each action can currently be used only once per turn
-- `Move` can be used once
-- `Attack` can be used once
-- turns do not auto-end after actions
-- the player must use `Skip` to end the turn explicitly
-- if AP reaches 0, no more actions can be selected, but the turn still waits for `Skip`
+- player starts the turn with `Stats.ActionPoints`
+- `Move` can be used once per turn
+- `Attack` can be used once per turn
+- `Skip` ends the turn
+- turn does not auto-end after acting
 
-### Action rules
-- `Move` action:
-  - costs 1 AP
-  - enables move mode
-  - allows movement up to `Speed` tiles total
-  - movement is step-based
-  - no diagonal movement
-  - can use WASD / arrows
-  - can also click only an adjacent tile
-- `Attack` action:
-  - costs 1 AP
-  - enables attack mode
-  - click enemy tile to attack
-  - no diagonal attack
-  - target must be in same row or column
-  - range check uses `Range` stat
-- `Skip` action:
-  - implemented as an `ActionDefinitionSO`
-  - ends current turn immediately
+### Current actions
+- `Move`
+- `Attack`
+- `Skip`
+- `HealthPotion` consumable action
 
-Files:
-- `Assets/Scripts/Combat/ActionType.cs`
-- `Assets/Scripts/Combat/ActionDefinitionSO.cs`
-- `Assets/Scripts/Combat/TurnManager.cs`
-- `Assets/Scripts/PlayerController.cs`
+### UI feedback
+- action point text
+- attack / move mode highlights
+- consumable button appears dynamically when a consumable is equipped
 
-### Combat feedback
-- `CombatUnit` can play:
-  - hit impact particles
-  - floating damage popups
-  - turn indicator pulse
-- `PlayerUnit` can also play a death VFX on defeat.
+---
 
-## Enemy AI
+## Dice System
 
-Current AI is intentionally simple.
+### Current dice logic
+- actual attack roll is always based on `1..Attack`
+- dice result is shown before damage is applied
+- after the final roll is shown, the system waits briefly, then resolves the attack
 
-On its turn, each enemy:
-- checks if player is already in straight-line attack range
-- if not, moves toward the player up to `Speed` steps
-- movement is non-diagonal
-- if the player becomes reachable in straight-line `Range`, attacks
+### Current display logic
+- normal dice assets are used for supported low values
+- overflow / text fallback is used for higher unsupported values
 
-AI now lives in:
-- `Assets/Scripts/Combat/EnemyAIController.cs`
+### Important note
+- low attack values should still display correctly using available dice visuals
+- high attack values use the fallback text dice visual
 
-`CombatManager` is now responsible only for shared combat state and helper queries.
+---
 
-## Floor Map
+## Equipment and Inventory
 
-- `FloorMapController` rebuilds the floor UI from `RunManager.CurrentFloorNodeId` on `FloorScene` load.
-- `FloorMapPlayerUI` snaps or animates the player marker to the selected room node.
-- `RoomNode` connectivity decides which next rooms are interactable.
-- `RoomButton` should only open rooms through `FloorMapController`.
+### Current equipment slots
+- `Helmet`
+- `BodyArmor`
+- `Gloves`
+- `Boots`
+- `Shield`
+- `Weapon`
+- `Consumable`
+- `Spare`
 
-Important setup note:
-- `RunManager` is persistent across scenes.
-- `FloorMapController` should stay scene-local in `FloorScene`.
-- do not place `FloorMapController` on the same persistent object as `RunManager`.
+### Current behavior
+- room loadout panel opens before combat if there is a spare item to manage
+- player can move or swap items between valid slots
+- `Spare <-> slot` swap is supported
+- two-handed weapon logic is supported
+- delete flow uses confirmation
+- `Start Run` uses confirmation
+- if no pending spare item exists, inventory panel does not open and combat starts directly
 
-## Defeat Flow
+### Current item card behavior
+- inventory slots instantiate card prefabs
+- cards bind directly from `ItemSO`
+- stat text now shows values directly, including `0`
 
-- when the player dies, `PlayerUnit` plays its death VFX
-- `CombatManager` opens the defeat UI
-- `TurnManager.StopCombatFlow()` clears the active turn state
-- `Play Again` should call `CombatManager.RestartRunFromDefeat()`
-- restart resets floor progress in `RunManager` and reloads `FloorScene`
+### Current player card behavior
+- player card updates from live player stats
+- item changes update displayed attack / health / strength / range / speed / defence
 
-## Current Enemy Spawn Limitation
+---
 
-Right now, room generation supports multiple enemy instances but only from a single enemy prefab reference.
+## Item Data
 
-Current setup:
-- `RoomGenerator` has one `enemyUnitPrefab`
-- if a room spawns multiple enemies, they are all spawned from that same prefab
-- this is good enough for the current first combat slice, but it is not the final intended setup
+### `ItemSO` currently supports
+- `itemName`
+- `itemDescription`
+- `type`
+- `tier`
+- `cost`
+- `isCursed`
+- `equipmentSubtype`
+- `weaponHandedness`
+- `weaponAttackStyle`
+- `projectilePrefab`
+- `consumableHealAmount`
+- `stats`
+- `card`
 
-This means:
-- multiple goblins can exist
-- different enemy types are not yet selected during room generation
+### Notes
+- `icon` has been removed from item data
+- card visuals now use `card`
 
-## Planned Enemy Type Expansion
+### Current item categories in use
+- weapons
+- equipment pieces
+- consumables
 
-Next step for enemy variety should be moving from a single prefab reference to enemy-specific data.
+---
 
-Recommended direction:
-- add an `EnemyDefinitionSO`
-- let each enemy definition carry:
-  - display name
-  - stats
-  - visuals / portrait / card art
-  - optional AI flavor or behavior type
-  - prefab reference if needed
+## Consumables
 
-Then extend room data so each room can choose from more than one enemy type.
+### Current behavior
+- consumables equip into the `Consumable` slot
+- if equipped, the related action appears in the action bar
+- using the consumable costs AP
+- current health potion heals the player
+- after use, it is consumed and removed
 
-Possible future shapes:
-- `RoomTemplateSO` contains `List<EnemyDefinitionSO> possibleEnemies`
-- or a weighted list like `EnemySpawnEntry`
+### Current health potion behavior
+- one-time use
+- AP cost applied
+- heal amount comes from `ItemSO`
+- consumable use VFX can play on the player
 
-Example future weighted entry:
-- enemy definition
-- spawn weight
+---
 
-That would allow rooms like:
-- mostly goblins
-- occasional ranged enemy
-- rare heavy enemy
+## Enemy System
 
-Recommended future implementation order:
-1. stabilize current combat loop
-2. create `EnemyDefinitionSO`
-3. let `RoomTemplateSO` reference possible enemy types
-4. make `RoomGenerator` pick enemy type per spawn
-5. later connect that to enemy card UI and enemy-specific behaviors
+### Current enemy data
+Enemies are driven by `EnemyDefinitionSO`.
 
-## RoomScene Setup Checklist
+Current definition data includes:
+- display name
+- base stats
+- world sprite
+- turn order icon
+- gold value
+- attack style
+- projectile prefab
+- immunity settings
+- missed-hit VFX
 
-### Required scene objects
+### Current special enemy behaviors
+- Bandit can ignore odd player attack rolls
+- this only applies to player attack rolls
+- environmental damage like lava is not ignored
+
+- Dark Knight / similar boss can ignore attack rolls below a threshold
+- this threshold now works as “less than X”, not “X and below”
+
+### Miss / immunity feedback
+- ignored hits can play a missed VFX
+- missed VFX now spawns in front of the unit sorting-wise
+
+---
+
+## Enemy Cards
+
+### Current behavior
+- there is one shared enemy card UI
+- hovering an enemy shows that enemy’s data
+- card uses enemy definition data plus runtime values
+- current health and runtime stats update while the card is visible
+
+### Current displayed data
+- name
+- world sprite portrait
+- attack
+- health
+- strength
+- range
+- speed
+- defence
+
+---
+
+## Rewards
+
+### Current reward tile behavior
+- each room can generate a reward tile
+- stepping on it opens it
+- opened state changes the tile visual
+- reward can also be considered claimed when the room is cleared
+
+### Current reward item behavior
+- room rewards can grant a random item
+- reward item tries to go into `Spare`
+- if `Spare` is occupied, reward is blocked
+
+---
+
+## Wallet / Gold
+
+### Current behavior
+- enemies have `goldValue`
+- killing enemies grants gold
+- wallet persists during the run
+- wallet resets on run reset / death flow
+- gain/loss popup feedback already exists
+
+### Not finished yet
+- shop purchases
+- item buying flow
+- spending gold in shop
+
+---
+
+## Hazards
+
+### Current lava behavior
+- lava damages both player and enemies
+- entering lava applies damage
+- ending a turn on lava applies damage again
+- damage popups are shown
+- damage flash plays on hit
+
+### Projectile behavior with hazards
+- projectiles are not affected by lava
+
+---
+
+## Ranged Combat and Projectiles
+
+### Current weapon behavior
+Only weapons use the melee/ranged split.
+
+Weapon attack styles:
+- `Melee`
+- `Ranged`
+
+### Current enemy behavior
+Enemy definitions also support:
+- `Melee`
+- `Ranged`
+
+### Current projectile system
+- projectile uses a prefab
+- projectile is currently visual-first, not physics-driven
+- hit resolution is calculated by code
+- projectile then flies to the resolved hit position
+
+### Current projectile rules
+- no diagonal attacks
+- same row or same column only
+- projectile is blocked by blocked tiles
+- projectile is not affected by lava
+- projectile hits the first valid target in the path
+
+### Current ranged AI behavior
+- ranged enemies stop when the player is within valid attack range
+- they do not need to move adjacent if range allows an attack
+
+### Projectile setup note
+- projectile prefab can be a simple object with a `SpriteRenderer`
+- projectile visual rotates toward movement direction
+- current rotation logic assumes arrow art is authored facing up
+
+---
+
+## Current Scene Setup Notes
+
+### `RoomScene` should contain
 - `GridManager`
 - `RoomGenerator`
 - `CombatManager`
 - `TurnManager`
-- `TurnOrderPanelUI` on the top HUD panel if turn order UI is used
-- `Main Camera`
-- UI canvas with action buttons
-- optional defeat UI root
+- room UI canvas
+- action buttons
+- optional defeat UI
 
-### Required prefabs/components
-- player object/prefab:
-  - `PlayerController`
-  - `PlayerUnit`
-  - `PlayerInput`
-- enemy prefab:
-  - `EnemyUnit`
-  - visual renderer
+### `FloorScene`
+- should keep floor-map-specific controllers scene-local
+- do not put floor-map scene logic on persistent manager objects
 
-### Required assignments
-- `RoomGenerator.playerControllerPrefab`
-- `RoomGenerator.enemyUnitPrefab`
-- `TurnManager.moveActionDefinition`
-- `TurnManager.attackActionDefinition`
-- `TurnManager.skipActionDefinition`
-- `GridManager` tile and tile-type references
-- `CombatManager.playerDefeatRoot`
-- `CombatManager.playAgainButton` if button locking is used
-- `PlayerUnit.deathVfxPrefab` if defeat VFX is used
+### Persistent singletons currently expected
+- `RunManager`
+- `EquipmentManager`
+- `PlayerWallet`
 
-### UI button bindings
-- Move button -> `TurnManager.SelectMoveAction()`
-- Attack button -> `TurnManager.SelectAttackAction()`
-- Skip button -> `TurnManager.ExecuteSkipAction()`
-- Play Again button -> `CombatManager.RestartRunFromDefeat()`
+---
 
-## Useful Debug Logs
+## Current Editor Notes
 
-The current code logs:
-- initiative rolls
-- turn start
-- move mode / attack mode selection
-- attack rolled damage
-- damage taken
-- death
-- invalid move / invalid attack click reasons
+### For ranged weapons
+- set `weaponAttackStyle = Ranged`
+- assign `projectilePrefab`
+- set item `stats.range` if the weapon should increase range
 
-## Known Next Steps
+### For melee weapons
+- set `weaponAttackStyle = Melee`
+- projectile prefab can stay empty
 
-Likely next implementation steps:
-- make attack target selection more robust / clearer visually
-- show current HP / AP / turn state in UI
-- add player/enemy card UI
-- add item/equipment/consumable systems on top of current combat/stat foundation
-- hovering over enemies display their corresponding card on top of them
-- inventory system
+### For ranged enemies
+- set enemy `attackStyle = Ranged`
+- assign `projectilePrefab`
+
+### For item cards
+- card prefab references must be assigned correctly per slot
+- if a stat is not visible, check the text reference in the prefab first
+
+### Important current example
+- `Bow` will not increase range unless its `stats.range` value is actually greater than `0`
+
+---
 
 ## Planned Roadmap
 
-### 1. Wallet and shop economy
-- confirm and stabilize the current wallet / gold system
-- keep earned gold across floors during the same run
-- add item cost data to item definitions
-- add item tier data to item definitions
-- add cursed item data / definitions
+### 1. Shop economy
+- keep wallet across floors within the same run
+- use `ItemSO.cost`
+- use `ItemSO.tier`
+- support cursed item offers
 
-### 2. Shop scene
-- create a dedicated `ShopScene`
-- enter the shop at the end of each floor
-- show 4 random shop items
-- require at least 1 of those 4 items to be a cursed item
-- shop inventory should be tier-based:
-  - first shop: tier 1 items
-  - second shop: tier 2 items
-  - third shop: tier 3 items
-  - fourth shop: tier 4 items
-- allow purchase only if the player has enough gold
-- reuse the current inventory/loadout UI for purchases:
-  - shop items on the left
-  - player inventory/loadout on the right
-- purchase flow:
-  - if the matching equipment slot is empty, buy and equip the item directly
-  - if the matching slot is occupied, send the purchased item to `Spare`
-  - if both the matching slot and `Spare` are occupied, the purchase should be blocked
-- after shopping, continue into the next floor
+### 2. Cursed items
+- at minimum, shop should be able to guarantee one cursed offer
+- cursed items may later move to a dedicated subclass / extra data model if needed
 
-### 3. Multi-floor progression
-- expand the game from the current single-floor loop into multiple floors
-- keep a single reusable `FloorScene`
-- do not create separate floor scenes unless data-driven reuse becomes impossible
-- each floor should have its own floor-map state and progression data
-- expected flow:
-  - `Floor 1 -> Shop -> Floor 2 -> Shop -> Floor 3 ...`
+### 3. Shop scene
+- use one dedicated `ShopScene`
+- each shop should show 4 random items
+- at least 1 item should be cursed
+- shop tier should follow floor progression:
+  - shop 1 -> tier 1
+  - shop 2 -> tier 2
+  - shop 3 -> tier 3
+  - shop 4 -> tier 4
 
-### 4. Floor-map movement update
-- cleared rooms should remain non-enterable
-- however, the player marker should still be able to move across already cleared floor nodes
-- this keeps traversal readable without allowing room re-entry
+### 4. Shop purchase flow
+- shop items on the left
+- player inventory / loadout on the right
+- purchase rules:
+  - if matching slot is empty, buy and equip directly
+  - if matching slot is occupied, send purchase to `Spare`
+  - if matching slot and `Spare` are both occupied, block purchase
 
-### 5. Miniboss key system
+### 5. Multi-floor progression
+- keep one reusable `FloorScene`
+- do not create separate floor scenes unless reuse becomes impossible
+- expected long-term flow:
+  - `Floor 1 -> Shop -> Floor 2 -> Shop -> Floor 3 -> Shop -> Floor 4`
+
+### 6. Miniboss key system
 - each floor should contain one miniboss room
-- miniboss rooms should generate a `Key Tile`
-- the key tile should behave like the reward tile:
-  - it exists only in miniboss rooms
-  - it is placed during room generation
-  - it can visually switch from closed to opened
-- the player gets the key if:
+- miniboss room should generate a `Key Tile`
+- player gets the floor key if:
   - they step on the key tile
-  - or they clear the miniboss room by killing all enemies
+  - or they clear the miniboss room
 
-### 6. Floor exit gate
-- each floor should have an exit gate / top door on the floor map
-- the exit should be visible but locked by default
-- if the player has the floor key, the exit should visually switch to an opened state
-- only then can the player leave the floor and enter the shop / next floor flow
+### 7. Floor exit gate
+- floor map should contain an exit gate / door
+- exit is visible but locked by default
+- after obtaining the key, exit changes to opened state
+- using the opened exit should load the shop, then next floor
 
-### 7. Data and implementation order
-Recommended implementation order:
-1. inspect the current wallet work and decide what can be reused
-2. add item costs and cursed item support
-3. add floor-level key state to `RunManager`
-4. add miniboss room key tile generation and key acquisition rules
-5. add locked/open floor exit logic on `FloorScene`
-6. update floor-map traversal so cleared nodes are walkable but not enterable
-7. build `ShopScene`
-8. connect `ShopScene` to multi-floor progression
+### 8. Floor-map traversal update
+- cleared rooms should remain non-enterable
+- but the player marker should still be able to move across cleared rooms
 
-### 8. Ranged weapon and projectile plan
-- only weapons need a `melee / ranged` split
-- enemies should also have an attack-style split:
-  - `Melee`
-  - `Ranged`
-- item `icon` is currently unused and should be removed later if no longer needed
+### 9. Content expansion
+- more enemy types
+- more boss / miniboss types
+- more item types
+- cursed items
+- more room modifiers
+- more polish on VFX / animation / feedback
 
-#### Weapon-side plan
-- melee weapons keep the current attack logic
-- ranged weapons still use the same targeting rules:
-  - no diagonal attacks
-  - same row or same column only
-  - target must be within `Range`
-- ranged weapons should reference a projectile prefab
-- examples:
-  - bow -> arrow projectile
-  - magic weapon -> fireball projectile
-
-#### Enemy-side plan
-- enemy definitions should support melee or ranged attack style
-- ranged enemies should also reference a projectile prefab
-- examples:
-  - archer -> arrow projectile
-  - fire mage -> fireball projectile
-
-#### Projectile behavior rules
-- projectile prefabs are preferred over sprite-only data
-- projectile should move visually from attacker toward the target line
-- projectile should not be affected by lava tiles
-- projectile should be blocked by blocked tiles
-- if another valid target is standing between attacker and intended target, the projectile should hit the first target in the path
-- when the projectile hits, damage should resolve using the existing combat pipeline
-
-#### AI update for ranged enemies
-- melee enemies should keep their current approach behavior
-- ranged enemies should only move until the player is within valid attack range
-- ranged enemies should not walk adjacent to the player unless required by range constraints
