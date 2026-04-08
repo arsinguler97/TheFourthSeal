@@ -10,13 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9e05953932de6ac4eb1fda248b08e71c, type: 3}
-  m_Name: BodyArmor
+  m_Name: SteelArmor
   m_EditorClassIdentifier: Assembly-CSharp::ItemSO
-  itemName: BodyArmor
+  itemName: Steel Armor
   itemDescription: Built like a wall. Moves like one too.
   type: 1
+  tier: 1
+  cost: 0
+  isCursed: 0
   equipmentSubtype: 2
   weaponHandedness: 0
+  weaponAttackStyle: 0
+  projectilePrefab: {fileID: 0}
   consumableHealAmount: 0
   stats:
     attack: 0
@@ -25,5 +30,4 @@ MonoBehaviour:
     strength: 0
     range: 0
     actionPoints: 0
-  icon: {fileID: 0}
   card: {fileID: 21300000, guid: 7a720696ffbd8f241aa0fbcadbab5eb6, type: 3}

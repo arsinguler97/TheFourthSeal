@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29df230fbb55532418ad6abc37a792a4, type: 3}
   m_Name: DefaultTile
   m_EditorClassIdentifier: Assembly-CSharp::TileTypeSO
-  sprite: {fileID: 21300000, guid: 6775577fe64fecf42968725ac19f033b, type: 3}
+  sprite: {fileID: 21300000, guid: fe3db6e5e82803841a0191ccf30ad7e3, type: 3}

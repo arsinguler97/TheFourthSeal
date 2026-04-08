@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 6775577fe64fecf42968725ac19f033b
+guid: 9b9309198e47f1347a14eeb8eb57f2c7
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 5494219896211440232
-    second: TileNew_0
+      213: -5980782385638030133
+    second: NewOpenChest_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: TileNew_0
+      name: NewOpenChest_0
       rect:
         serializedVersion: 2
-        x: 9
-        y: 9
-        width: 494
-        height: 494
+        x: 0
+        y: 0
+        width: 512
+        height: 512
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 862019fc2e36f3c40800000000000000
-      internalID: 5494219896211440232
+      spriteID: bc4c1299b1efffca0800000000000000
+      internalID: -5980782385638030133
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      TileNew_0: 5494219896211440232
+      NewOpenChest_0: -5980782385638030133
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

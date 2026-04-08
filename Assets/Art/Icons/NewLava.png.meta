@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 72eee4a4c631463469ca82d842503075
+guid: a651455661932a6418b02932e138a03e
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -239953574871309956
-    second: tile_attack_0
+      213: -4177627717442127319
+    second: NewLava_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: tile_attack_0
+      name: NewLava_0
       rect:
         serializedVersion: 2
-        x: 9
-        y: 9
-        width: 494
-        height: 494
+        x: 0
+        y: 0
+        width: 512
+        height: 512
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: c71e537be738bacf0800000000000000
-      internalID: -239953574871309956
+      spriteID: 92a390a99b51606c0800000000000000
+      internalID: -4177627717442127319
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      tile_attack_0: -239953574871309956
+      NewLava_0: -4177627717442127319
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

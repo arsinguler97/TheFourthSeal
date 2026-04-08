@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29df230fbb55532418ad6abc37a792a4, type: 3}
   m_Name: Walkable
   m_EditorClassIdentifier: Assembly-CSharp::TileTypeSO
-  sprite: {fileID: 21300000, guid: a0eba58dc54e5ca458cf08a9de36b299, type: 3}
+  sprite: {fileID: 21300000, guid: 68356fc335573274faec04bef4b3d21d, type: 3}

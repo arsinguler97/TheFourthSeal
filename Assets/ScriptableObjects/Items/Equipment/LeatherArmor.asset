@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e05953932de6ac4eb1fda248b08e71c, type: 3}
+  m_Name: LeatherArmor
+  m_EditorClassIdentifier: Assembly-CSharp::ItemSO
+  itemName: Leather Armor
+  itemDescription: Maximum style, minimum protection
+  type: 1
+  tier: 1
+  cost: 0
+  isCursed: 0
+  equipmentSubtype: 2
+  weaponHandedness: 0
+  weaponAttackStyle: 0
+  projectilePrefab: {fileID: 0}
+  consumableHealAmount: 0
+  stats:
+    attack: 0
+    defence: 1
+    speed: 0
+    strength: 1
+    range: 0
+    actionPoints: 0
+  card: {fileID: 21300000, guid: 5e06548de413ea84989093c51a222f65, type: 3}

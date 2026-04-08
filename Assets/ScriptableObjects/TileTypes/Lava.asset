@@ -12,7 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29df230fbb55532418ad6abc37a792a4, type: 3}
   m_Name: Lava
   m_EditorClassIdentifier: Assembly-CSharp::TileTypeSO
-  id: Lava
-  walkable: 1
-  allowSpawn: 0
-  sprite: {fileID: 21300000, guid: b3d8454ec328b444392ef3cf18ad225d, type: 3}
+  sprite: {fileID: 21300000, guid: a651455661932a6418b02932e138a03e, type: 3}
