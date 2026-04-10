@@ -46,8 +46,8 @@ public class EnemyAIController : MonoBehaviour
 
         for (int stepIndex = 0; stepIndex < _enemyUnit.Stats.Speed; stepIndex++)
         {
-            if (CombatManager.I.IsStraightLineTargetInRange(_enemyUnit.GridPosition, playerUnit.GridPosition, _enemyUnit.Stats.Range))
-                break;
+           // if (CombatManager.I.IsStraightLineTargetInRange(_enemyUnit.GridPosition, playerUnit.GridPosition, _enemyUnit.Stats.Range))
+            //    break;
 
             Vector2Int nextStep = GetStepTowardTarget(_enemyUnit.GridPosition, playerUnit.GridPosition);
             if (nextStep == Vector2Int.zero || !CanEnemyTakeStep(nextStep))
@@ -122,6 +122,23 @@ public class EnemyAIController : MonoBehaviour
         };
 
 
+        Vector2Int closestDir = Vector2Int.up;
+        float closestDistance = 99999.0f;
+
+        foreach (Vector2Int dir in directions)
+        {
+            float newDistance = Vector2.Distance(currentPosition, targetPosition + (dir * _enemyUnit.Stats.Range));
+
+            if (newDistance < closestDistance)
+            {
+                closestDistance = newDistance;
+                closestDir = dir;
+            }
+        }
+
+        targetPosition += closestDir * _enemyUnit.Stats.Range;
+
+
         Vector2Int currentTile = currentPosition;
 
         while (tilesQueued.Count != 0)
@@ -144,7 +161,7 @@ public class EnemyAIController : MonoBehaviour
 
                 int newCost = costTotal[currentTile] + GridManager.I.GetTileCost(nextTile);
 
-                if (!(costTotal.ContainsKey(nextTile)) || newCost < costTotal[nextTile])
+                if (!(costTotal.ContainsKey(nextTile)) ||  newCost < costTotal[nextTile])
                 {
                     costTotal[nextTile] = newCost;
 
@@ -166,7 +183,7 @@ public class EnemyAIController : MonoBehaviour
 
         pathToPlayer.Reverse();
 
-        return pathToPlayer[0];
+        return pathToPlayer.Count > 0 ? pathToPlayer[0] : Vector2Int.zero;
 
 
         /* Old Version

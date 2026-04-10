@@ -62,13 +62,11 @@ public class DiceRollHistory
                 weights[i] *= _positiveAdjustmentValue;
 
             weights[i] = Mathf.Clamp(weights[i], _negativeMultiplierMax, _positiveMultiplierMax);
-            Debug.Log((i + 1) + " new weight of " + weights[i]);
         }
     }
 
     public int CheckRollAgainstPrevious(int numberOfSides, int rolled)
     {
-        Debug.Log(_previousRolls.Count);
         if (_previousRolls.Count < _inARowLimit)
         {
             _previousRolls.Add(rolled);
@@ -79,7 +77,6 @@ public class DiceRollHistory
             _previousRolls.RemoveAt(0);
 
 
-        Debug.Log("BEFORE " + rolled);
         if (_previousRolls.TrueForAll(x => x % 2 == 0))
         {
             if (rolled % 2 == 0)
@@ -88,10 +85,11 @@ public class DiceRollHistory
         else if (_previousRolls.TrueForAll(x => x % 2 == 1))
         {
             if (rolled % 2 == 1)
-                rolled = rolled + 1 < numberOfSides ? rolled + 1 : rolled - 1;
+                rolled = rolled + 1 < numberOfSides ? rolled + 1 : rolled - 1; /// weirdly did negative at some point? with 1 as value though so it returned 0
         }
 
-        Debug.Log("AFTER " + rolled);
+        rolled = Mathf.Clamp(rolled, 1, numberOfSides);
+
         _previousRolls.Add(rolled);
         return rolled;
     }

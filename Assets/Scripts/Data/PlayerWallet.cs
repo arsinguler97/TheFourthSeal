@@ -40,10 +40,13 @@ public class PlayerWallet : MonoBehaviour
             textTotal.text = _wallet.ToString();
 
         if (textChange != null)
+        {
             textChange.text = "";
+            textChange.gameObject.SetActive(false);
+        }
 
-        if (panel != null)
-            panel.SetActive(false);
+        //if (panel != null)
+        //    panel.SetActive(false);
     }
 
     public void AddToWallet(int amount)
@@ -79,10 +82,13 @@ public class PlayerWallet : MonoBehaviour
             textTotal.text = (_wallet + (wasAddition ? -amount : amount)).ToString();
 
         if (textChange != null)
+        {
             textChange.text = wasAddition ? "+" + amount : "-" + amount.ToString();
+            textChange.gameObject.SetActive(true);
+        }
 
-        if (panel != null)
-            panel.SetActive(true);
+        //if (panel != null)
+        //    panel.SetActive(true);
 
         yield return new WaitForSeconds(1);
 
@@ -90,11 +96,14 @@ public class PlayerWallet : MonoBehaviour
             textTotal.text = _wallet.ToString();
 
         if (textChange != null)
+        {
+            textChange.gameObject.SetActive(false);
             textChange.text = "";
+        }
 
         yield return new WaitForSeconds(2);
 
-        if (panel != null)
-            panel.SetActive(false);
+        //if (panel != null)
+        //    panel.SetActive(false);
     }
 }
