@@ -5824,26 +5824,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: '[DiceManager]'
       objectReference: {fileID: 0}
-    - target: {fileID: 4845440233172563816, guid: 1a637a601652e2049992e076763a5f71, type: 3}
-      propertyPath: dices.Array.size
-      value: 6
-      objectReference: {fileID: 0}
-    - target: {fileID: 4845440233172563816, guid: 1a637a601652e2049992e076763a5f71, type: 3}
-      propertyPath: 'dices.Array.data[2]'
-      value: 
-      objectReference: {fileID: 11400000, guid: dd8dcac14f83092458b3ca3f480b71ab, type: 2}
-    - target: {fileID: 4845440233172563816, guid: 1a637a601652e2049992e076763a5f71, type: 3}
-      propertyPath: 'dices.Array.data[3]'
-      value: 
-      objectReference: {fileID: 11400000, guid: 3ff70b02c9b800b4397b8a4faa4c527c, type: 2}
-    - target: {fileID: 4845440233172563816, guid: 1a637a601652e2049992e076763a5f71, type: 3}
-      propertyPath: 'dices.Array.data[4]'
-      value: 
-      objectReference: {fileID: 11400000, guid: 21ee923f2f9b834489491a7e03fb50bb, type: 2}
-    - target: {fileID: 4845440233172563816, guid: 1a637a601652e2049992e076763a5f71, type: 3}
-      propertyPath: 'dices.Array.data[5]'
-      value: 
-      objectReference: {fileID: 11400000, guid: 8623d37604aae7f45be56b05c38e7e14, type: 2}
     - target: {fileID: 7509465771152454290, guid: 1a637a601652e2049992e076763a5f71, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

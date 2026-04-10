@@ -76,7 +76,7 @@ public class EnemyAIController : MonoBehaviour
     {
         DiceManager.Instance.OnDiceRollCompleted += DealDamageOfficially;
         _enemyUnit.ShowDice();
-        DiceManager.Instance.RollDice(_enemyUnit.AttackDieSize, _enemyUnit.DiceCanvas);
+        DiceManager.Instance.RollDice(_enemyUnit.AttackDieSize, _enemyUnit.DiceCanvas, _enemyUnit.DiceRollHistory);
     }
 
     private void DealDamageOfficially(int amount)

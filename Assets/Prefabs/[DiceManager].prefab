@@ -47,4 +47,9 @@ MonoBehaviour:
   dices:
   - {fileID: 11400000, guid: fec1b9720a9f40b4db55584f623224cd, type: 2}
   - {fileID: 11400000, guid: 9d79edcc044091a408172d2b0405699e, type: 2}
+  - {fileID: 11400000, guid: dd8dcac14f83092458b3ca3f480b71ab, type: 2}
+  - {fileID: 11400000, guid: 3ff70b02c9b800b4397b8a4faa4c527c, type: 2}
+  - {fileID: 11400000, guid: 21ee923f2f9b834489491a7e03fb50bb, type: 2}
+  - {fileID: 11400000, guid: 8623d37604aae7f45be56b05c38e7e14, type: 2}
   diceRollSFX: {fileID: 11400000, guid: a9c0970f89b298f4aba6962741634967, type: 2}
+  finalResultHoldDuration: 1

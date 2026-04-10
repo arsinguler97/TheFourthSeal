@@ -131,7 +131,7 @@ public class CombatManager : MonoBehaviour
 
         DiceManager.Instance.OnDiceRollCompleted += DealDamageOfficially;
         PlayerUnit.ShowDice();
-        DiceManager.Instance.RollDice(PlayerUnit.AttackDieSize, PlayerUnit.DiceCanvas);
+        DiceManager.Instance.RollDice(PlayerUnit.AttackDieSize, PlayerUnit.DiceCanvas, PlayerUnit.DiceRollHistory);
 
         return true;
     }
@@ -140,6 +140,7 @@ public class CombatManager : MonoBehaviour
     {
         PlayerUnit.HideDice();
         DiceManager.Instance.OnDiceRollCompleted -= DealDamageOfficially;
+
 
         if (_currentTarget == null)
             return;

@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 
 
@@ -45,17 +44,23 @@ public class DiceManager : MonoBehaviour
     }
 
 
-    public void RollDice(int numberOfSides, DiceCanvas diceCanvas)
+    public void RollDice(int numberOfSides, DiceCanvas diceCanvas, DiceRollHistory rollHistory = null)
     {
-        if (numberOfSides <= 0 || diceCanvas == null)
+        if (numberOfSides <= 0)// || !_diceDictionary.ContainsKey(numberOfSides))
         {
             Debug.LogError("No Valid Dice with " + numberOfSides + " sides!");
+            return;
+        }
+        else if (diceCanvas == null)
+        {
+            Debug.LogError("No Valid DiceCanvas!");
             return;
         }
 
         AudioManager.Instance.PlaySound(diceRollSFX);
         diceCanvas.ResetDisplay();
-        StartCoroutine(RollDiceCoroutine(numberOfSides, diceCanvas, false));
+
+        StartCoroutine(RollDiceCoroutine(numberOfSides, diceCanvas, false, rollHistory));
     }
 
     public void RollMultiDice(List<(int numberOfSides, DiceCanvas diceCanvas)> diceList)
@@ -66,12 +71,14 @@ public class DiceManager : MonoBehaviour
         {
             _rollsPending++;
             if (dice.diceCanvas != null)
+            {
                 dice.diceCanvas.ResetDisplay();
-            StartCoroutine(RollDiceCoroutine(dice.numberOfSides, dice.diceCanvas, true));
+                StartCoroutine(RollDiceCoroutine(dice.numberOfSides, dice.diceCanvas, true));
+            }
         }
     }
 
-    private IEnumerator RollDiceCoroutine(int numberOfSides, DiceCanvas diceCanvas, bool isMulti)
+    private IEnumerator RollDiceCoroutine(int numberOfSides, DiceCanvas diceCanvas, bool isMulti, DiceRollHistory rollHistory = null)
     {
         if (diceCanvas == null)
             yield break;
@@ -92,6 +99,40 @@ public class DiceManager : MonoBehaviour
 
             yield return new WaitForSeconds(0.05f);
         }
+
+
+        if (rollHistory != null)
+        {
+            float[] weights = rollHistory.GetWeights(numberOfSides);
+
+            float total = 0.0f;
+
+            foreach (float weight in weights)
+                total += weight;
+
+            float newRolledValue = Random.value * total;
+
+            for (int i = 0; i < weights.Length; i++)
+            {
+                if (newRolledValue < weights[i])
+                {
+                    rolledValue = i + 1;
+                    break;
+                }
+
+                newRolledValue -= weights[i];
+            }
+
+            rolledValue = rollHistory.CheckRollAgainstPrevious(numberOfSides, rolledValue);
+            rollHistory.Adjust(numberOfSides, rolledValue);
+        }
+
+
+        if (hasExactDiceSprites)
+            diceCanvas.ShowSprite(_diceDictionary[numberOfSides][rolledValue - 1]);
+        else
+            diceCanvas.ShowOverflowResult(rolledValue);
+
 
         yield return new WaitForSeconds(finalResultHoldDuration);
 

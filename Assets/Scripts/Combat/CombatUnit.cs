@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Collections;
-using System.Threading.Tasks;
+
 
 public abstract class CombatUnit : MonoBehaviour
 {
@@ -17,6 +17,7 @@ public abstract class CombatUnit : MonoBehaviour
 
     private HealthBar _healthBar;
     public DiceCanvas DiceCanvas { get; private set; }
+    public DiceRollHistory DiceRollHistory { get; private set; }
 
     [Header("Damage Popup")]
     [SerializeField] GameObject damagePopupPrefab;
@@ -76,6 +77,8 @@ public abstract class CombatUnit : MonoBehaviour
             Debug.LogError("CombatUnit missing DiceCanvas!");
         else
             DiceCanvas.gameObject.SetActive(false);
+
+        DiceRollHistory = new DiceRollHistory(this is PlayerUnit);
     }
 
     protected virtual void Update()
