@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Collections;
+using Unity.VisualScripting;
 
 
 public abstract class CombatUnit : MonoBehaviour
@@ -16,6 +17,7 @@ public abstract class CombatUnit : MonoBehaviour
     [SerializeField] float damageFlashDuration = 0.12f;
 
     private HealthBar _healthBar;
+    public StatusEffectManager StatusEffectManager { get; private set; }
     public DiceCanvas DiceCanvas { get; private set; }
     public DiceRollHistory DiceRollHistory { get; private set; }
 
@@ -71,6 +73,8 @@ public abstract class CombatUnit : MonoBehaviour
         if (_healthBar == null)
             Debug.LogError("CombatUnit missing Canvas_Healthbar Prefab!");
         _healthBar.SetMaxHealth(CurrentHealth);
+
+        StatusEffectManager = new StatusEffectManager(this);
 
         DiceCanvas = GetComponentInChildren<DiceCanvas>();
         if (DiceCanvas == null)

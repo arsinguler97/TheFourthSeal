@@ -30,7 +30,7 @@ public class TurnManager : MonoBehaviour
 
     public bool IsPlayerTurn => CurrentUnit is PlayerUnit;
     public ActionType SelectedPlayerActionType { get; private set; } = ActionType.None;
-    public int RemainingMoveSteps { get; private set; }
+    public int RemainingMoveSteps { get; set; }
     public int CurrentActionPoints { get; private set; }
     public CombatUnit CurrentUnit => _currentTurnIndex >= 0 && _currentTurnIndex < _turnOrder.Count ? _turnOrder[_currentTurnIndex] : null;
     public event Action<IReadOnlyList<CombatUnit>, int> TurnOrderChanged;
@@ -107,6 +107,13 @@ public class TurnManager : MonoBehaviour
             return;
         }
 
+        if (CurrentUnit is PlayerUnit && CurrentUnit.StatusEffectManager.IsStunned)
+        {
+            Debug.Log("Move action ignored because player is stunned.");
+            ExecuteSkipAction();
+            return;
+        }
+
         if (CurrentActionPoints < moveActionDefinition.actionCost)
         {
             Debug.Log("Move action ignored because there are not enough action points.");
@@ -171,6 +178,14 @@ public class TurnManager : MonoBehaviour
     {
         if (!IsPlayerMoveModeActive || _playerUsedMoveThisTurn || moveActionDefinition == null)
             return;
+
+
+        if (CurrentUnit is PlayerUnit && CurrentUnit.StatusEffectManager.IsStunned)
+        {
+            Debug.Log("Move action ignored because player is stunned.");
+            ExecuteSkipAction();
+            return;
+        }
 
         // Move AP is spent only once, when the first valid step actually starts.
         _playerUsedMoveThisTurn = true;
@@ -317,6 +332,8 @@ public class TurnManager : MonoBehaviour
         _isWaitingForLoadoutSelection = false;
 
         Debug.Log($"{CurrentUnit.DisplayName} started the turn.");
+
+        CurrentUnit.StatusEffectManager.UpdateEffects();
 
         if (CurrentUnit is PlayerUnit playerUnit)
         {

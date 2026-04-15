@@ -193,10 +193,12 @@ public class CombatManager : MonoBehaviour
         if (unit == null || !unit.IsAlive || GridManager.I == null)
             return;
 
-        if (!GridManager.I.IsLavaTile(unit.GridPosition))
-            return;
+        GridManager.I.IsLavaTile(unit.GridPosition, out StatusEffectSO tileEffect);
 
-        unit.ReceiveDamage(Mathf.Max(1, lavaDamage));
+        if (tileEffect == null && !unit.StatusEffectManager.IsStunned)
+            GridManager.I.IsLightningTile(unit.GridPosition, out tileEffect);
+
+        unit.StatusEffectManager.AddEffect(tileEffect);
     }
 
     public bool IsStraightLineTargetInRange(Vector2Int origin, Vector2Int target, int range)

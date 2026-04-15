@@ -16,6 +16,7 @@ MonoBehaviour:
   bossEnemy: {fileID: 11400000, guid: 24acc7333404a6a44bc5b418bdfbf12b, type: 2}
   lavaTileCount: 10
   blockedTileCount: 10
+  lightningTileCount: 0
   possibleEnemies:
   - {fileID: 11400000, guid: 0297180a5a546934480a5df86a2d7bea, type: 2}
   - {fileID: 11400000, guid: e6d2d86e4f01ab14d876b8ffa3c2cc2a, type: 2}

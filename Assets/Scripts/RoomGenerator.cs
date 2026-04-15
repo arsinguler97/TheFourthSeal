@@ -61,6 +61,13 @@ public class RoomGenerator : MonoBehaviour
             gridWidth,
             gridHeight);
         reservedPositions.UnionWith(generatedRoomConfig.blockedTiles);
+        PlaceRandomPositions(
+            generatedRoomConfig.lightningTiles,
+            selectedTemplate.lightningTileCount,
+            reservedPositions,
+            gridWidth,
+            gridHeight);
+        reservedPositions.UnionWith(generatedRoomConfig.lightningTiles);
 
         SpawnEnemiesAtGridPositions(generatedRoomConfig.enemySpawns, generatedRoomConfig.enemyDefinitions);
         RunManager.I.CurrentRoomConfig = generatedRoomConfig;

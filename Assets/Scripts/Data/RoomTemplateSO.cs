@@ -17,6 +17,9 @@ public class RoomTemplateSO : ScriptableObject
     // How many blocked tiles should be added when this template is used.
     public int blockedTileCount = 10;
 
+    // How many lightning tiles should be added when this template is used.
+    public int lightningTileCount = 10;
+
     // If populated, enemies for this room are chosen from this list.
     public List<EnemyDefinitionSO> possibleEnemies = new List<EnemyDefinitionSO>();
 }

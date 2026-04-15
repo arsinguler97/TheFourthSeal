@@ -13,6 +13,7 @@ public class GridManager : MonoBehaviour
     [SerializeField] TileTypeSO floorTileType;
     [SerializeField] TileTypeSO lavaTileType;
     [SerializeField] TileTypeSO blockedTileType;
+    [SerializeField] TileTypeSO lightningTileType;
     [SerializeField] TileTypeSO exitTileType;
     [SerializeField] TileTypeSO rewardTileType;
     [SerializeField] TileTypeSO rewardOpenedTileType;
@@ -101,6 +102,8 @@ public class GridManager : MonoBehaviour
                 _tileViews[x, y].SetSprite(blockedTileType.sprite);
             else if (roomConfig.lavaTiles.Contains(tileGridPosition))
                 _tileViews[x, y].SetSprite(lavaTileType.sprite);
+            else if (roomConfig.lightningTiles.Contains(tileGridPosition))
+                _tileViews[x, y].SetSprite(lightningTileType.sprite);
             else
                 _tileViews[x, y].SetSprite(floorTileType.sprite);
 
@@ -154,16 +157,41 @@ public class GridManager : MonoBehaviour
         return activeRoomConfig == null || !activeRoomConfig.blockedTiles.Contains(gridPosition);
     }
 
-    public bool IsLavaTile(Vector2Int gridPosition)
+    public bool IsLavaTile(Vector2Int gridPosition, out StatusEffectSO tileStatusEffect)
     {
+        tileStatusEffect = null;
+
         if (!InBounds(gridPosition))
             return false;
 
         RoomConfig activeRoomConfig = RunManager.I != null ? RunManager.I.CurrentRoomConfig : null;
-        return activeRoomConfig != null && activeRoomConfig.lavaTiles.Contains(gridPosition);
+        if (activeRoomConfig == null)
+            return false;
+
+        if (!activeRoomConfig.lavaTiles.Contains(gridPosition))
+            return false;
+
+        tileStatusEffect = lavaTileType.statusEffect;
+        return true;
     }
 
+    public bool IsLightningTile(Vector2Int gridPosition, out StatusEffectSO tileStatusEffect)
+    {
+        tileStatusEffect = null;
 
+        if (!InBounds(gridPosition))
+            return false;
+
+        RoomConfig activeRoomConfig = RunManager.I != null ? RunManager.I.CurrentRoomConfig : null;
+        if (activeRoomConfig == null)
+            return false;
+
+        if (!activeRoomConfig.lightningTiles.Contains(gridPosition))
+            return false;
+
+        tileStatusEffect = lightningTileType.statusEffect;
+        return true;
+    }
 
 
     public void SetWalkGrids(Vector2Int unitGridPosition, int unitWalkDistance, int unitAttackRange)
@@ -308,6 +336,9 @@ public class GridManager : MonoBehaviour
             return 1000000000;
 
         if (_tileViews[tilePos.x, tilePos.y].GetSprite() == lavaTileType.sprite)
+            return 3;
+
+        if (_tileViews[tilePos.x, tilePos.y].GetSprite() == lightningTileType.sprite)
             return 3;
 
         return 1;

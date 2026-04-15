@@ -614,6 +614,7 @@ MonoBehaviour:
   floorTileType: {fileID: 11400000, guid: 33a967b9e0c873e488659e44d8c26323, type: 2}
   lavaTileType: {fileID: 11400000, guid: 57266ec3f3a9fad42b47f8e1140a67af, type: 2}
   blockedTileType: {fileID: 11400000, guid: c9c32b5ba761ef347beefc16a963279a, type: 2}
+  lightningTileType: {fileID: 11400000, guid: 77da2eedd8fff344e940916634a6e8d0, type: 2}
   exitTileType: {fileID: 11400000, guid: e3c4a20883ec488418d3c0af5e17985f, type: 2}
   rewardTileType: {fileID: 11400000, guid: ec9edd362ae16904c93086dbb1c450f7, type: 2}
   rewardOpenedTileType: {fileID: 11400000, guid: b5d4b5ae555d06b41a73a900a3e76b28, type: 2}

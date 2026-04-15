@@ -17,4 +17,5 @@ public class RoomConfig
     // Hazard and obstacle cells generated for this specific room instance.
     public HashSet<Vector2Int> lavaTiles = new HashSet<Vector2Int>();
     public HashSet<Vector2Int> blockedTiles = new HashSet<Vector2Int>();
+    public HashSet<Vector2Int> lightningTiles = new HashSet<Vector2Int>();
 }

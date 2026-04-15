@@ -44,10 +44,18 @@ public class EnemyAIController : MonoBehaviour
 
         Debug.Log($"{_enemyUnit.DisplayName} started its turn.");
 
+        if (_enemyUnit.StatusEffectManager.IsStunned)
+        {
+            onTurnComplete?.Invoke();
+            yield break;
+        }
+
+
         for (int stepIndex = 0; stepIndex < _enemyUnit.Stats.Speed; stepIndex++)
         {
-           // if (CombatManager.I.IsStraightLineTargetInRange(_enemyUnit.GridPosition, playerUnit.GridPosition, _enemyUnit.Stats.Range))
+            // if (CombatManager.I.IsStraightLineTargetInRange(_enemyUnit.GridPosition, playerUnit.GridPosition, _enemyUnit.Stats.Range))
             //    break;
+
 
             Vector2Int nextStep = GetStepTowardTarget(_enemyUnit.GridPosition, playerUnit.GridPosition);
             if (nextStep == Vector2Int.zero || !CanEnemyTakeStep(nextStep))
@@ -60,6 +68,12 @@ public class EnemyAIController : MonoBehaviour
         }
 
         _activeTurnRoutine = null;
+
+        if (_enemyUnit.StatusEffectManager.IsStunned)
+        {
+            onTurnComplete?.Invoke();
+            yield break;
+        }
 
         if (CombatManager.I.IsStraightLineTargetInRange(_enemyUnit.GridPosition, playerUnit.GridPosition, _enemyUnit.Stats.Range))
         {
@@ -216,7 +230,7 @@ public class EnemyAIController : MonoBehaviour
 
     bool CanEnemyTakeStep(Vector2Int targetGridPosition)
     {
-        return CanEnemyStepTo(targetGridPosition);
+        return CanEnemyStepTo(targetGridPosition) && !_enemyUnit.StatusEffectManager.IsStunned;
     }
 }
 
