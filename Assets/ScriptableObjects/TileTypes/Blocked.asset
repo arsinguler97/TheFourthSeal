@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29df230fbb55532418ad6abc37a792a4, type: 3}
   m_Name: Blocked
   m_EditorClassIdentifier: Assembly-CSharp::TileTypeSO
-  sprite: {fileID: 21300000, guid: bcf4d46c34dfec448b0281505e828e8d, type: 3}
+  sprite: {fileID: 21300000, guid: a1c080f20c405ad40b512831fe0f499e, type: 3}

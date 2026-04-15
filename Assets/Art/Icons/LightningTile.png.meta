@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: bcf4d46c34dfec448b0281505e828e8d
+guid: d99f254c0c43ac84fabe7afe078ef50b
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6340085637427749136
-    second: NewBlocked_0
+      213: -5660704654731620378
+    second: LightningTile_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,7 +100,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: NewBlocked_0
+      name: LightningTile_0
       rect:
         serializedVersion: 2
         x: 0
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 011ef68cb428cf750800000000000000
-      internalID: 6340085637427749136
+      spriteID: 6ef4254bb132171b0800000000000000
+      internalID: -5660704654731620378
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      NewBlocked_0: 6340085637427749136
+      LightningTile_0: -5660704654731620378
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
