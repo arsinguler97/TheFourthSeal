@@ -57,7 +57,10 @@ public class FloorMapController : MonoBehaviour
         }
 
         if (RunManager.I.IsFloorNodeCleared(roomNode.NodeId))
+        {
+            NavigateToClearedRoomNode(roomNode);
             return;
+        }
 
         RunManager.I.PrepareRoomSelection(roomNode.NodeId, roomTemplate, enemyCountOverride, roomNode.EnemyOverrides);
         _isTransitioningToRoom = true;
@@ -71,6 +74,27 @@ public class FloorMapController : MonoBehaviour
         }
 
         SceneManager.LoadScene("RoomScene");
+    }
+
+    void NavigateToClearedRoomNode(RoomNode roomNode)
+    {
+        if (roomNode == null || RunManager.I == null)
+            return;
+
+        void CompleteNavigation()
+        {
+            RunManager.I.SetCurrentFloorNodePosition(roomNode.NodeId);
+            RefreshNodeStates();
+        }
+
+        RectTransform targetRect = roomNode.GetComponent<RectTransform>();
+        if (floorMapPlayerUI != null && targetRect != null)
+        {
+            floorMapPlayerUI.MoveTo(targetRect, CompleteNavigation);
+            return;
+        }
+
+        CompleteNavigation();
     }
 
     void RefreshNodeStates()
@@ -88,7 +112,7 @@ public class FloorMapController : MonoBehaviour
 
             bool isCleared = RunManager.I.IsFloorNodeCleared(roomNode.NodeId);
             bool isConnectedToCurrent = currentNode != null && currentNode.IsConnectedTo(roomNode);
-            roomNode.RoomButton.SetInteractable(!isCleared && isConnectedToCurrent);
+            roomNode.RoomButton.SetState(isConnectedToCurrent, isCleared);
         }
     }
 

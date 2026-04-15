@@ -37,7 +37,9 @@ public class RoomButton : MonoBehaviour
 
     public void OpenRoom()
     {
-        OpenRoomWithEnemyOverride(-1, GetComponent<RoomNode>());
+        RoomNode roomNode = GetComponent<RoomNode>();
+        int enemyCountOverride = roomNode != null ? roomNode.GetEnemyCountOverride() : -1;
+        OpenRoomWithEnemyOverride(enemyCountOverride, roomNode);
     }
 
     public void OpenRoomWithEnemyOverride(int enemyCountOverride, RoomNode roomNode = null)
@@ -57,7 +59,7 @@ public class RoomButton : MonoBehaviour
         Debug.LogWarning($"RoomButton on {name} could not open a room because no active FloorMapController was found.");
     }
 
-    public void SetInteractable(bool isInteractable)
+    public void SetState(bool isInteractable, bool isCleared)
     {
         _isInteractable = isInteractable;
 
@@ -65,6 +67,6 @@ public class RoomButton : MonoBehaviour
             button.interactable = isInteractable;
 
         if (nodeImage != null)
-            nodeImage.color = isInteractable ? _defaultNodeColor : clearedColor;
+            nodeImage.color = isCleared ? clearedColor : _defaultNodeColor;
     }
 }

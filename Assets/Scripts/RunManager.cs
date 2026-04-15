@@ -72,6 +72,14 @@ public class RunManager : MonoBehaviour
         return !string.IsNullOrEmpty(floorNodeId) && _clearedFloorNodeIds.Contains(floorNodeId);
     }
 
+    public void SetCurrentFloorNodePosition(string floorNodeId)
+    {
+        if (string.IsNullOrWhiteSpace(floorNodeId))
+            return;
+
+        CurrentFloorNodeId = floorNodeId;
+    }
+
     public void ResetRunState()
     {
         // Used by defeat/restart to bring the floor run back to its initial state.
