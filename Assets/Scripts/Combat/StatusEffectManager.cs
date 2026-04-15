@@ -98,6 +98,14 @@ public class StatusEffectManager
         }
     }
 
+    public void ClearAllEffects()
+    {
+        for (int i = _activeStatusEffects.Count - 1; i >= 0; i--)
+        {
+            RemoveEffect(_activeStatusEffects[i]);
+        }
+    }
+
     public void RemoveEffect(StatusEffectSO effect)
     {
         _activeStatusEffects.Remove(effect);
