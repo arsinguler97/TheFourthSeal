@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e05953932de6ac4eb1fda248b08e71c, type: 3}
+  m_Name: GreatSword
+  m_EditorClassIdentifier: Assembly-CSharp::Item
+  itemName: Great Sword
+  itemDescription: Damages adjacent enemies as well.
+  type: 0
+  tier: 2
+  cost: 250
+  isCursed: 0
+  equipmentSubtype: 0
+  weaponHandedness: 2
+  weaponAttackStyle: 0
+  grantsHealAction: 0
+  projectilePrefab: {fileID: 0}
+  cleavesAdjacentEnemies: 1
+  meleeAttackVfxPrefab: {fileID: 2360655870356088562, guid: 57a776ff377f3c44e8403e2067a4d41f, type: 3}
+  attackHitStatusEffect: {fileID: 0}
+  rangedHitStatusEffect: {fileID: 0}
+  selfStatusEffectChanceOnAttack: 0
+  selfStatusEffectOnAttack: {fileID: 0}
+  consumableHealAmount: 0
+  stats:
+    attack: 8
+    defence: 2
+    speed: 0
+    strength: 2
+    range: 0
+    actionPoints: 0
+  card: {fileID: 21300000, guid: db12ff26d2f32f54cadc6869d67bf820, type: 3}

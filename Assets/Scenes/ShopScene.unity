@@ -322,6 +322,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 2e19bb5bd57eae74ca1eac7ef9e26e49, type: 2}
   - {fileID: 11400000, guid: fabb338aa34ecc14eb9b418f9f572e1b, type: 2}
   - {fileID: 11400000, guid: 1356008952ec9014796fb43fbf5019fc, type: 2}
+  - {fileID: 11400000, guid: 8c81d5de45638534fa0826bfa3c0e2d5, type: 2}
+  - {fileID: 11400000, guid: 604b7f6fef7b2af45989b88b53ed23f5, type: 2}
   shopSlots:
   - {fileID: 1291508326}
   - {fileID: 2036143467}
@@ -488,7 +490,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 0.24528301, g: 0.24528301, b: 0.24528301, a: 0.8235294}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -568,6 +570,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 06c39a708677ced43bafb89e9f209c34, type: 2}
   - {fileID: 11400000, guid: 0ec36c6f2020cfb49ab78a07f1ab15e9, type: 2}
   - {fileID: 11400000, guid: fabb338aa34ecc14eb9b418f9f572e1b, type: 2}
+  - {fileID: 11400000, guid: 8550fac542e86f7428d7b5fa865801f5, type: 2}
 --- !u!4 &185997186
 Transform:
   m_ObjectHideFlags: 0
@@ -722,7 +725,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -2327,7 +2330,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -2723,6 +2726,7 @@ MonoBehaviour:
   consumableCardPrefab: {fileID: 8793841707931513710, guid: 333baca9c3cf1664c9a7003115565f72, type: 3}
   affordableCostColor: {r: 1, g: 0.81, b: 0.2, a: 1}
   unavailableCostColor: {r: 0.75, g: 0.75, b: 0.75, a: 1}
+  previewScaleMultiplier: 2.5
 --- !u!1 &992726923
 GameObject:
   m_ObjectHideFlags: 0
@@ -3469,6 +3473,7 @@ MonoBehaviour:
   consumableCardPrefab: {fileID: 8793841707931513710, guid: 333baca9c3cf1664c9a7003115565f72, type: 3}
   affordableCostColor: {r: 1, g: 0.81, b: 0.2, a: 1}
   unavailableCostColor: {r: 0.75, g: 0.75, b: 0.75, a: 1}
+  previewScaleMultiplier: 2.5
 --- !u!1 &1248123399
 GameObject:
   m_ObjectHideFlags: 0
@@ -3798,6 +3803,7 @@ MonoBehaviour:
   consumableCardPrefab: {fileID: 8793841707931513710, guid: 333baca9c3cf1664c9a7003115565f72, type: 3}
   affordableCostColor: {r: 1, g: 0.81, b: 0.2, a: 1}
   unavailableCostColor: {r: 0.75, g: 0.75, b: 0.75, a: 1}
+  previewScaleMultiplier: 2.5
 --- !u!1 &1301667753
 GameObject:
   m_ObjectHideFlags: 0
@@ -4174,7 +4180,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -4671,7 +4677,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -5281,7 +5287,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -5917,7 +5923,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -6090,6 +6096,7 @@ MonoBehaviour:
   consumableCardPrefab: {fileID: 8793841707931513710, guid: 333baca9c3cf1664c9a7003115565f72, type: 3}
   affordableCostColor: {r: 1, g: 0.81, b: 0.2, a: 1}
   unavailableCostColor: {r: 0.75, g: 0.75, b: 0.75, a: 1}
+  previewScaleMultiplier: 2.5
 --- !u!1 &2127229751
 GameObject:
   m_ObjectHideFlags: 0
@@ -6145,7 +6152,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 0.24528301, g: 0.24528301, b: 0.24528301, a: 0.8235294}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:

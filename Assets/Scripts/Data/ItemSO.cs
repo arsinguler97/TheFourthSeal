@@ -63,7 +63,14 @@ public class ItemSO : ScriptableObject
     public EquipmentSubtype equipmentSubtype;
     public WeaponHandedness weaponHandedness = WeaponHandedness.None;
     public WeaponAttackStyle weaponAttackStyle = WeaponAttackStyle.Melee;
+    public bool grantsHealAction;
     public GameObject projectilePrefab;
+    public bool cleavesAdjacentEnemies;
+    public GameObject meleeAttackVfxPrefab;
+    public StatusEffectSO attackHitStatusEffect;
+    public StatusEffectSO rangedHitStatusEffect;
+    [Range(0f, 1f)] public float selfStatusEffectChanceOnAttack;
+    public StatusEffectSO selfStatusEffectOnAttack;
     public int consumableHealAmount;
     public ItemStatBlockData stats;
     public Sprite card;

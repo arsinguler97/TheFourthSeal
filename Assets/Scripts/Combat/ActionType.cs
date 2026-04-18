@@ -4,5 +4,6 @@ public enum ActionType
     Move = 1,
     Attack = 2,
     Skip = 3,
-    HealthPotion = 4
+    HealthPotion = 4,
+    Heal = 5
 }

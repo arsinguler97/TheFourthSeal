@@ -149,12 +149,7 @@ public class CombatManager : MonoBehaviour
             return;
         }
 
-        if (_currentTarget)
-        {
-            int finalDamageBeforeDefence = amount + PlayerUnit.Stats.Strength;
-            _currentTarget.ReceiveAttackRoll(PlayerUnit, amount);
-            Debug.Log($"{PlayerUnit.DisplayName} attacked {_currentTarget.DisplayName} with a roll of {amount} and {finalDamageBeforeDefence} raw damage before defence.");
-        }
+        ResolvePlayerMeleeAttack(amount);
     }
 
     public List<CombatUnit> GetLivingUnits()
@@ -255,6 +250,8 @@ public class CombatManager : MonoBehaviour
         {
             int finalDamageBeforeDefence = attackRoll + PlayerUnit.Stats.Strength;
             _currentTarget.ReceiveAttackRoll(PlayerUnit, attackRoll);
+            ApplyHitStatusEffectsToPlayerAttack(_currentTarget, true);
+            ApplySelfStatusEffectsFromPlayerAttack();
             Debug.Log($"{PlayerUnit.DisplayName} attacked {_currentTarget.DisplayName} with a roll of {attackRoll} and {finalDamageBeforeDefence} raw damage before defence.");
             return;
         }
@@ -272,9 +269,135 @@ public class CombatManager : MonoBehaviour
                 {
                     int finalDamageBeforeDefence = attackRoll + PlayerUnit.Stats.Strength;
                     resolution.hitEnemy.ReceiveAttackRoll(PlayerUnit, attackRoll);
+                    ApplyHitStatusEffectsToPlayerAttack(resolution.hitEnemy, true);
+                    ApplySelfStatusEffectsFromPlayerAttack();
                     Debug.Log($"{PlayerUnit.DisplayName} attacked {resolution.hitEnemy.DisplayName} with a roll of {attackRoll} and {finalDamageBeforeDefence} raw damage before defence.");
                 }
             });
+    }
+
+    void ResolvePlayerMeleeAttack(int attackRoll)
+    {
+        if (_currentTarget == null || PlayerUnit == null)
+            return;
+
+        ItemSO equippedWeapon = EquipmentManager.Instance != null ? EquipmentManager.Instance.GetEquippedWeapon() : null;
+        Vector2Int attackDirection = GetAttackDirection(PlayerUnit.GridPosition, _currentTarget.GridPosition);
+        int finalDamageBeforeDefence = attackRoll + PlayerUnit.Stats.Strength;
+
+        PlayPlayerMeleeAttackVfx(equippedWeapon, _currentTarget.GridPosition, attackDirection);
+
+        _currentTarget.ReceiveAttackRoll(PlayerUnit, attackRoll);
+        ApplyHitStatusEffectsToPlayerAttack(_currentTarget, false);
+        ApplyGreatswordCleaveDamage(equippedWeapon, attackRoll, _currentTarget.GridPosition, attackDirection);
+        ApplySelfStatusEffectsFromPlayerAttack();
+
+        Debug.Log($"{PlayerUnit.DisplayName} attacked {_currentTarget.DisplayName} with a roll of {attackRoll} and {finalDamageBeforeDefence} raw damage before defence.");
+    }
+
+    void ApplyGreatswordCleaveDamage(ItemSO weapon, int attackRoll, Vector2Int primaryTargetGridPosition, Vector2Int attackDirection)
+    {
+        if (weapon == null || !weapon.cleavesAdjacentEnemies || attackDirection == Vector2Int.zero)
+            return;
+
+        Vector2Int sideDirectionA;
+        Vector2Int sideDirectionB;
+
+        if (attackDirection == Vector2Int.up || attackDirection == Vector2Int.down)
+        {
+            sideDirectionA = Vector2Int.left;
+            sideDirectionB = Vector2Int.right;
+        }
+        else
+        {
+            sideDirectionA = Vector2Int.up;
+            sideDirectionB = Vector2Int.down;
+        }
+
+        TryDamageCleaveTarget(primaryTargetGridPosition + sideDirectionA, attackRoll);
+        TryDamageCleaveTarget(primaryTargetGridPosition + sideDirectionB, attackRoll);
+    }
+
+    void TryDamageCleaveTarget(Vector2Int targetGridPosition, int attackRoll)
+    {
+        EnemyUnit splashTarget = GetEnemyAt(targetGridPosition);
+        if (splashTarget == null || !splashTarget.IsAlive)
+            return;
+
+        splashTarget.ReceiveAttackRoll(PlayerUnit, attackRoll);
+        ApplyHitStatusEffectsToPlayerAttack(splashTarget, false);
+    }
+
+    void PlayPlayerMeleeAttackVfx(ItemSO weapon, Vector2Int targetGridPosition, Vector2Int attackDirection)
+    {
+        if (weapon == null || weapon.meleeAttackVfxPrefab == null || PlayerUnit == null || GridManager.I == null)
+            return;
+
+        Quaternion rotation = GetMeleeAttackVfxRotation(attackDirection);
+        GameObject vfxInstance = Instantiate(
+            weapon.meleeAttackVfxPrefab,
+            GridManager.I.GridToWorld(targetGridPosition),
+            rotation);
+
+        MatchProjectileSorting(vfxInstance, PlayerUnit.GetComponentInChildren<SpriteRenderer>());
+    }
+
+    Quaternion GetMeleeAttackVfxRotation(Vector2Int attackDirection)
+    {
+        if (attackDirection == Vector2Int.left)
+            return Quaternion.Euler(0f, 0f, 90f);
+
+        if (attackDirection == Vector2Int.down)
+            return Quaternion.Euler(0f, 0f, 180f);
+
+        if (attackDirection == Vector2Int.right)
+            return Quaternion.Euler(0f, 0f, 270f);
+
+        return Quaternion.identity;
+    }
+
+    void ApplyHitStatusEffectsToPlayerAttack(EnemyUnit hitEnemy, bool isRangedAttack)
+    {
+        if (hitEnemy == null || EquipmentManager.Instance == null)
+            return;
+
+        IReadOnlyList<ItemSO> equippedItems = EquipmentManager.Instance.GetCombatActiveEquippedItems();
+        for (int i = 0; i < equippedItems.Count; i++)
+        {
+            ItemSO item = equippedItems[i];
+            if (item == null)
+                continue;
+
+            if (item.attackHitStatusEffect != null)
+                hitEnemy.StatusEffectManager.AddEffect(item.attackHitStatusEffect);
+
+            if (isRangedAttack && item.rangedHitStatusEffect != null)
+                hitEnemy.StatusEffectManager.AddEffect(item.rangedHitStatusEffect);
+
+        }
+    }
+
+    void ApplySelfStatusEffectsFromPlayerAttack()
+    {
+        if (EquipmentManager.Instance == null)
+            return;
+
+        IReadOnlyList<ItemSO> equippedItems = EquipmentManager.Instance.GetCombatActiveEquippedItems();
+        for (int i = 0; i < equippedItems.Count; i++)
+            TryApplySelfStatusEffectFromPlayerItem(equippedItems[i]);
+    }
+
+    void TryApplySelfStatusEffectFromPlayerItem(ItemSO item)
+    {
+        if (item == null
+            || PlayerUnit == null
+            || !PlayerUnit.IsAlive
+            || item.selfStatusEffectOnAttack == null
+            || item.selfStatusEffectChanceOnAttack <= 0f)
+            return;
+
+        if (UnityEngine.Random.value <= item.selfStatusEffectChanceOnAttack)
+            PlayerUnit.StatusEffectManager.AddEffect(item.selfStatusEffectOnAttack);
     }
 
     ProjectileResolution ResolveProjectilePath(Vector2Int origin, Vector2Int direction, int maxDistance)

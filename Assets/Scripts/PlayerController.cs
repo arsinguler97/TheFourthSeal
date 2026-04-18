@@ -236,6 +236,12 @@ public class PlayerController : MonoBehaviour
 
     bool TryMoveOneStep(Vector2Int requestedStep)
     {
+        if (!GridMovementUtility.IsSingleCardinalStep(requestedStep))
+        {
+            Debug.Log($"Move blocked: {requestedStep} is not a single adjacent step.");
+            return false;
+        }
+
         Vector2Int requestedGridPosition = _currentGridPosition + requestedStep;
         return TryStartMoveToGridPosition(requestedGridPosition);
     }
@@ -262,20 +268,20 @@ public class PlayerController : MonoBehaviour
     {
         int manhattanDistance = Mathf.Abs(clickedGridPosition.x - _currentGridPosition.x)
             + Mathf.Abs(clickedGridPosition.y - _currentGridPosition.y);
-        if (manhattanDistance > _playerUnit.Stats.Speed)
+        if (manhattanDistance != 1)
         {
             Debug.Log($"Move click ignored because {clickedGridPosition} is not adjacent.");
             return;
         }
 
-        if (!TurnManager.I.CanPlayerSpendMoveStep(manhattanDistance))
+        if (!TurnManager.I.CanPlayerSpendMoveStep(1))
             return;
 
         Vector2Int requestedStep = clickedGridPosition - _currentGridPosition;
         if (TryMoveOneStep(requestedStep))
         {
             TurnManager.I.NotifyPlayerStartedMoveAction();
-            TurnManager.I.NotifyPlayerMovedStep(manhattanDistance);
+            TurnManager.I.NotifyPlayerMovedStep(1);
         }
     }
 

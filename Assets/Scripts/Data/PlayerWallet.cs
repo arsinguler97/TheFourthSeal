@@ -1,6 +1,7 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerWallet : MonoBehaviour
 {
@@ -14,6 +15,7 @@ public class PlayerWallet : MonoBehaviour
     [SerializeField] private TextMeshProUGUI textTotal;
     [SerializeField] private TextMeshProUGUI textChange;
     [SerializeField] private GameObject panel;
+    [SerializeField] private string sceneNameToHidePersistentWalletUI = "ShopScene";
 
     public int CurrentGold => _wallet;
 
@@ -28,8 +30,15 @@ public class PlayerWallet : MonoBehaviour
 
         I = this;
         DontDestroyOnLoad(gameObject);
+        SceneManager.sceneLoaded += HandleSceneLoaded;
 
         ResetWallet();
+    }
+
+    private void OnDestroy()
+    {
+        if (I == this)
+            SceneManager.sceneLoaded -= HandleSceneLoaded;
     }
 
     public void ResetWallet()
@@ -47,6 +56,24 @@ public class PlayerWallet : MonoBehaviour
 
         //if (panel != null)
         //    panel.SetActive(false);
+    }
+
+    void HandleSceneLoaded(Scene scene, LoadSceneMode loadSceneMode)
+    {
+        RefreshPersistentWalletUIVisibility(scene.name);
+    }
+
+    void RefreshPersistentWalletUIVisibility(string sceneName)
+    {
+        if (panel == null)
+            return;
+
+        bool shouldShowPanel = !string.Equals(
+            sceneName,
+            sceneNameToHidePersistentWalletUI,
+            System.StringComparison.OrdinalIgnoreCase);
+
+        panel.SetActive(shouldShowPanel);
     }
 
     public void AddToWallet(int amount)

@@ -112,6 +112,18 @@ public class RunManager : MonoBehaviour
         return Mathf.Clamp(SavedPlayerHealth + 2, 1, Mathf.Max(1, maxHealth));
     }
 
+    public void BeginNextFloor()
+    {
+        SelectedRoomTemplate = null;
+        SelectedRoomEnemyCount = 0;
+        _selectedEnemyOverrides.Clear();
+        CurrentFloorNodeId = StartFloorNodeId;
+        PendingFloorNodeId = null;
+        HasFloorKey = false;
+        CurrentRoomConfig = null;
+        _clearedFloorNodeIds.Clear();
+    }
+
     public void AcquireFloorKey()
     {
         HasFloorKey = true;

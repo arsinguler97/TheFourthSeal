@@ -25,6 +25,9 @@ public class ShopManager : MonoBehaviour
 
     void OnEnable()
     {
+        if (EquipmentManager.Instance != null)
+            EquipmentManager.Instance.OnLoadoutSlotChanged += HandleLoadoutSlotChanged;
+
         for (int i = 0; i < shopSlots.Count; i++)
         {
             if (shopSlots[i] != null)
@@ -45,6 +48,9 @@ public class ShopManager : MonoBehaviour
 
     void OnDisable()
     {
+        if (EquipmentManager.Instance != null)
+            EquipmentManager.Instance.OnLoadoutSlotChanged -= HandleLoadoutSlotChanged;
+
         for (int i = 0; i < shopSlots.Count; i++)
         {
             if (shopSlots[i] != null)
@@ -60,6 +66,8 @@ public class ShopManager : MonoBehaviour
         _currentOffers.Clear();
 
         List<ItemSO> availableItems = new List<ItemSO>();
+        List<ItemSO> cursedItems = new List<ItemSO>();
+        List<ItemSO> normalItems = new List<ItemSO>();
         HashSet<ItemSO> seenItems = new HashSet<ItemSO>();
         for (int i = 0; i < shopItemPool.Count; i++)
         {
@@ -68,17 +76,45 @@ public class ShopManager : MonoBehaviour
                 continue;
 
             availableItems.Add(item);
+
+            if (item.isCursed)
+                cursedItems.Add(item);
+            else
+                normalItems.Add(item);
         }
 
-        for (int i = availableItems.Count - 1; i > 0; i--)
+        ShuffleItems(availableItems);
+        ShuffleItems(cursedItems);
+        ShuffleItems(normalItems);
+
+        int maxOfferCount = Mathf.Min(shopSlots.Count, availableItems.Count);
+        if (maxOfferCount <= 0)
+            return;
+
+        bool shouldIncludeCursedItem = cursedItems.Count > 0 && normalItems.Count >= Mathf.Max(0, maxOfferCount - 1);
+        if (shouldIncludeCursedItem)
+        {
+            _currentOffers.Add(cursedItems[0]);
+
+            int normalOfferCount = Mathf.Min(maxOfferCount - 1, normalItems.Count);
+            for (int i = 0; i < normalOfferCount; i++)
+                _currentOffers.Add(normalItems[i]);
+
+            ShuffleItems(_currentOffers);
+            return;
+        }
+
+        for (int i = 0; i < maxOfferCount; i++)
+            _currentOffers.Add(availableItems[i]);
+    }
+
+    void ShuffleItems(List<ItemSO> items)
+    {
+        for (int i = items.Count - 1; i > 0; i--)
         {
             int randomIndex = Random.Range(0, i + 1);
-            (availableItems[i], availableItems[randomIndex]) = (availableItems[randomIndex], availableItems[i]);
+            (items[i], items[randomIndex]) = (items[randomIndex], items[i]);
         }
-
-        int offerCount = Mathf.Min(shopSlots.Count, availableItems.Count);
-        for (int i = 0; i < offerCount; i++)
-            _currentOffers.Add(availableItems[i]);
     }
 
     void RefreshShopUI()
@@ -213,6 +249,9 @@ public class ShopManager : MonoBehaviour
             return;
         }
 
+        if (RunManager.I != null)
+            RunManager.I.BeginNextFloor();
+
         SceneManager.LoadScene(nextSceneName);
     }
 
@@ -223,5 +262,10 @@ public class ShopManager : MonoBehaviour
 
         if (EquipmentUIController.Instance != null)
             EquipmentUIController.Instance.ShowEquipmentInventory(true);
+    }
+
+    void HandleLoadoutSlotChanged(LoadoutSlotType slotType)
+    {
+        RefreshShopUI();
     }
 }

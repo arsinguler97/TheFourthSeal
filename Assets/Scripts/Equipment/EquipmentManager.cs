@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class EquipmentManager : MonoBehaviour
@@ -275,6 +276,35 @@ public class EquipmentManager : MonoBehaviour
             return 0;
 
         return Mathf.Max(0, weapon.stats.attack);
+    }
+
+    public ItemSO GetEquippedWeapon()
+    {
+        ItemSO weapon = GetEquippedItem(LoadoutSlotType.Weapon);
+        return weapon != null && weapon.type == ItemType.Weapon ? weapon : null;
+    }
+
+    public IReadOnlyList<ItemSO> GetCombatActiveEquippedItems()
+    {
+        List<ItemSO> activeItems = new List<ItemSO>();
+        foreach (KeyValuePair<LoadoutSlotType, ItemSO> pair in _equippedItems)
+        {
+            if (pair.Value == null)
+                continue;
+
+            if (pair.Key == LoadoutSlotType.Spare || pair.Key == LoadoutSlotType.Consumable)
+                continue;
+
+            activeItems.Add(pair.Value);
+        }
+
+        return activeItems;
+    }
+
+    public ItemSO GetEquippedWeaponThatGrantsHealAction()
+    {
+        ItemSO weapon = GetEquippedWeapon();
+        return weapon != null && weapon.grantsHealAction ? weapon : null;
     }
 
     public WeaponAttackStyle GetEquippedWeaponAttackStyle()

@@ -1,10 +1,9 @@
+using System.Collections;
 using System.Collections.Generic;
 using System;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using System.Threading.Tasks;
-using System.Collections;
 
 public class TurnManager : MonoBehaviour
 {
@@ -15,6 +14,7 @@ public class TurnManager : MonoBehaviour
     [SerializeField] ActionDefinitionSO attackActionDefinition;
     [SerializeField] ActionDefinitionSO skipActionDefinition;
     [SerializeField] ActionDefinitionSO consumableActionDefinition;
+    [SerializeField] ActionDefinitionSO healActionDefinition;
     [SerializeField] ButtonAutoDisable[] buttonsForAutoDisable;
     [SerializeField] TMP_Text whoStartsText;
     [SerializeField] TMP_Text actionPointText;
@@ -25,8 +25,9 @@ public class TurnManager : MonoBehaviour
     bool _playerUsedAttackThisTurn;
     bool _isResolvingEnemyTurn;
     bool _isWaitingForLoadoutSelection;
-    Button _runtimeConsumableActionButton;
-    Image _runtimeConsumableActionIconImage;
+    readonly List<Button> _runtimeItemActionButtons = new List<Button>();
+    readonly List<Image> _runtimeItemActionIcons = new List<Image>();
+    readonly List<TMP_Text> _runtimeItemActionCostTexts = new List<TMP_Text>();
 
     public bool IsPlayerTurn => CurrentUnit is PlayerUnit;
     public ActionType SelectedPlayerActionType { get; private set; } = ActionType.None;
@@ -52,8 +53,8 @@ public class TurnManager : MonoBehaviour
 
     void Start()
     {
-        EnsureConsumableActionButtonBound();
-        UpdateConsumableActionAvailability();
+        EnsureRuntimeItemActionButtonsBound();
+        UpdateRuntimeItemActionAvailability();
         UpdateActionPointUI();
 
         whoStartsText.gameObject.SetActive(false);
@@ -117,7 +118,7 @@ public class TurnManager : MonoBehaviour
         if (CurrentActionPoints < moveActionDefinition.actionCost)
         {
             Debug.Log("Move action ignored because there are not enough action points.");
-            UpdateConsumableActionAvailability();
+            UpdateRuntimeItemActionAvailability();
             return;
         }
 
@@ -157,7 +158,7 @@ public class TurnManager : MonoBehaviour
         if (CurrentActionPoints < attackActionDefinition.actionCost)
         {
             Debug.Log("Attack action ignored because there are not enough action points.");
-            UpdateConsumableActionAvailability();
+            UpdateRuntimeItemActionAvailability();
             return;
         }
 
@@ -192,7 +193,7 @@ public class TurnManager : MonoBehaviour
         CurrentActionPoints = Mathf.Max(0, CurrentActionPoints - moveActionDefinition.actionCost);
         Debug.Log($"Move action spent {moveActionDefinition.actionCost} AP. Remaining AP: {CurrentActionPoints}.");
         UpdateActionPointUI();
-        UpdateConsumableActionAvailability();
+        UpdateRuntimeItemActionAvailability();
     }
 
     public void NotifyPlayerMovedStep(int numberOfMoveSteps)
@@ -220,7 +221,7 @@ public class TurnManager : MonoBehaviour
         }
 
         SelectedPlayerActionType = ActionType.None;
-        UpdateConsumableActionAvailability();
+        UpdateRuntimeItemActionAvailability();
     }
 
     public void ExecuteSkipAction()
@@ -260,34 +261,34 @@ public class TurnManager : MonoBehaviour
         if (consumableActionDefinition == null)
         {
             Debug.LogWarning("TurnManager needs a HealthPotion ActionDefinitionSO assigned.");
-            UpdateConsumableActionAvailability();
+            UpdateRuntimeItemActionAvailability();
             return;
         }
 
         if (consumableActionDefinition.actionType != ActionType.HealthPotion)
         {
             Debug.LogWarning($"Consumable action asset '{consumableActionDefinition.name}' is configured as {consumableActionDefinition.actionType}.");
-            UpdateConsumableActionAvailability();
+            UpdateRuntimeItemActionAvailability();
             return;
         }
 
         if (CurrentActionPoints < consumableActionDefinition.actionCost)
         {
             Debug.Log("Consumable action ignored because there are not enough action points.");
-            UpdateConsumableActionAvailability();
+            UpdateRuntimeItemActionAvailability();
             return;
         }
 
         if (CombatManager.I == null || CombatManager.I.PlayerUnit == null || EquipmentManager.Instance == null)
         {
-            UpdateConsumableActionAvailability();
+            UpdateRuntimeItemActionAvailability();
             return;
         }
 
         ItemSO consumableItem = EquipmentManager.Instance.GetEquippedConsumable();
         if (consumableItem == null)
         {
-            UpdateConsumableActionAvailability();
+            UpdateRuntimeItemActionAvailability();
             return;
         }
 
@@ -295,7 +296,7 @@ public class TurnManager : MonoBehaviour
         if (healAmount <= 0)
         {
             Debug.LogWarning($"Consumable '{consumableItem.itemName}' has no heal amount configured.");
-            UpdateConsumableActionAvailability();
+            UpdateRuntimeItemActionAvailability();
             return;
         }
 
@@ -307,7 +308,69 @@ public class TurnManager : MonoBehaviour
         EquipmentManager.Instance.ConsumeEquippedConsumable();
         SelectedPlayerActionType = ActionType.None;
         Debug.Log($"Used consumable '{consumableItem.itemName}' for {healAmount} healing. Remaining AP: {CurrentActionPoints}.");
-        UpdateConsumableActionAvailability();
+        UpdateRuntimeItemActionAvailability();
+    }
+
+    public void ExecuteHealAction()
+    {
+        GridManager.I.ResetWalkGrids();
+        GridManager.I.ResetAttackGrids();
+
+        if (!IsPlayerTurn)
+            return;
+
+        if (healActionDefinition == null)
+        {
+            Debug.LogWarning("TurnManager needs a Heal ActionDefinitionSO assigned.");
+            UpdateRuntimeItemActionAvailability();
+            return;
+        }
+
+        if (healActionDefinition.actionType != ActionType.Heal)
+        {
+            Debug.LogWarning($"Heal action asset '{healActionDefinition.name}' is configured as {healActionDefinition.actionType}.");
+            UpdateRuntimeItemActionAvailability();
+            return;
+        }
+
+        if (CurrentActionPoints < healActionDefinition.actionCost)
+        {
+            Debug.Log("Heal action ignored because there are not enough action points.");
+            UpdateRuntimeItemActionAvailability();
+            return;
+        }
+
+        if (CombatManager.I == null || CombatManager.I.PlayerUnit == null || EquipmentManager.Instance == null)
+        {
+            UpdateRuntimeItemActionAvailability();
+            return;
+        }
+
+        ItemSO healingWeapon = EquipmentManager.Instance.GetEquippedWeaponThatGrantsHealAction();
+        if (healingWeapon == null)
+        {
+            UpdateRuntimeItemActionAvailability();
+            return;
+        }
+
+        int weaponHealAmount = Mathf.Max(0, EquipmentManager.Instance.GetEquippedWeaponAttackOverride());
+        int strengthBonus = CombatManager.I.PlayerUnit != null ? Mathf.Max(0, CombatManager.I.PlayerUnit.Stats.Strength) : 0;
+        int healAmount = weaponHealAmount + strengthBonus;
+        if (healAmount <= 0)
+        {
+            Debug.LogWarning($"Healing weapon '{healingWeapon.itemName}' has no attack value to convert into healing.");
+            UpdateRuntimeItemActionAvailability();
+            return;
+        }
+
+        CombatManager.I.PlayerUnit.Heal(healAmount);
+        CombatManager.I.PlayerUnit.PlayConsumableUseVfx();
+        CurrentActionPoints = Mathf.Max(0, CurrentActionPoints - healActionDefinition.actionCost);
+        UpdateActionPointUI();
+
+        SelectedPlayerActionType = ActionType.None;
+        Debug.Log($"Used healing weapon '{healingWeapon.itemName}' for {healAmount} healing. Remaining AP: {CurrentActionPoints}.");
+        UpdateRuntimeItemActionAvailability();
     }
 
     void BeginCurrentTurn()
@@ -348,7 +411,7 @@ public class TurnManager : MonoBehaviour
             _playerUsedAttackThisTurn = false;
             Debug.Log($"Player turn started with {CurrentActionPoints} action points.");
             UpdateActionPointUI();
-            UpdateConsumableActionAvailability();
+            UpdateRuntimeItemActionAvailability();
 
 
 
@@ -386,8 +449,11 @@ public class TurnManager : MonoBehaviour
         foreach (ButtonAutoDisable button in buttonsForAutoDisable)
             button.DisableButton();
 
-        if (_runtimeConsumableActionButton != null)
-            _runtimeConsumableActionButton.interactable = false;
+        for (int i = 0; i < _runtimeItemActionButtons.Count; i++)
+        {
+            if (_runtimeItemActionButtons[i] != null)
+                _runtimeItemActionButtons[i].interactable = false;
+        }
     }
 
     private void ResetActionBarButtons()
@@ -395,7 +461,7 @@ public class TurnManager : MonoBehaviour
         foreach (ButtonAutoDisable button in buttonsForAutoDisable)
             button.EnableButton();
 
-        UpdateConsumableActionAvailability();
+        UpdateRuntimeItemActionAvailability();
     }
 
 
@@ -434,6 +500,7 @@ public class TurnManager : MonoBehaviour
         RemainingMoveSteps = 0;
         CurrentActionPoints = 0;
         UpdateActionPointUI();
+        UpdateRuntimeItemActionAvailability();
         UpdateTurnIndicators();
         NotifyTurnOrderChanged();
         BeginCurrentTurn();
@@ -581,6 +648,7 @@ public class TurnManager : MonoBehaviour
         RemainingMoveSteps = 0;
         CurrentActionPoints = 0;
         UpdateActionPointUI();
+        UpdateRuntimeItemActionAvailability();
         UpdateTurnIndicators();
         NotifyTurnOrderChanged();
     }
@@ -606,52 +674,50 @@ public class TurnManager : MonoBehaviour
     {
         if (!_playerUsedAttackThisTurn) buttonsForAutoDisable[0].EnableButton();
         if (!_playerUsedMoveThisTurn) buttonsForAutoDisable[1].EnableButton();
-        UpdateConsumableActionAvailability();
+        UpdateRuntimeItemActionAvailability();
     }
 
     void HandleLoadoutSlotChanged(LoadoutSlotType slotType)
     {
-        if (slotType != LoadoutSlotType.Consumable)
+        if (slotType != LoadoutSlotType.Consumable && slotType != LoadoutSlotType.Weapon)
             return;
 
-        UpdateConsumableActionAvailability();
+        UpdateRuntimeItemActionAvailability();
     }
 
-    void UpdateConsumableActionAvailability()
+    void UpdateRuntimeItemActionAvailability()
     {
-        EnsureConsumableActionButtonBound();
+        EnsureRuntimeItemActionButtonsBound();
 
-        if (_runtimeConsumableActionButton == null)
+        if (_runtimeItemActionButtons.Count == 0)
             return;
 
         ItemSO consumableItem = EquipmentManager.Instance != null ? EquipmentManager.Instance.GetEquippedConsumable() : null;
+        ItemSO healingWeapon = EquipmentManager.Instance != null ? EquipmentManager.Instance.GetEquippedWeaponThatGrantsHealAction() : null;
         bool hasConsumable = consumableItem != null;
+        bool hasHealingWeapon = healingWeapon != null;
+        int runtimeSlotIndex = 0;
 
-        if (_runtimeConsumableActionIconImage != null)
+        if (hasConsumable)
         {
-            Sprite actionIcon = hasConsumable
-                ? consumableItem.card
-                : null;
-            _runtimeConsumableActionIconImage.sprite = actionIcon;
-            _runtimeConsumableActionIconImage.enabled = actionIcon != null;
-            _runtimeConsumableActionIconImage.preserveAspect = true;
+            bool canUseConsumable = IsPlayerTurn
+                && !_isWaitingForLoadoutSelection
+                && consumableActionDefinition != null
+                && CurrentActionPoints >= consumableActionDefinition.actionCost;
+            BindRuntimeItemActionButton(runtimeSlotIndex++, consumableItem.card, ExecuteConsumableAction, canUseConsumable, consumableActionDefinition);
         }
 
-        if (!hasConsumable)
+        if (hasHealingWeapon)
         {
-            _runtimeConsumableActionButton.interactable = false;
-            return;
+            bool canUseHeal = IsPlayerTurn
+                && !_isWaitingForLoadoutSelection
+                && healActionDefinition != null
+                && CurrentActionPoints >= healActionDefinition.actionCost;
+            BindRuntimeItemActionButton(runtimeSlotIndex++, healingWeapon.card, ExecuteHealAction, canUseHeal, healActionDefinition);
         }
 
-        bool canUseConsumable = IsPlayerTurn
-            && !_isWaitingForLoadoutSelection
-            && consumableActionDefinition != null
-            && CurrentActionPoints >= consumableActionDefinition.actionCost;
-
-        if (canUseConsumable)
-            _runtimeConsumableActionButton.interactable = true;
-        else
-            _runtimeConsumableActionButton.interactable = false;
+        for (int i = runtimeSlotIndex; i < _runtimeItemActionButtons.Count; i++)
+            BindRuntimeItemActionButton(i, null, null, false);
     }
 
     void UpdateActionPointUI()
@@ -660,31 +726,62 @@ public class TurnManager : MonoBehaviour
             actionPointText.text = $"Action Points: {CurrentActionPoints}";
     }
 
-    void EnsureConsumableActionButtonBound()
+    void EnsureRuntimeItemActionButtonsBound()
     {
-        if (_runtimeConsumableActionButton != null)
+        if (_runtimeItemActionButtons.Count > 0)
             return;
 
         GameObject actionBarObject = GameObject.Find("ActionBar");
         if (actionBarObject == null)
             return;
 
-        Button[] actionButtons = actionBarObject.GetComponentsInChildren<Button>(true);
-        for (int i = 0; i < actionButtons.Length; i++)
+        Transform actionBarTransform = actionBarObject.transform;
+        for (int i = 0; i < actionBarTransform.childCount; i++)
         {
-            Button button = actionButtons[i];
+            Button button = actionBarTransform.GetChild(i).GetComponent<Button>();
             if (button == null)
                 continue;
 
             if (button.onClick.GetPersistentEventCount() != 0)
                 continue;
 
-            _runtimeConsumableActionButton = button;
-            _runtimeConsumableActionButton.onClick.RemoveListener(ExecuteConsumableAction);
-            _runtimeConsumableActionButton.onClick.AddListener(ExecuteConsumableAction);
-            _runtimeConsumableActionIconImage = ResolveActionButtonIcon(button);
-            break;
+            _runtimeItemActionButtons.Add(button);
+            _runtimeItemActionIcons.Add(ResolveActionButtonIcon(button));
+            _runtimeItemActionCostTexts.Add(ResolveActionButtonCostText(button));
         }
+    }
+
+    void BindRuntimeItemActionButton(int index, Sprite actionIcon, UnityEngine.Events.UnityAction onClickAction, bool isInteractable)
+    {
+        BindRuntimeItemActionButton(index, actionIcon, onClickAction, isInteractable, null);
+    }
+
+    void BindRuntimeItemActionButton(int index, Sprite actionIcon, UnityEngine.Events.UnityAction onClickAction, bool isInteractable, ActionDefinitionSO actionDefinition)
+    {
+        if (index < 0 || index >= _runtimeItemActionButtons.Count)
+            return;
+
+        Button button = _runtimeItemActionButtons[index];
+        Image iconImage = index < _runtimeItemActionIcons.Count ? _runtimeItemActionIcons[index] : null;
+        TMP_Text costText = index < _runtimeItemActionCostTexts.Count ? _runtimeItemActionCostTexts[index] : null;
+        if (button == null)
+            return;
+
+        button.onClick.RemoveAllListeners();
+        if (onClickAction != null)
+            button.onClick.AddListener(onClickAction);
+
+        button.interactable = actionIcon != null && isInteractable;
+
+        if (iconImage != null)
+        {
+            iconImage.sprite = actionIcon;
+            iconImage.enabled = actionIcon != null;
+            iconImage.preserveAspect = true;
+        }
+
+        if (costText != null)
+            costText.text = actionIcon != null && actionDefinition != null ? $"AC: {actionDefinition.actionCost}" : string.Empty;
     }
 
     Image ResolveActionButtonIcon(Button button)
@@ -699,5 +796,17 @@ public class TurnManager : MonoBehaviour
         }
 
         return button.targetGraphic as Image;
+    }
+
+    TMP_Text ResolveActionButtonCostText(Button button)
+    {
+        TMP_Text[] texts = button.GetComponentsInChildren<TMP_Text>(true);
+        for (int i = 0; i < texts.Length; i++)
+        {
+            if (texts[i] != null)
+                return texts[i];
+        }
+
+        return null;
     }
 }

@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e05953932de6ac4eb1fda248b08e71c, type: 3}
+  m_Name: HealingStaff
+  m_EditorClassIdentifier: Assembly-CSharp::Item
+  itemName: Healing Staff
+  itemDescription: 'Grants Action: Heal'
+  type: 0
+  tier: 2
+  cost: 250
+  isCursed: 0
+  equipmentSubtype: 0
+  weaponHandedness: 2
+  weaponAttackStyle: 1
+  grantsHealAction: 1
+  projectilePrefab: {fileID: 1780809659637726124, guid: 13e4e59966eed06408d8fcce84ad164a, type: 3}
+  consumableHealAmount: 0
+  stats:
+    attack: 4
+    defence: 0
+    speed: 0
+    strength: 0
+    range: 1
+    actionPoints: 0
+  card: {fileID: 21300000, guid: b8bbf42c54072f64db5f8b68129ad240, type: 3}

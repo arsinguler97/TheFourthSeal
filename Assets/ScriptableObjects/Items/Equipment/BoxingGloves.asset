@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9e05953932de6ac4eb1fda248b08e71c, type: 3}
-  m_Name: Gloves
+  m_Name: BoxingGloves
   m_EditorClassIdentifier: Assembly-CSharp::ItemSO
-  itemName: Gloves
+  itemName: Boxing Gloves
   itemDescription: Offence is the best defence.
   type: 1
   tier: 1
@@ -21,7 +21,14 @@ MonoBehaviour:
   equipmentSubtype: 3
   weaponHandedness: 0
   weaponAttackStyle: 0
+  grantsHealAction: 0
   projectilePrefab: {fileID: 0}
+  cleavesAdjacentEnemies: 0
+  meleeAttackVfxPrefab: {fileID: 0}
+  attackHitStatusEffect: {fileID: 0}
+  rangedHitStatusEffect: {fileID: 0}
+  selfStatusEffectChanceOnAttack: 0
+  selfStatusEffectOnAttack: {fileID: 0}
   consumableHealAmount: 0
   stats:
     attack: 0
