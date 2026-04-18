@@ -15,8 +15,13 @@ MonoBehaviour:
   itemName: Helmet
   itemDescription: Can't hit what you cant see.
   type: 1
+  tier: 1
+  cost: 100
+  isCursed: 0
   equipmentSubtype: 1
   weaponHandedness: 0
+  weaponAttackStyle: 0
+  projectilePrefab: {fileID: 0}
   consumableHealAmount: 0
   stats:
     attack: 0
@@ -25,5 +30,4 @@ MonoBehaviour:
     strength: -1
     range: 0
     actionPoints: 0
-  icon: {fileID: 0}
   card: {fileID: 21300000, guid: 95f07de44c5a4bc47aa48f3b38864180, type: 3}

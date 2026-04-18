@@ -17,6 +17,7 @@ public class GridManager : MonoBehaviour
     [SerializeField] TileTypeSO exitTileType;
     [SerializeField] TileTypeSO rewardTileType;
     [SerializeField] TileTypeSO rewardOpenedTileType;
+    [SerializeField] TileTypeSO keyTileType;
 
     [SerializeField] TileTypeSO walkTileType;
     [SerializeField] TileTypeSO attackTileType;
@@ -93,19 +94,7 @@ public class GridManager : MonoBehaviour
         for (int x = 0; x < gridWidth; x++)
         {
             Vector2Int tileGridPosition = new Vector2Int(x, y);
-
-            if (tileGridPosition == roomConfig.exit)
-                _tileViews[x, y].SetSprite(exitTileType.sprite);
-            else if (tileGridPosition == roomConfig.reward)
-                _tileViews[x, y].SetSprite(GetRewardSprite(roomConfig));
-            else if (roomConfig.blockedTiles.Contains(tileGridPosition))
-                _tileViews[x, y].SetSprite(blockedTileType.sprite);
-            else if (roomConfig.lavaTiles.Contains(tileGridPosition))
-                _tileViews[x, y].SetSprite(lavaTileType.sprite);
-            else if (roomConfig.lightningTiles.Contains(tileGridPosition))
-                _tileViews[x, y].SetSprite(lightningTileType.sprite);
-            else
-                _tileViews[x, y].SetSprite(floorTileType.sprite);
+            _tileViews[x, y].SetSprite(GetBaseTileSprite(roomConfig, tileGridPosition));
 
 
             _tileViewsWalkGrid[x, y].SetSprite(null);
@@ -119,6 +108,14 @@ public class GridManager : MonoBehaviour
             return;
 
         _tileViews[roomConfig.reward.x, roomConfig.reward.y].SetSprite(GetRewardSprite(roomConfig));
+    }
+
+    public void RefreshKeyTile(RoomConfig roomConfig)
+    {
+        if (roomConfig == null || !roomConfig.hasKeyTile || !InBounds(roomConfig.keyTile))
+            return;
+
+        _tileViews[roomConfig.keyTile.x, roomConfig.keyTile.y].SetSprite(GetBaseTileSprite(roomConfig, roomConfig.keyTile));
     }
 
     public Vector3 GridToWorld(Vector2Int gridPosition)
@@ -316,6 +313,37 @@ public class GridManager : MonoBehaviour
             return rewardOpenedTileType.sprite;
 
         return rewardTileType != null ? rewardTileType.sprite : floorTileType.sprite;
+    }
+
+    Sprite GetKeySprite()
+    {
+        return keyTileType != null ? keyTileType.sprite : floorTileType.sprite;
+    }
+
+    Sprite GetBaseTileSprite(RoomConfig roomConfig, Vector2Int tileGridPosition)
+    {
+        if (roomConfig == null)
+            return floorTileType != null ? floorTileType.sprite : null;
+
+        if (tileGridPosition == roomConfig.exit)
+            return exitTileType != null ? exitTileType.sprite : floorTileType.sprite;
+
+        if (tileGridPosition == roomConfig.reward)
+            return GetRewardSprite(roomConfig);
+
+        if (roomConfig.hasKeyTile && !roomConfig.isKeyCollected && tileGridPosition == roomConfig.keyTile)
+            return GetKeySprite();
+
+        if (roomConfig.blockedTiles.Contains(tileGridPosition))
+            return blockedTileType != null ? blockedTileType.sprite : floorTileType.sprite;
+
+        if (roomConfig.lavaTiles.Contains(tileGridPosition))
+            return lavaTileType != null ? lavaTileType.sprite : floorTileType.sprite;
+
+        if (roomConfig.lightningTiles.Contains(tileGridPosition))
+            return lightningTileType != null ? lightningTileType.sprite : floorTileType.sprite;
+
+        return floorTileType != null ? floorTileType.sprite : null;
     }
 
 

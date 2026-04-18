@@ -184,7 +184,7 @@ MonoBehaviour:
   spareConsumableCardPrefab: {fileID: 8793841707931513710, guid: 333baca9c3cf1664c9a7003115565f72, type: 3}
   cardImage: {fileID: 0}
   button: {fileID: 7125579}
-  previewScaleMultiplier: 2.5
+  previewScaleMultiplier: 1
 --- !u!114 &7125577
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -618,6 +618,7 @@ MonoBehaviour:
   exitTileType: {fileID: 11400000, guid: e3c4a20883ec488418d3c0af5e17985f, type: 2}
   rewardTileType: {fileID: 11400000, guid: ec9edd362ae16904c93086dbb1c450f7, type: 2}
   rewardOpenedTileType: {fileID: 11400000, guid: b5d4b5ae555d06b41a73a900a3e76b28, type: 2}
+  keyTileType: {fileID: 11400000, guid: 68a1c184535adc943a4dae5c0c0ab0c5, type: 2}
   walkTileType: {fileID: 11400000, guid: 44ccfed7e02b53242acd30e069f00f6b, type: 2}
   attackTileType: {fileID: 11400000, guid: 412f2f0a3b048ca468f8850f3173bf32, type: 2}
 --- !u!114 &107617980
@@ -673,7 +674,6 @@ MonoBehaviour:
   roomClearFillImage: {fileID: 289507266}
   roomClearFillDuration: 2
   roomClearSFX: {fileID: 11400000, guid: e640e72ab17e0f146afe3b7ccb18d8db, type: 2}
-  lavaDamage: 1
   playerDefeatRoot: {fileID: 734158772}
   playAgainButton: {fileID: 1138662691}
   playAgainEnableDelay: 1
@@ -2905,7 +2905,7 @@ MonoBehaviour:
   spareConsumableCardPrefab: {fileID: 8793841707931513710, guid: 333baca9c3cf1664c9a7003115565f72, type: 3}
   cardImage: {fileID: 0}
   button: {fileID: 831763087}
-  previewScaleMultiplier: 2.5
+  previewScaleMultiplier: 1
 --- !u!114 &831763085
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3592,7 +3592,7 @@ MonoBehaviour:
   spareConsumableCardPrefab: {fileID: 8793841707931513710, guid: 333baca9c3cf1664c9a7003115565f72, type: 3}
   cardImage: {fileID: 0}
   button: {fileID: 992726925}
-  previewScaleMultiplier: 2.5
+  previewScaleMultiplier: 1
 --- !u!114 &992726927
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4310,7 +4310,7 @@ MonoBehaviour:
   spareConsumableCardPrefab: {fileID: 8793841707931513710, guid: 333baca9c3cf1664c9a7003115565f72, type: 3}
   cardImage: {fileID: 0}
   button: {fileID: 1215730053}
-  previewScaleMultiplier: 2.5
+  previewScaleMultiplier: 1
 --- !u!114 &1215730051
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5490,7 +5490,7 @@ MonoBehaviour:
   spareConsumableCardPrefab: {fileID: 8793841707931513710, guid: 333baca9c3cf1664c9a7003115565f72, type: 3}
   cardImage: {fileID: 0}
   button: {fileID: 1370761886}
-  previewScaleMultiplier: 2.5
+  previewScaleMultiplier: 1
 --- !u!114 &1370761884
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6615,7 +6615,7 @@ MonoBehaviour:
   spareConsumableCardPrefab: {fileID: 8793841707931513710, guid: 333baca9c3cf1664c9a7003115565f72, type: 3}
   cardImage: {fileID: 0}
   button: {fileID: 1634866458}
-  previewScaleMultiplier: 2.5
+  previewScaleMultiplier: 1
 --- !u!114 &1634866456
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7453,7 +7453,7 @@ MonoBehaviour:
   spareConsumableCardPrefab: {fileID: 8793841707931513710, guid: 333baca9c3cf1664c9a7003115565f72, type: 3}
   cardImage: {fileID: 0}
   button: {fileID: 1827263210}
-  previewScaleMultiplier: 2.5
+  previewScaleMultiplier: 1
 --- !u!114 &1827263208
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8259,7 +8259,7 @@ MonoBehaviour:
   spareConsumableCardPrefab: {fileID: 8793841707931513710, guid: 333baca9c3cf1664c9a7003115565f72, type: 3}
   cardImage: {fileID: 0}
   button: {fileID: 2132832700}
-  previewScaleMultiplier: 2.5
+  previewScaleMultiplier: 1
 --- !u!114 &2132832698
 MonoBehaviour:
   m_ObjectHideFlags: 0

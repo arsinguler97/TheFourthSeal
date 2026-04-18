@@ -53,6 +53,7 @@ public class PlayerController : MonoBehaviour
                 destinationWorldPosition,
                 moveSpeedUnitsPerSecond * Time.deltaTime);
 
+            TryCollectKeyTileAtCurrentPosition();
             TryOpenRewardTileAtCurrentPosition();
 
             if (Vector3.Distance(transform.position, destinationWorldPosition) < 0.001f)
@@ -207,6 +208,27 @@ public class PlayerController : MonoBehaviour
 
         if (GridManager.I != null)
             GridManager.I.RefreshRewardTile(activeRoomConfig);
+
+        if (_playerUnit != null)
+            _playerUnit.PlayRewardOpenVfx();
+    }
+
+    void TryCollectKeyTileAtCurrentPosition()
+    {
+        RoomConfig activeRoomConfig = RunManager.I != null ? RunManager.I.CurrentRoomConfig : null;
+        if (activeRoomConfig == null
+            || !activeRoomConfig.hasKeyTile
+            || activeRoomConfig.isKeyCollected
+            || GridManager.I.WorldToGrid(transform.position) != activeRoomConfig.keyTile)
+            return;
+
+        activeRoomConfig.isKeyCollected = true;
+
+        if (RunManager.I != null)
+            RunManager.I.AcquireFloorKey();
+
+        if (GridManager.I != null)
+            GridManager.I.RefreshKeyTile(activeRoomConfig);
 
         if (_playerUnit != null)
             _playerUnit.PlayRewardOpenVfx();

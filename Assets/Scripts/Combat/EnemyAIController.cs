@@ -21,6 +21,12 @@ public class EnemyAIController : MonoBehaviour
 
     public void ExecuteTurn(Action onTurnComplete)
     {
+        if (!isActiveAndEnabled || _enemyUnit == null || !_enemyUnit.IsAlive || !gameObject.activeInHierarchy)
+        {
+            onTurnComplete?.Invoke();
+            return;
+        }
+
         if (_activeTurnRoutine != null)
             StopCoroutine(_activeTurnRoutine);
 

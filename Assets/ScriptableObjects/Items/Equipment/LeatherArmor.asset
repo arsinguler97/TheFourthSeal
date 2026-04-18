@@ -16,7 +16,7 @@ MonoBehaviour:
   itemDescription: Maximum style, minimum protection
   type: 1
   tier: 1
-  cost: 0
+  cost: 150
   isCursed: 0
   equipmentSubtype: 2
   weaponHandedness: 0

@@ -15,8 +15,13 @@ MonoBehaviour:
   itemName: Gloves
   itemDescription: Offence is the best defence.
   type: 1
+  tier: 1
+  cost: 100
+  isCursed: 0
   equipmentSubtype: 3
   weaponHandedness: 0
+  weaponAttackStyle: 0
+  projectilePrefab: {fileID: 0}
   consumableHealAmount: 0
   stats:
     attack: 0
@@ -25,5 +30,4 @@ MonoBehaviour:
     strength: 1
     range: 0
     actionPoints: 0
-  icon: {fileID: 0}
   card: {fileID: 21300000, guid: b7e7f0e60b1b9684a89c033890ace43e, type: 3}

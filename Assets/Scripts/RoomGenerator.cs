@@ -34,6 +34,7 @@ public class RoomGenerator : MonoBehaviour
         generatedRoomConfig.start = new Vector2Int(Random.Range(0, gridWidth), 0);
         generatedRoomConfig.exit = new Vector2Int(Random.Range(0, gridWidth), gridHeight - 1);
         generatedRoomConfig.reward = new Vector2Int(Random.Range(0, gridWidth), Random.Range(1, gridHeight - 1));
+        generatedRoomConfig.isMinibossRoom = selectedTemplate != null && selectedTemplate.bossEnemy != null;
 
         SpawnPlayerAtGridPosition(generatedRoomConfig.start);
 
@@ -68,6 +69,7 @@ public class RoomGenerator : MonoBehaviour
             gridWidth,
             gridHeight);
         reservedPositions.UnionWith(generatedRoomConfig.lightningTiles);
+        PlaceKeyTileIfNeeded(generatedRoomConfig, reservedPositions, gridWidth, gridHeight);
 
         SpawnEnemiesAtGridPositions(generatedRoomConfig.enemySpawns, generatedRoomConfig.enemyDefinitions);
         RunManager.I.CurrentRoomConfig = generatedRoomConfig;
@@ -109,6 +111,17 @@ public class RoomGenerator : MonoBehaviour
 
         if (_spawnedPlayerController != null)
             _spawnedPlayerController.SetGridPosition(spawnGridPosition);
+    }
+
+    void PlaceKeyTileIfNeeded(RoomConfig roomConfig, HashSet<Vector2Int> reservedPositions, int gridWidth, int gridHeight)
+    {
+        if (roomConfig == null || !roomConfig.isMinibossRoom)
+            return;
+
+        roomConfig.keyTile = FindRandomFreePosition(reservedPositions, gridWidth, gridHeight);
+        roomConfig.hasKeyTile = true;
+        roomConfig.isKeyCollected = false;
+        reservedPositions.Add(roomConfig.keyTile);
     }
 
     void SpawnEnemiesAtGridPositions(List<Vector2Int> spawnGridPositions, List<EnemyDefinitionSO> enemyDefinitions)

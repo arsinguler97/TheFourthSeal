@@ -85,6 +85,36 @@ public class EquipmentManager : MonoBehaviour
         return TryStoreRewardInSpare(item, false);
     }
 
+    public bool CanAddPurchasedItem(ItemSO item)
+    {
+        if (item == null)
+            return false;
+
+        LoadoutSlotType defaultSlot = item.GetDefaultLoadoutSlot();
+        if (defaultSlot == LoadoutSlotType.None)
+            return false;
+
+        if (GetEquippedItem(defaultSlot) == null && CanAssignItemToSlot(item, defaultSlot))
+            return true;
+
+        return GetEquippedItem(LoadoutSlotType.Spare) == null && CanAssignItemToSlot(item, LoadoutSlotType.Spare);
+    }
+
+    public bool TryAddPurchasedItem(ItemSO item)
+    {
+        if (item == null)
+            return false;
+
+        LoadoutSlotType defaultSlot = item.GetDefaultLoadoutSlot();
+        if (defaultSlot == LoadoutSlotType.None)
+            return false;
+
+        if (GetEquippedItem(defaultSlot) == null && TryAssignItemToSlot(item, defaultSlot))
+            return true;
+
+        return GetEquippedItem(LoadoutSlotType.Spare) == null && TryAssignItemToSlot(item, LoadoutSlotType.Spare);
+    }
+
     public bool TryGrantRandomReward()
     {
         if (rewardItemPool == null || rewardItemPool.Count == 0)
@@ -274,6 +304,45 @@ public class EquipmentManager : MonoBehaviour
             return true;
 
         return item.CanEquipToSlot(slotType);
+    }
+
+    bool CanAssignItemToSlot(ItemSO item, LoadoutSlotType slotType)
+    {
+        if (item == null || !_equippedItems.ContainsKey(slotType))
+            return false;
+
+        if (!CanPlaceItemInSlot(item, slotType))
+            return false;
+
+        if (slotType == LoadoutSlotType.Shield && IsTwoHandedWeaponEquipped())
+            return false;
+
+        return true;
+    }
+
+    bool TryAssignItemToSlot(ItemSO item, LoadoutSlotType slotType)
+    {
+        if (!CanAssignItemToSlot(item, slotType))
+            return false;
+
+        bool removedShield = false;
+        if (item.type == ItemType.Weapon
+            && item.weaponHandedness == WeaponHandedness.TwoHanded
+            && slotType == LoadoutSlotType.Weapon
+            && GetEquippedItem(LoadoutSlotType.Shield) != null)
+        {
+            _equippedItems[LoadoutSlotType.Shield] = null;
+            removedShield = true;
+        }
+
+        _equippedItems[slotType] = item;
+        NotifySlotChanged(slotType);
+
+        if (removedShield)
+            NotifySlotChanged(LoadoutSlotType.Shield);
+
+        ApplyEquippedStatsToCurrentPlayer();
+        return true;
     }
 
     void NotifyAllSlotsChanged()

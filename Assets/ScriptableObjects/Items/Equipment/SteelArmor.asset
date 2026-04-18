@@ -16,7 +16,7 @@ MonoBehaviour:
   itemDescription: Built like a wall. Moves like one too.
   type: 1
   tier: 1
-  cost: 0
+  cost: 150
   isCursed: 0
   equipmentSubtype: 2
   weaponHandedness: 0

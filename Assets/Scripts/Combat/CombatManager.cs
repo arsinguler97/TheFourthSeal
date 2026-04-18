@@ -15,8 +15,6 @@ public class CombatManager : MonoBehaviour
     [SerializeField] float roomClearFillDuration = 2f;
 
     [SerializeField] private AudioCue roomClearSFX;
-    [SerializeField] int lavaDamage = 1;
-
     [Header("Player Defeat")]
     // Defeat UI is enabled when the player dies and stays open until restart.
     [SerializeField] GameObject playerDefeatRoot;
@@ -236,6 +234,13 @@ public class CombatManager : MonoBehaviour
             attacker.GetComponentInChildren<SpriteRenderer>(),
             () =>
             {
+                if (resolution.hitEnemy != null && resolution.hitEnemy.IsAlive)
+                {
+                    resolution.hitEnemy.ReceiveAttackRoll(attacker, attackRoll);
+                    onResolved?.Invoke();
+                    return;
+                }
+
                 if (resolution.hitPlayer && PlayerUnit != null && PlayerUnit.IsAlive)
                     PlayerUnit.ReceiveAttackRoll(attacker, attackRoll);
 
@@ -413,6 +418,7 @@ public class CombatManager : MonoBehaviour
         if (RunManager.I != null && PlayerUnit != null)
             RunManager.I.SavePlayerHealth(PlayerUnit.CurrentHealth);
 
+        TryGrantMinibossKeyBeforeLeaving();
         TryGrantRoomRewardBeforeLeaving();
 
         // Advancing floor state happens before the scene swap so the next FloorScene can resolve the new node.
@@ -460,6 +466,22 @@ public class CombatManager : MonoBehaviour
 
         if (EquipmentManager.Instance.TryGrantRandomReward())
             activeRoomConfig.hasGrantedExitReward = true;
+    }
+
+    void TryGrantMinibossKeyBeforeLeaving()
+    {
+        if (RunManager.I == null)
+            return;
+
+        RoomConfig activeRoomConfig = RunManager.I.CurrentRoomConfig;
+        if (activeRoomConfig == null || !activeRoomConfig.isMinibossRoom || RunManager.I.HasFloorKey)
+            return;
+
+        RunManager.I.AcquireFloorKey();
+        activeRoomConfig.isKeyCollected = true;
+
+        if (GridManager.I != null)
+            GridManager.I.RefreshKeyTile(activeRoomConfig);
     }
 
     IEnumerator ShowPlayerDefeatSequence(PlayerUnit playerUnit)

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class FloorMapController : MonoBehaviour
 {
@@ -10,6 +11,7 @@ public class FloorMapController : MonoBehaviour
     [SerializeField] FloorMapPlayerUI floorMapPlayerUI;
     [SerializeField] RoomNode startingRoomNode;
     [SerializeField] List<RoomNode> roomNodes = new List<RoomNode>();
+    [SerializeField] Graphic floorKeyIndicator;
     bool _isTransitioningToRoom;
 
     void Awake()
@@ -43,11 +45,13 @@ public class FloorMapController : MonoBehaviour
 
         if (floorMapPlayerUI != null && currentNode != null)
             floorMapPlayerUI.SnapTo(currentNode.GetComponent<RectTransform>());
+
+        RefreshKeyIndicator();
     }
 
     public void SelectRoomNode(RoomNode roomNode, RoomTemplateSO roomTemplate, int enemyCountOverride)
     {
-        if (_isTransitioningToRoom || roomNode == null || roomTemplate == null || RunManager.I == null)
+        if (_isTransitioningToRoom || roomNode == null || RunManager.I == null)
             return;
 
         if (string.IsNullOrWhiteSpace(roomNode.NodeId))
@@ -62,18 +66,44 @@ public class FloorMapController : MonoBehaviour
             return;
         }
 
+        if (roomNode.LoadsSceneDirectly)
+        {
+            if (!RunManager.I.HasFloorKey)
+            {
+                Debug.Log($"Scene exit '{roomNode.NodeId}' is locked until the floor key is collected.");
+                return;
+            }
+
+            BeginSceneTransition(roomNode, roomNode.DestinationSceneName);
+            return;
+        }
+
+        if (roomTemplate == null)
+        {
+            Debug.LogWarning($"SelectRoomNode aborted because '{roomNode.name}' has no RoomTemplateSO assigned.");
+            return;
+        }
+
         RunManager.I.PrepareRoomSelection(roomNode.NodeId, roomTemplate, enemyCountOverride, roomNode.EnemyOverrides);
+        BeginSceneTransition(roomNode, "RoomScene");
+    }
+
+    void BeginSceneTransition(RoomNode roomNode, string sceneName)
+    {
+        if (roomNode == null || string.IsNullOrWhiteSpace(sceneName))
+            return;
+
         _isTransitioningToRoom = true;
 
         // The map marker animation is cosmetic; the room load still works without it.
         RectTransform targetRect = roomNode.GetComponent<RectTransform>();
         if (floorMapPlayerUI != null && targetRect != null)
         {
-            floorMapPlayerUI.MoveTo(targetRect, () => SceneManager.LoadScene("RoomScene"));
+            floorMapPlayerUI.MoveTo(targetRect, () => SceneManager.LoadScene(sceneName));
             return;
         }
 
-        SceneManager.LoadScene("RoomScene");
+        SceneManager.LoadScene(sceneName);
     }
 
     void NavigateToClearedRoomNode(RoomNode roomNode)
@@ -112,8 +142,18 @@ public class FloorMapController : MonoBehaviour
 
             bool isCleared = RunManager.I.IsFloorNodeCleared(roomNode.NodeId);
             bool isConnectedToCurrent = currentNode != null && currentNode.IsConnectedTo(roomNode);
-            roomNode.RoomButton.SetState(isConnectedToCurrent, isCleared);
+            bool isLockedByMissingKey = roomNode.LoadsSceneDirectly && !RunManager.I.HasFloorKey;
+            bool isInteractable = isConnectedToCurrent && !isLockedByMissingKey;
+            roomNode.RoomButton.SetState(isInteractable, isCleared, isLockedByMissingKey);
         }
+
+        RefreshKeyIndicator();
+    }
+
+    void RefreshKeyIndicator()
+    {
+        if (floorKeyIndicator != null)
+            floorKeyIndicator.gameObject.SetActive(RunManager.I != null && RunManager.I.HasFloorKey);
     }
 
     RoomNode GetNodeById(string nodeId)

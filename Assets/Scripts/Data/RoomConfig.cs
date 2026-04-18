@@ -7,8 +7,12 @@ public class RoomConfig
     public Vector2Int start;
     public Vector2Int exit;
     public Vector2Int reward;
+    public Vector2Int keyTile;
     public bool isRewardOpened;
     public bool hasGrantedExitReward;
+    public bool hasKeyTile;
+    public bool isKeyCollected;
+    public bool isMinibossRoom;
 
     // Every enemy spawn is reserved before hazards are generated so rooms stay playable.
     public List<Vector2Int> enemySpawns = new List<Vector2Int>();

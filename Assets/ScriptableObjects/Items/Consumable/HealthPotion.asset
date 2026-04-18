@@ -15,8 +15,13 @@ MonoBehaviour:
   itemName: HealthPotion
   itemDescription: Heals you for +10 health.
   type: 2
+  tier: 1
+  cost: 50
+  isCursed: 0
   equipmentSubtype: 0
   weaponHandedness: 0
+  weaponAttackStyle: 0
+  projectilePrefab: {fileID: 0}
   consumableHealAmount: 10
   stats:
     attack: 0
@@ -25,5 +30,4 @@ MonoBehaviour:
     strength: 0
     range: 0
     actionPoints: 1
-  icon: {fileID: 0}
   card: {fileID: 21300000, guid: 407cb4af037bcf04a84e9709773f238d, type: 3}

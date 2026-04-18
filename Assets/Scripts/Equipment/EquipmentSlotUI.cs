@@ -16,10 +16,20 @@ public class EquipmentSlotUI : MonoBehaviour, IPointerDownHandler, IPointerUpHan
     [SerializeField] GameObject spareConsumableCardPrefab;
     [SerializeField] Image cardImage;
     [SerializeField] Button button;
-    [SerializeField] float previewScaleMultiplier = 1.8f;
+    [SerializeField] float previewScaleMultiplier = 1.3f;
 
     GameObject _spawnedCardInstance;
     Vector3 _defaultPreviewScale = Vector3.one;
+    RectTransform _spawnedCardRectTransform;
+    Canvas _rootCanvas;
+    int _defaultSiblingIndex;
+    Vector2 _defaultAnchoredPosition;
+    Vector2 _defaultSizeDelta;
+    Vector2 _defaultAnchorMin;
+    Vector2 _defaultAnchorMax;
+    Vector2 _defaultPivot;
+    Quaternion _defaultLocalRotation = Quaternion.identity;
+    bool _isPreviewing;
 
 
     void Start()
@@ -29,6 +39,8 @@ public class EquipmentSlotUI : MonoBehaviour, IPointerDownHandler, IPointerUpHan
 
         if (button != null)
             button.onClick.AddListener(HandleSlotClicked);
+
+        _rootCanvas = GetComponentInParent<Canvas>();
 
         if (EquipmentManager.Instance == null)
             return;
@@ -71,6 +83,8 @@ public class EquipmentSlotUI : MonoBehaviour, IPointerDownHandler, IPointerUpHan
             Destroy(_spawnedCardInstance);
 
         _spawnedCardInstance = null;
+        _spawnedCardRectTransform = null;
+        _isPreviewing = false;
 
         if (item == null)
         {
@@ -83,7 +97,8 @@ public class EquipmentSlotUI : MonoBehaviour, IPointerDownHandler, IPointerUpHan
         if (cardPrefab != null && cardContainer != null)
         {
             _spawnedCardInstance = Instantiate(cardPrefab, cardContainer);
-            _defaultPreviewScale = _spawnedCardInstance.transform.localScale;
+            _spawnedCardRectTransform = _spawnedCardInstance.GetComponent<RectTransform>();
+            CacheDefaultPreviewState();
             ItemCardUI cardUI = _spawnedCardInstance.GetComponent<ItemCardUI>();
             if (cardUI != null)
                 cardUI.Bind(item);
@@ -134,13 +149,70 @@ public class EquipmentSlotUI : MonoBehaviour, IPointerDownHandler, IPointerUpHan
         return null;
     }
 
+    void CacheDefaultPreviewState()
+    {
+        if (_spawnedCardInstance == null)
+            return;
+
+        _defaultPreviewScale = _spawnedCardInstance.transform.localScale;
+        _defaultLocalRotation = _spawnedCardInstance.transform.localRotation;
+        _defaultSiblingIndex = _spawnedCardInstance.transform.GetSiblingIndex();
+
+        if (_spawnedCardRectTransform == null)
+            return;
+
+        _defaultAnchoredPosition = _spawnedCardRectTransform.anchoredPosition;
+        _defaultSizeDelta = _spawnedCardRectTransform.sizeDelta;
+        _defaultAnchorMin = _spawnedCardRectTransform.anchorMin;
+        _defaultAnchorMax = _spawnedCardRectTransform.anchorMax;
+        _defaultPivot = _spawnedCardRectTransform.pivot;
+    }
+
+    void BeginPreview()
+    {
+        if (_isPreviewing || _spawnedCardInstance == null)
+            return;
+
+        if (_rootCanvas == null)
+            _rootCanvas = GetComponentInParent<Canvas>();
+
+        Canvas previewCanvas = _rootCanvas != null ? _rootCanvas.rootCanvas : null;
+        if (previewCanvas == null)
+            return;
+
+        _isPreviewing = true;
+        _spawnedCardInstance.transform.SetParent(previewCanvas.transform, true);
+        _spawnedCardInstance.transform.SetAsLastSibling();
+        _spawnedCardInstance.transform.localScale = _defaultPreviewScale * previewScaleMultiplier;
+    }
+
+    void EndPreview()
+    {
+        if (!_isPreviewing || _spawnedCardInstance == null || cardContainer == null)
+            return;
+
+        _isPreviewing = false;
+        _spawnedCardInstance.transform.SetParent(cardContainer, false);
+        _spawnedCardInstance.transform.SetSiblingIndex(Mathf.Clamp(_defaultSiblingIndex, 0, cardContainer.childCount - 1));
+        _spawnedCardInstance.transform.localScale = _defaultPreviewScale;
+        _spawnedCardInstance.transform.localRotation = _defaultLocalRotation;
+
+        if (_spawnedCardRectTransform == null)
+            return;
+
+        _spawnedCardRectTransform.anchorMin = _defaultAnchorMin;
+        _spawnedCardRectTransform.anchorMax = _defaultAnchorMax;
+        _spawnedCardRectTransform.pivot = _defaultPivot;
+        _spawnedCardRectTransform.anchoredPosition = _defaultAnchoredPosition;
+        _spawnedCardRectTransform.sizeDelta = _defaultSizeDelta;
+    }
+
     public void OnPointerDown(PointerEventData eventData)
     {
         if (eventData.button != PointerEventData.InputButton.Right || _spawnedCardInstance == null)
             return;
 
-        _spawnedCardInstance.transform.localScale = _defaultPreviewScale * previewScaleMultiplier;
-        _spawnedCardInstance.transform.SetAsLastSibling();
+        BeginPreview();
     }
 
     public void OnPointerUp(PointerEventData eventData)
@@ -148,7 +220,7 @@ public class EquipmentSlotUI : MonoBehaviour, IPointerDownHandler, IPointerUpHan
         if (eventData.button != PointerEventData.InputButton.Right || _spawnedCardInstance == null)
             return;
 
-        _spawnedCardInstance.transform.localScale = _defaultPreviewScale;
+        EndPreview();
     }
 
     public void OnPointerExit(PointerEventData eventData)
@@ -156,6 +228,6 @@ public class EquipmentSlotUI : MonoBehaviour, IPointerDownHandler, IPointerUpHan
         if (_spawnedCardInstance == null)
             return;
 
-        _spawnedCardInstance.transform.localScale = _defaultPreviewScale;
+        EndPreview();
     }
 }

@@ -16,7 +16,7 @@ MonoBehaviour:
   itemDescription: Slow feet, tough shins.
   type: 1
   tier: 1
-  cost: 0
+  cost: 150
   isCursed: 0
   equipmentSubtype: 4
   weaponHandedness: 0

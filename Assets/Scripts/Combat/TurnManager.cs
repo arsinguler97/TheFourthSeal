@@ -335,6 +335,12 @@ public class TurnManager : MonoBehaviour
 
         CurrentUnit.StatusEffectManager.UpdateEffects();
 
+        if (CurrentUnit == null || !CurrentUnit.IsAlive || !CurrentUnit.gameObject.activeInHierarchy)
+        {
+            EndCurrentTurn();
+            return;
+        }
+
         if (CurrentUnit is PlayerUnit playerUnit)
         {
             CurrentActionPoints = Mathf.Max(0, playerUnit.Stats.ActionPoints);
@@ -357,10 +363,16 @@ public class TurnManager : MonoBehaviour
             if (_isResolvingEnemyTurn)
                 return;
 
+            if (!enemyUnit.gameObject.activeInHierarchy || !enemyUnit.IsAlive)
+            {
+                EndCurrentTurn();
+                return;
+            }
+
             // Enemy turns are coroutine-driven and call back into FinishEnemyTurn when done.
             _isResolvingEnemyTurn = true;
 
-            if (enemyUnit.EnemyAI != null)
+            if (enemyUnit.EnemyAI != null && enemyUnit.EnemyAI.isActiveAndEnabled)
                 enemyUnit.EnemyAI.ExecuteTurn(FinishEnemyTurn);
             else
                 FinishEnemyTurn();

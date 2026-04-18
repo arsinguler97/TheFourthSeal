@@ -7,6 +7,7 @@ public class RoomButton : MonoBehaviour
     [SerializeField] Button button;
     [SerializeField] Image nodeImage;
     [SerializeField] Color clearedColor = new Color(0.4f, 0.4f, 0.4f, 1f);
+    [SerializeField] Color lockedColor = new Color(0.45f, 0.45f, 0.45f, 1f);
 
     [SerializeField] AudioCue clickSFX;
 
@@ -44,6 +45,19 @@ public class RoomButton : MonoBehaviour
 
     public void OpenRoomWithEnemyOverride(int enemyCountOverride, RoomNode roomNode = null)
     {
+        RoomNode resolvedRoomNode = roomNode != null ? roomNode : GetComponent<RoomNode>();
+        if (resolvedRoomNode != null && resolvedRoomNode.LoadsSceneDirectly)
+        {
+            if (FloorMapController.I != null)
+            {
+                FloorMapController.I.SelectRoomNode(resolvedRoomNode, null, -1);
+                return;
+            }
+
+            Debug.LogWarning($"RoomButton on {name} could not route to scene '{resolvedRoomNode.DestinationSceneName}' because no active FloorMapController was found.");
+            return;
+        }
+
         if (roomTemplate == null)
         {
             Debug.LogWarning($"RoomButton on {name} has no RoomTemplateSO assigned.");
@@ -52,14 +66,14 @@ public class RoomButton : MonoBehaviour
 
         if (FloorMapController.I != null)
         {
-            FloorMapController.I.SelectRoomNode(roomNode != null ? roomNode : GetComponent<RoomNode>(), roomTemplate, enemyCountOverride);
+            FloorMapController.I.SelectRoomNode(resolvedRoomNode, roomTemplate, enemyCountOverride);
             return;
         }
 
         Debug.LogWarning($"RoomButton on {name} could not open a room because no active FloorMapController was found.");
     }
 
-    public void SetState(bool isInteractable, bool isCleared)
+    public void SetState(bool isInteractable, bool isCleared, bool isLocked = false)
     {
         _isInteractable = isInteractable;
 
@@ -67,6 +81,6 @@ public class RoomButton : MonoBehaviour
             button.interactable = isInteractable;
 
         if (nodeImage != null)
-            nodeImage.color = isCleared ? clearedColor : _defaultNodeColor;
+            nodeImage.color = isCleared ? clearedColor : (isLocked ? lockedColor : _defaultNodeColor);
     }
 }

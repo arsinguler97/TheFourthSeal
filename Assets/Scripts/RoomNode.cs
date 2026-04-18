@@ -3,16 +3,27 @@ using System.Collections.Generic;
 
 public class RoomNode : MonoBehaviour
 {
+    public enum NodeDestinationType
+    {
+        Room,
+        Scene
+    }
+
     [SerializeField] string nodeId;
     [SerializeField] RoomButton roomButton;
     [SerializeField] int additionalEnemyCount;
     [SerializeField] List<RoomNode> connectedNodes = new List<RoomNode>();
     [SerializeField] List<EnemyDefinitionSO> enemyOverrides = new List<EnemyDefinitionSO>();
+    [SerializeField] NodeDestinationType destinationType = NodeDestinationType.Room;
+    [SerializeField] string destinationSceneName;
 
     public string NodeId => nodeId;
     public RoomButton RoomButton => roomButton;
     public IReadOnlyList<RoomNode> ConnectedNodes => connectedNodes;
     public IReadOnlyList<EnemyDefinitionSO> EnemyOverrides => enemyOverrides;
+    public NodeDestinationType DestinationType => destinationType;
+    public string DestinationSceneName => destinationSceneName;
+    public bool LoadsSceneDirectly => destinationType == NodeDestinationType.Scene && !string.IsNullOrWhiteSpace(destinationSceneName);
 
     // Final enemy count for this specific node is template base plus this node bonus.
     public int AdditionalEnemyCount => additionalEnemyCount;
@@ -32,6 +43,9 @@ public class RoomNode : MonoBehaviour
 
     public int GetEnemyCountOverride()
     {
+        if (LoadsSceneDirectly)
+            return -1;
+
         if (roomButton == null || roomButton.RoomTemplate == null)
             return -1;
 

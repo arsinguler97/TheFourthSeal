@@ -14,6 +14,7 @@ public class RunManager : MonoBehaviour
     public string CurrentFloorNodeId { get; private set; } = StartFloorNodeId;
     public string PendingFloorNodeId { get; private set; }
     public int SavedPlayerHealth { get; private set; } = -1;
+    public bool HasFloorKey { get; private set; }
 
     // Holds the concrete positions generated for the currently active room.
     public RoomConfig CurrentRoomConfig;
@@ -89,6 +90,7 @@ public class RunManager : MonoBehaviour
         CurrentFloorNodeId = StartFloorNodeId;
         PendingFloorNodeId = null;
         SavedPlayerHealth = -1;
+        HasFloorKey = false;
         CurrentRoomConfig = null;
         _clearedFloorNodeIds.Clear();
 
@@ -108,5 +110,15 @@ public class RunManager : MonoBehaviour
             return Mathf.Max(1, maxHealth);
 
         return Mathf.Clamp(SavedPlayerHealth + 2, 1, Mathf.Max(1, maxHealth));
+    }
+
+    public void AcquireFloorKey()
+    {
+        HasFloorKey = true;
+    }
+
+    public void ClearFloorKey()
+    {
+        HasFloorKey = false;
     }
 }
