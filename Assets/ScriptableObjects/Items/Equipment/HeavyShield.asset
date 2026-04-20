@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e05953932de6ac4eb1fda248b08e71c, type: 3}
+  m_Name: HeavyShield
+  m_EditorClassIdentifier: Assembly-CSharp::ItemSO
+  itemName: Heavy Shield
+  itemDescription: Damage? Never heard of it.
+  type: 1
+  tier: 1
+  cost: 100
+  isCursed: 0
+  equipmentSubtype: 5
+  weaponHandedness: 0
+  weaponAttackStyle: 0
+  grantsHealAction: 0
+  projectilePrefab: {fileID: 0}
+  cleavesAdjacentEnemies: 0
+  meleeAttackVfxPrefab: {fileID: 0}
+  attackHitStatusEffect: {fileID: 0}
+  rangedHitStatusEffect: {fileID: 0}
+  selfStatusEffectChanceOnAttack: 0
+  selfStatusEffectOnAttack: {fileID: 0}
+  consumableHealAmount: 0
+  stats:
+    attack: 0
+    defence: 2
+    speed: -1
+    strength: 2
+    range: 0
+    actionPoints: 0
+  card: {fileID: 21300000, guid: 0e475b21ffc5ac54e89833e871f6323f, type: 3}

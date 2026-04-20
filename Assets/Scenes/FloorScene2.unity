@@ -728,9 +728,8 @@ MonoBehaviour:
   - {fileID: 1216931665}
   - {fileID: 1518101041}
   enemyOverrides:
-  - {fileID: 11400000, guid: 0297180a5a546934480a5df86a2d7bea, type: 2}
   - {fileID: 11400000, guid: a90a70bf2f6313841a1783e88b12a5a1, type: 2}
-  - {fileID: 11400000, guid: 77a01dff59f67544ebb772abe62b9c5f, type: 2}
+  - {fileID: 11400000, guid: 6d93dbddea02770429a3b9fab62788c2, type: 2}
   - {fileID: 11400000, guid: b243116988a1d764cb19030cbf2e1c29, type: 2}
   destinationType: 0
   destinationSceneName: 
@@ -990,9 +989,8 @@ MonoBehaviour:
   - {fileID: 1901893198}
   - {fileID: 1518101041}
   enemyOverrides:
-  - {fileID: 11400000, guid: 0297180a5a546934480a5df86a2d7bea, type: 2}
   - {fileID: 11400000, guid: a90a70bf2f6313841a1783e88b12a5a1, type: 2}
-  - {fileID: 11400000, guid: 77a01dff59f67544ebb772abe62b9c5f, type: 2}
+  - {fileID: 11400000, guid: 6d93dbddea02770429a3b9fab62788c2, type: 2}
   - {fileID: 11400000, guid: b243116988a1d764cb19030cbf2e1c29, type: 2}
   destinationType: 0
   destinationSceneName: 
@@ -1377,9 +1375,8 @@ MonoBehaviour:
   - {fileID: 1901893198}
   - {fileID: 1118871510}
   enemyOverrides:
-  - {fileID: 11400000, guid: 0297180a5a546934480a5df86a2d7bea, type: 2}
   - {fileID: 11400000, guid: a90a70bf2f6313841a1783e88b12a5a1, type: 2}
-  - {fileID: 11400000, guid: 77a01dff59f67544ebb772abe62b9c5f, type: 2}
+  - {fileID: 11400000, guid: 6d93dbddea02770429a3b9fab62788c2, type: 2}
   - {fileID: 11400000, guid: b243116988a1d764cb19030cbf2e1c29, type: 2}
   destinationType: 0
   destinationSceneName: 
@@ -1593,9 +1590,8 @@ MonoBehaviour:
   - {fileID: 1118871510}
   - {fileID: 1518101041}
   enemyOverrides:
-  - {fileID: 11400000, guid: 0297180a5a546934480a5df86a2d7bea, type: 2}
   - {fileID: 11400000, guid: a90a70bf2f6313841a1783e88b12a5a1, type: 2}
-  - {fileID: 11400000, guid: 77a01dff59f67544ebb772abe62b9c5f, type: 2}
+  - {fileID: 11400000, guid: 6d93dbddea02770429a3b9fab62788c2, type: 2}
   - {fileID: 11400000, guid: b243116988a1d764cb19030cbf2e1c29, type: 2}
   destinationType: 0
   destinationSceneName: 
@@ -1808,9 +1804,8 @@ MonoBehaviour:
   - {fileID: 1962364012}
   - {fileID: 1101751980}
   enemyOverrides:
-  - {fileID: 11400000, guid: 0297180a5a546934480a5df86a2d7bea, type: 2}
   - {fileID: 11400000, guid: a90a70bf2f6313841a1783e88b12a5a1, type: 2}
-  - {fileID: 11400000, guid: 77a01dff59f67544ebb772abe62b9c5f, type: 2}
+  - {fileID: 11400000, guid: 6d93dbddea02770429a3b9fab62788c2, type: 2}
   - {fileID: 11400000, guid: b243116988a1d764cb19030cbf2e1c29, type: 2}
   destinationType: 0
   destinationSceneName: 
@@ -2023,9 +2018,8 @@ MonoBehaviour:
   - {fileID: 757295711}
   - {fileID: 1101751980}
   enemyOverrides:
-  - {fileID: 11400000, guid: 0297180a5a546934480a5df86a2d7bea, type: 2}
   - {fileID: 11400000, guid: a90a70bf2f6313841a1783e88b12a5a1, type: 2}
-  - {fileID: 11400000, guid: 77a01dff59f67544ebb772abe62b9c5f, type: 2}
+  - {fileID: 11400000, guid: 6d93dbddea02770429a3b9fab62788c2, type: 2}
   - {fileID: 11400000, guid: b243116988a1d764cb19030cbf2e1c29, type: 2}
   destinationType: 0
   destinationSceneName: 
@@ -2491,9 +2485,8 @@ MonoBehaviour:
   - {fileID: 1101751980}
   - {fileID: 757295711}
   enemyOverrides:
-  - {fileID: 11400000, guid: 0297180a5a546934480a5df86a2d7bea, type: 2}
   - {fileID: 11400000, guid: a90a70bf2f6313841a1783e88b12a5a1, type: 2}
-  - {fileID: 11400000, guid: 77a01dff59f67544ebb772abe62b9c5f, type: 2}
+  - {fileID: 11400000, guid: 6d93dbddea02770429a3b9fab62788c2, type: 2}
   - {fileID: 11400000, guid: b243116988a1d764cb19030cbf2e1c29, type: 2}
   destinationType: 0
   destinationSceneName: 
@@ -2706,9 +2699,8 @@ MonoBehaviour:
   - {fileID: 1101751980}
   - {fileID: 960766485}
   enemyOverrides:
-  - {fileID: 11400000, guid: 0297180a5a546934480a5df86a2d7bea, type: 2}
   - {fileID: 11400000, guid: a90a70bf2f6313841a1783e88b12a5a1, type: 2}
-  - {fileID: 11400000, guid: 77a01dff59f67544ebb772abe62b9c5f, type: 2}
+  - {fileID: 11400000, guid: 6d93dbddea02770429a3b9fab62788c2, type: 2}
   - {fileID: 11400000, guid: b243116988a1d764cb19030cbf2e1c29, type: 2}
   destinationType: 0
   destinationSceneName: 
@@ -2995,9 +2987,8 @@ MonoBehaviour:
   - {fileID: 1118871510}
   - {fileID: 1216931665}
   enemyOverrides:
-  - {fileID: 11400000, guid: 0297180a5a546934480a5df86a2d7bea, type: 2}
   - {fileID: 11400000, guid: a90a70bf2f6313841a1783e88b12a5a1, type: 2}
-  - {fileID: 11400000, guid: 77a01dff59f67544ebb772abe62b9c5f, type: 2}
+  - {fileID: 11400000, guid: 6d93dbddea02770429a3b9fab62788c2, type: 2}
   - {fileID: 11400000, guid: b243116988a1d764cb19030cbf2e1c29, type: 2}
   destinationType: 0
   destinationSceneName: 

@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 002baee080d8c304fbdc19195650d255, type: 3}
-  m_Name: FireElemental
+  m_Name: LightningElemental
   m_EditorClassIdentifier: Assembly-CSharp::EnemyDefinitionSO
-  displayName: Fire Elemental
+  displayName: Lightning Elemental
   baseStats:
     health: 8
     attack: 6
@@ -23,12 +23,12 @@ MonoBehaviour:
   goldValue: 25
   attackStyle: 0
   projectilePrefab: {fileID: 0}
-  worldSprite: {fileID: 21300000, guid: c75729cdd57a1aa408a4472e69b86959, type: 3}
-  turnOrderIcon: {fileID: 21300000, guid: c75729cdd57a1aa408a4472e69b86959, type: 3}
-  description: Immune to lava damage. Applies burned status.
+  worldSprite: {fileID: 21300000, guid: 6d61a4b1d5ec2844e92c388939d12c49, type: 3}
+  turnOrderIcon: {fileID: 21300000, guid: 6d61a4b1d5ec2844e92c388939d12c49, type: 3}
+  description: Immune to shocked. Applies shocked status.
   immuneToOddDamage: 0
   immuneToDamageAtOrBelow: 0
   immuneToStatusEffects:
-  - Fire
+  - Lightning
   missedHitVfxPrefab: {fileID: 0}
   missedHitVfxOffset: {x: 0, y: 0.2, z: 0}

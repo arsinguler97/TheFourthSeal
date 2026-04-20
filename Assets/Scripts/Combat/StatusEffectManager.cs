@@ -19,6 +19,14 @@ public class StatusEffectManager
         if (newEffect == null)
             return;
 
+        if (_owningUnit is EnemyUnit enemyUnit
+            && enemyUnit.EnemyDefinition != null
+            && enemyUnit.EnemyDefinition.IsImmuneToStatusEffect(newEffect.Name))
+        {
+            Debug.Log($"{enemyUnit.DisplayName} ignored {newEffect.Name} because it is immune.");
+            return;
+        }
+
         if (_activeStatusEffects.Count > 0)
         {
             var activeFireEffect = _activeStatusEffects.Find(e => e.Name == "Fire");
