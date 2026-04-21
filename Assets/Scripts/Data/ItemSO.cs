@@ -69,6 +69,10 @@ public class ItemSO : ScriptableObject
     public GameObject meleeAttackVfxPrefab;
     public StatusEffectSO attackHitStatusEffect;
     public StatusEffectSO rangedHitStatusEffect;
+    [Header("Alternating Attack Status")]
+    public bool alternatesFireAndLightningOnAttack;
+    public StatusEffectSO alternatingFireStatusEffect;
+    public StatusEffectSO alternatingLightningStatusEffect;
     [Range(0f, 1f)] public float selfStatusEffectChanceOnAttack;
     public StatusEffectSO selfStatusEffectOnAttack;
     public int consumableHealAmount;

@@ -250,7 +250,7 @@ public class ShopManager : MonoBehaviour
         }
 
         if (RunManager.I != null)
-            RunManager.I.BeginNextFloor();
+            RunManager.I.BeginNextFloor(nextSceneName);
 
         SceneManager.LoadScene(nextSceneName);
     }

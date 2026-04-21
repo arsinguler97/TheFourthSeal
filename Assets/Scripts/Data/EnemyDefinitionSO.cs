@@ -14,6 +14,14 @@ public class EnemyDefinitionSO : ScriptableObject
     public int goldValue;
     public EnemyAttackStyle attackStyle = EnemyAttackStyle.Melee;
     public GameObject projectilePrefab;
+    [Header("Alternating Element Attacks")]
+    public bool alternateFireAndLightningAttacks;
+    public GameObject fireProjectilePrefab;
+    public StatusEffectSO fireAttackStatusEffect;
+    public Sprite fireAttackIndicatorSprite;
+    public GameObject lightningProjectilePrefab;
+    public StatusEffectSO lightningAttackStatusEffect;
+    public Sprite lightningAttackIndicatorSprite;
     public Sprite worldSprite;
     public Sprite turnOrderIcon;
     [TextArea] public string description;

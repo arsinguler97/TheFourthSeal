@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 public class EnemyUnit : CombatUnit
 {
@@ -10,16 +11,20 @@ public class EnemyUnit : CombatUnit
     [SerializeField] float moveSpeedUnitsPerSecond = 8f;
     [SerializeField] EnemyDefinitionSO enemyDefinition;
     [SerializeField] SpriteRenderer visualSpriteRenderer;
+    [SerializeField] SpriteRenderer attackElementIndicatorRenderer;
+    [SerializeField] Image attackElementIndicatorImage;
 
 
     Vector2Int _currentGridPosition;
     EnemyAIController _enemyAI;
+    bool _usesFireElementalAttack = true;
 
     public override Vector2Int GridPosition => _currentGridPosition;
     public EnemyAIController EnemyAI => _enemyAI;
     public EnemyDefinitionSO EnemyDefinition => enemyDefinition;
     public EnemyAttackStyle AttackStyle => enemyDefinition != null ? enemyDefinition.attackStyle : EnemyAttackStyle.Melee;
-    public GameObject ProjectilePrefab => enemyDefinition != null ? enemyDefinition.projectilePrefab : null;
+    public GameObject ProjectilePrefab => GetActiveProjectilePrefab();
+    public StatusEffectSO AttackStatusEffect => GetActiveAttackStatusEffect();
 
     protected override void Awake()
     {
@@ -32,6 +37,8 @@ public class EnemyUnit : CombatUnit
 
         if (visualSpriteRenderer != null && enemyDefinition != null && enemyDefinition.worldSprite != null)
             visualSpriteRenderer.sprite = enemyDefinition.worldSprite;
+
+        RefreshAttackElementIndicator();
 
         _enemyAI = GetComponent<EnemyAIController>();
         if (_enemyAI == null)
@@ -59,6 +66,7 @@ public class EnemyUnit : CombatUnit
     public void ConfigureFromDefinition(EnemyDefinitionSO definition)
     {
         enemyDefinition = definition;
+        _usesFireElementalAttack = true;
         ApplyDefinitionData();
 
         if (isActiveAndEnabled)
@@ -71,6 +79,8 @@ public class EnemyUnit : CombatUnit
 
         if (visualSpriteRenderer != null && enemyDefinition != null && enemyDefinition.worldSprite != null)
             visualSpriteRenderer.sprite = enemyDefinition.worldSprite;
+
+        RefreshAttackElementIndicator();
     }
 
     public override void ReceiveAttackRoll(CombatUnit attacker, int attackRoll)
@@ -147,6 +157,66 @@ public class EnemyUnit : CombatUnit
             return enemyDefinition.turnOrderIcon;
 
         return base.GetTurnOrderSprite();
+    }
+
+    public void AdvanceAttackPattern()
+    {
+        if (enemyDefinition == null || !enemyDefinition.alternateFireAndLightningAttacks)
+            return;
+
+        _usesFireElementalAttack = !_usesFireElementalAttack;
+        RefreshAttackElementIndicator();
+    }
+
+    GameObject GetActiveProjectilePrefab()
+    {
+        if (enemyDefinition == null)
+            return null;
+
+        if (!enemyDefinition.alternateFireAndLightningAttacks)
+            return enemyDefinition.projectilePrefab;
+
+        GameObject elementalProjectile = _usesFireElementalAttack
+            ? enemyDefinition.fireProjectilePrefab
+            : enemyDefinition.lightningProjectilePrefab;
+
+        return elementalProjectile != null ? elementalProjectile : enemyDefinition.projectilePrefab;
+    }
+
+    StatusEffectSO GetActiveAttackStatusEffect()
+    {
+        if (enemyDefinition == null || !enemyDefinition.alternateFireAndLightningAttacks)
+            return null;
+
+        return _usesFireElementalAttack
+            ? enemyDefinition.fireAttackStatusEffect
+            : enemyDefinition.lightningAttackStatusEffect;
+    }
+
+    void RefreshAttackElementIndicator()
+    {
+        Sprite indicatorSprite = GetActiveAttackIndicatorSprite();
+        if (attackElementIndicatorRenderer != null)
+        {
+            attackElementIndicatorRenderer.sprite = indicatorSprite;
+            attackElementIndicatorRenderer.enabled = indicatorSprite != null;
+        }
+
+        if (attackElementIndicatorImage != null)
+        {
+            attackElementIndicatorImage.sprite = indicatorSprite;
+            attackElementIndicatorImage.enabled = indicatorSprite != null;
+        }
+    }
+
+    Sprite GetActiveAttackIndicatorSprite()
+    {
+        if (enemyDefinition == null || !enemyDefinition.alternateFireAndLightningAttacks)
+            return null;
+
+        return _usesFireElementalAttack
+            ? enemyDefinition.fireAttackIndicatorSprite
+            : enemyDefinition.lightningAttackIndicatorSprite;
     }
 
     void ApplyDefinitionData()

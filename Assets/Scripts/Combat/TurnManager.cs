@@ -581,7 +581,10 @@ public class TurnManager : MonoBehaviour
 
         for (int i = 0; i < _turnOrder.Count; i++)
         {
-            _turnOrder[i].LastInitiativeRoll = diceResults[i];
+            int speedBonus = _turnOrder[i] != null && _turnOrder[i].Stats != null
+                ? _turnOrder[i].Stats.Speed
+                : 0;
+            _turnOrder[i].LastInitiativeRoll = diceResults[i] + speedBonus;
         }
 
         _turnOrder.Sort((left, right) => right.LastInitiativeRoll.CompareTo(left.LastInitiativeRoll));

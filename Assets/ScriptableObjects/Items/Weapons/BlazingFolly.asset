@@ -23,12 +23,18 @@ MonoBehaviour:
   weaponAttackStyle: 1
   grantsHealAction: 0
   projectilePrefab: {fileID: 1780809659637726124, guid: 34478e70411ec604891c4f85ab167255, type: 3}
+  cleavesAdjacentEnemies: 0
+  meleeAttackVfxPrefab: {fileID: 0}
+  attackHitStatusEffect: {fileID: 0}
   rangedHitStatusEffect: {fileID: 11400000, guid: d118cdf68abb3a54fa07f06a3de3f1e8, type: 2}
+  alternatesFireAndLightningOnAttack: 0
+  alternatingFireStatusEffect: {fileID: 0}
+  alternatingLightningStatusEffect: {fileID: 0}
   selfStatusEffectChanceOnAttack: 0.5
   selfStatusEffectOnAttack: {fileID: 11400000, guid: d118cdf68abb3a54fa07f06a3de3f1e8, type: 2}
   consumableHealAmount: 0
   stats:
-    attack: 8
+    attack: 6
     defence: 0
     speed: 1
     strength: 1

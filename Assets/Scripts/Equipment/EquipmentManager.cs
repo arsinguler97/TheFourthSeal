@@ -10,6 +10,7 @@ public class EquipmentManager : MonoBehaviour
     [SerializeField] List<ItemSO> rewardItemPool = new List<ItemSO>();
 
     readonly Dictionary<LoadoutSlotType, ItemSO> _equippedItems = new Dictionary<LoadoutSlotType, ItemSO>();
+    readonly Dictionary<ItemSO, bool> _alternatingAttackStatusUsesFire = new Dictionary<ItemSO, bool>();
     bool _isLoadoutLockedForCurrentRoom;
 
     public event Action<LoadoutSlotType> OnLoadoutSlotChanged;
@@ -62,6 +63,7 @@ public class EquipmentManager : MonoBehaviour
             _equippedItems[slotTypes[i]] = null;
 
         _isLoadoutLockedForCurrentRoom = false;
+        _alternatingAttackStatusUsesFire.Clear();
         NotifyAllSlotsChanged();
         OnLoadoutLockChanged?.Invoke(false);
         ApplyEquippedStatsToCurrentPlayer();
@@ -299,6 +301,40 @@ public class EquipmentManager : MonoBehaviour
         }
 
         return activeItems;
+    }
+
+    public StatusEffectSO GetAlternatingAttackStatusEffect(ItemSO item)
+    {
+        if (item == null || !item.alternatesFireAndLightningOnAttack)
+            return null;
+
+        bool usesFire = GetAlternatingAttackStatusUsesFire(item);
+        return usesFire
+            ? item.alternatingFireStatusEffect
+            : item.alternatingLightningStatusEffect;
+    }
+
+    public void AdvanceAlternatingAttackStatus(ItemSO item)
+    {
+        if (item == null || !item.alternatesFireAndLightningOnAttack)
+            return;
+
+        bool usesFire = GetAlternatingAttackStatusUsesFire(item);
+        _alternatingAttackStatusUsesFire[item] = !usesFire;
+    }
+
+    bool GetAlternatingAttackStatusUsesFire(ItemSO item)
+    {
+        if (item == null)
+            return true;
+
+        if (!_alternatingAttackStatusUsesFire.TryGetValue(item, out bool usesFire))
+        {
+            usesFire = true;
+            _alternatingAttackStatusUsesFire[item] = true;
+        }
+
+        return usesFire;
     }
 
     public ItemSO GetEquippedWeaponThatGrantsHealAction()

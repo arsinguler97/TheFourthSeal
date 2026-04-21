@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 002baee080d8c304fbdc19195650d255, type: 3}
+  m_Name: ApprenticeMage
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyDefinitionSO
+  displayName: Apprentice
+  baseStats:
+    health: 12
+    attack: 4
+    defence: 2
+    speed: 2
+    strength: 2
+    range: 1
+  goldValue: 150
+  attackStyle: 1
+  projectilePrefab: {fileID: 0}
+  alternateFireAndLightningAttacks: 0
+  fireProjectilePrefab: {fileID: 1780809659637726124, guid: 3e10493b2cda0c945985776a29832e2e, type: 3}
+  fireAttackStatusEffect: {fileID: 11400000, guid: d118cdf68abb3a54fa07f06a3de3f1e8, type: 2}
+  fireAttackIndicatorSprite: {fileID: 21300000, guid: 71208837af5080e48976a0617a68dedc, type: 3}
+  lightningProjectilePrefab: {fileID: 1780809659637726124, guid: 5f2d3bf892c5bde468f5e95a9582a77d, type: 3}
+  lightningAttackStatusEffect: {fileID: 11400000, guid: 3e9ca3c020cb7f74ca14763788991731, type: 2}
+  lightningAttackIndicatorSprite: {fileID: 21300000, guid: dcfeb2e485de2194481590489b561931, type: 3}
+  worldSprite: {fileID: 21300000, guid: 0d25a4fdf2e90f647b7b5ae1c0ecb551, type: 3}
+  turnOrderIcon: {fileID: 21300000, guid: 0d25a4fdf2e90f647b7b5ae1c0ecb551, type: 3}
+  description: Attacks alternate between fire and lightning.
+  immuneToOddDamage: 0
+  immuneToDamageAtOrBelow: 0
+  immuneToStatusEffects: []
+  missedHitVfxPrefab: {fileID: 8547867254204328264, guid: 0290b291d3aacc04da556270e0a29e70, type: 3}
+  missedHitVfxOffset: {x: 0, y: 0.2, z: 0}

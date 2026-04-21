@@ -70,6 +70,9 @@ public class CombatManager : MonoBehaviour
         if (_isRoomClearTransitionRunning || _isPlayerDefeatSequenceRunning || _enemyUnits.Count == 0 || HasLivingEnemies())
             return;
 
+        if (!CanReturnToFloorScene())
+            return;
+
         BeginReturnToFloorSceneTransition();
     }
 
@@ -216,6 +219,7 @@ public class CombatManager : MonoBehaviour
         if (attacker.AttackStyle != EnemyAttackStyle.Ranged || attacker.ProjectilePrefab == null)
         {
             target.ReceiveAttackRoll(attacker, attackRoll);
+            ApplyEnemyAttackStatusEffect(attacker, target);
             onResolved?.Invoke();
             return;
         }
@@ -232,15 +236,27 @@ public class CombatManager : MonoBehaviour
                 if (resolution.hitEnemy != null && resolution.hitEnemy.IsAlive)
                 {
                     resolution.hitEnemy.ReceiveAttackRoll(attacker, attackRoll);
+                    ApplyEnemyAttackStatusEffect(attacker, resolution.hitEnemy);
                     onResolved?.Invoke();
                     return;
                 }
 
                 if (resolution.hitPlayer && PlayerUnit != null && PlayerUnit.IsAlive)
+                {
                     PlayerUnit.ReceiveAttackRoll(attacker, attackRoll);
+                    ApplyEnemyAttackStatusEffect(attacker, PlayerUnit);
+                }
 
                 onResolved?.Invoke();
             });
+    }
+
+    void ApplyEnemyAttackStatusEffect(EnemyUnit attacker, CombatUnit target)
+    {
+        if (attacker == null || target == null || target.StatusEffectManager == null)
+            return;
+
+        target.StatusEffectManager.AddEffect(attacker.AttackStatusEffect);
     }
 
     void ResolvePlayerRangedAttack(int attackRoll)
@@ -374,6 +390,12 @@ public class CombatManager : MonoBehaviour
             if (isRangedAttack && item.rangedHitStatusEffect != null)
                 hitEnemy.StatusEffectManager.AddEffect(item.rangedHitStatusEffect);
 
+            StatusEffectSO alternatingStatusEffect = EquipmentManager.Instance.GetAlternatingAttackStatusEffect(item);
+            if (alternatingStatusEffect != null)
+            {
+                hitEnemy.StatusEffectManager.AddEffect(alternatingStatusEffect);
+                EquipmentManager.Instance.AdvanceAlternatingAttackStatus(item);
+            }
         }
     }
 
@@ -506,8 +528,20 @@ public class CombatManager : MonoBehaviour
         if (_isRoomClearTransitionRunning || _isPlayerDefeatSequenceRunning)
             return;
 
+        if (!CanReturnToFloorScene())
+            return;
+
         StartCoroutine(FillRoomClearAndReturnToFloorScene());
         AudioManager.Instance.PlaySound(roomClearSFX);
+    }
+
+    bool CanReturnToFloorScene()
+    {
+        RoomConfig activeRoomConfig = RunManager.I != null ? RunManager.I.CurrentRoomConfig : null;
+        if (activeRoomConfig == null || !activeRoomConfig.isMinibossRoom)
+            return true;
+
+        return RunManager.I != null && (RunManager.I.HasFloorKey || !HasLivingEnemies());
     }
 
     public void HandlePlayerDeath(PlayerUnit playerUnit)
@@ -531,7 +565,7 @@ public class CombatManager : MonoBehaviour
         if (EquipmentManager.Instance != null)
             EquipmentManager.Instance.ResetEquipmentState();
 
-        SceneManager.LoadScene("FloorScene");
+        SceneManager.LoadScene(GetReturnFloorSceneName());
     }
 
     IEnumerator FillRoomClearAndReturnToFloorScene()
@@ -550,7 +584,7 @@ public class CombatManager : MonoBehaviour
 
         if (roomClearFillImage == null)
         {
-            SceneManager.LoadScene("FloorScene");
+            SceneManager.LoadScene(GetReturnFloorSceneName());
             yield break;
         }
 
@@ -571,7 +605,12 @@ public class CombatManager : MonoBehaviour
         }
 
         roomClearFillImage.fillAmount = 1f;
-        SceneManager.LoadScene("FloorScene");
+        SceneManager.LoadScene(GetReturnFloorSceneName());
+    }
+
+    string GetReturnFloorSceneName()
+    {
+        return RunManager.I != null ? RunManager.I.GetCurrentFloorSceneName() : "FloorScene";
     }
 
     void TryGrantRoomRewardBeforeLeaving()
@@ -597,14 +636,17 @@ public class CombatManager : MonoBehaviour
             return;
 
         RoomConfig activeRoomConfig = RunManager.I.CurrentRoomConfig;
-        if (activeRoomConfig == null || !activeRoomConfig.isMinibossRoom || RunManager.I.HasFloorKey)
+        if (activeRoomConfig == null || !activeRoomConfig.isMinibossRoom || RunManager.I.HasFloorKey || HasLivingEnemies())
             return;
 
         RunManager.I.AcquireFloorKey();
         activeRoomConfig.isKeyCollected = true;
 
         if (GridManager.I != null)
+        {
             GridManager.I.RefreshKeyTile(activeRoomConfig);
+            GridManager.I.RefreshExitTile(activeRoomConfig);
+        }
     }
 
     IEnumerator ShowPlayerDefeatSequence(PlayerUnit playerUnit)

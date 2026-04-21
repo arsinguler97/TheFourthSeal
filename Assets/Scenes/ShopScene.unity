@@ -325,6 +325,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 8c81d5de45638534fa0826bfa3c0e2d5, type: 2}
   - {fileID: 11400000, guid: 604b7f6fef7b2af45989b88b53ed23f5, type: 2}
   - {fileID: 11400000, guid: 5e90e271b0ce3184cbd7c4c9d00dd00c, type: 2}
+  - {fileID: 11400000, guid: 891618a6d08331944bbe2d2c21335a8d, type: 2}
   shopSlots:
   - {fileID: 1291508326}
   - {fileID: 2036143467}

@@ -107,17 +107,24 @@ public class EnemyAIController : MonoBehaviour
         if (_enemyUnit.AttackStyle == EnemyAttackStyle.Ranged)
         {
             if (CombatManager.I != null)
-                CombatManager.I.ResolveEnemyAttack(_enemyUnit, CombatManager.I.PlayerUnit, amount, OnDamageDealtCompleted);
+                CombatManager.I.ResolveEnemyAttack(_enemyUnit, CombatManager.I.PlayerUnit, amount, FinishAttackResolution);
             else
-                OnDamageDealtCompleted?.Invoke();
+                FinishAttackResolution();
 
             return;
         }
 
         int finalDamageBeforeDefence = amount + _enemyUnit.Stats.Strength;
         CombatManager.I.PlayerUnit.ReceiveAttackRoll(_enemyUnit, amount);
+        CombatManager.I.PlayerUnit.StatusEffectManager.AddEffect(_enemyUnit.AttackStatusEffect);
         Debug.Log($"{_enemyUnit.DisplayName} attacked {CombatManager.I.PlayerUnit.DisplayName} with a roll of {amount} and {finalDamageBeforeDefence} raw damage before defence.");
 
+        FinishAttackResolution();
+    }
+
+    void FinishAttackResolution()
+    {
+        _enemyUnit.AdvanceAttackPattern();
         OnDamageDealtCompleted?.Invoke();
     }
 

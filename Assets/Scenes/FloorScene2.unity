@@ -1607,7 +1607,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2e52e78418055a4caed2ef8be567a85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomButton
-  roomTemplate: {fileID: 11400000, guid: 1580726809cdfea4abc01e2c483d4997, type: 2}
+  roomTemplate: {fileID: 11400000, guid: ec138ce822a70704ea522be824574456, type: 2}
   button: {fileID: 1101751982}
   nodeImage: {fileID: 1101751978}
   clearedColor: {r: 0.4, g: 0.4, b: 0.4, a: 1}
@@ -2502,7 +2502,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2e52e78418055a4caed2ef8be567a85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomButton
-  roomTemplate: {fileID: 11400000, guid: 13eed8ae10df5f64fb1e41274117f0df, type: 2}
+  roomTemplate: {fileID: 11400000, guid: 2f8d5cf2586c8e043a928bef0e6f1179, type: 2}
   button: {fileID: 1518101043}
   nodeImage: {fileID: 1518101039}
   clearedColor: {r: 0.4, g: 0.4, b: 0.4, a: 1}
@@ -2716,7 +2716,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2e52e78418055a4caed2ef8be567a85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomButton
-  roomTemplate: {fileID: 11400000, guid: 88a1e6263c6a93b45ad26b2bab42554d, type: 2}
+  roomTemplate: {fileID: 11400000, guid: 2f8d5cf2586c8e043a928bef0e6f1179, type: 2}
   button: {fileID: 1901893200}
   nodeImage: {fileID: 1901893196}
   clearedColor: {r: 0.4, g: 0.4, b: 0.4, a: 1}

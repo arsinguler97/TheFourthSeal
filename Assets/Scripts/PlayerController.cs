@@ -191,11 +191,21 @@ public class PlayerController : MonoBehaviour
         RoomConfig activeRoomConfig = RunManager.I != null ? RunManager.I.CurrentRoomConfig : null;
         if (activeRoomConfig != null && _currentGridPosition == activeRoomConfig.exit)
         {
+            if (activeRoomConfig.isMinibossRoom
+                && (RunManager.I == null || !RunManager.I.HasFloorKey)
+                && (CombatManager.I == null || CombatManager.I.HasLivingEnemies()))
+                return;
+
             if (CombatManager.I != null)
                 CombatManager.I.BeginReturnToFloorSceneTransition();
             else
-                SceneManager.LoadScene("FloorScene");
+                SceneManager.LoadScene(GetReturnFloorSceneName());
         }
+    }
+
+    string GetReturnFloorSceneName()
+    {
+        return RunManager.I != null ? RunManager.I.GetCurrentFloorSceneName() : "FloorScene";
     }
 
     void TryOpenRewardTileAtCurrentPosition()
@@ -228,7 +238,10 @@ public class PlayerController : MonoBehaviour
             RunManager.I.AcquireFloorKey();
 
         if (GridManager.I != null)
+        {
             GridManager.I.RefreshKeyTile(activeRoomConfig);
+            GridManager.I.RefreshExitTile(activeRoomConfig);
+        }
 
         if (_playerUnit != null)
             _playerUnit.PlayRewardOpenVfx();

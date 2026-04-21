@@ -20,12 +20,19 @@ MonoBehaviour:
     speed: 2
     strength: 1
     range: 1
-  goldValue: 25
+  goldValue: 30
   attackStyle: 0
   projectilePrefab: {fileID: 0}
+  alternateFireAndLightningAttacks: 0
+  fireProjectilePrefab: {fileID: 0}
+  fireAttackStatusEffect: {fileID: 11400000, guid: 3e9ca3c020cb7f74ca14763788991731, type: 2}
+  fireAttackIndicatorSprite: {fileID: 0}
+  lightningProjectilePrefab: {fileID: 0}
+  lightningAttackStatusEffect: {fileID: 0}
+  lightningAttackIndicatorSprite: {fileID: 0}
   worldSprite: {fileID: 21300000, guid: 6d61a4b1d5ec2844e92c388939d12c49, type: 3}
   turnOrderIcon: {fileID: 21300000, guid: 6d61a4b1d5ec2844e92c388939d12c49, type: 3}
-  description: Immune to shocked. Applies shocked status.
+  description: Immune to shock. Applies shocked status.
   immuneToOddDamage: 0
   immuneToDamageAtOrBelow: 0
   immuneToStatusEffects:

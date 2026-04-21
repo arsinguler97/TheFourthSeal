@@ -6,6 +6,7 @@ public class RunManager : MonoBehaviour
     public static RunManager I { get; private set; }
 
     const string StartFloorNodeId = "start";
+    const string DefaultFloorSceneName = "FloorScene";
 
     // Stores the room selected on the floor map so the next scene knows what to generate.
     public RoomTemplateSO SelectedRoomTemplate { get; private set; }
@@ -13,6 +14,7 @@ public class RunManager : MonoBehaviour
     public IReadOnlyList<EnemyDefinitionSO> SelectedEnemyOverrides => _selectedEnemyOverrides;
     public string CurrentFloorNodeId { get; private set; } = StartFloorNodeId;
     public string PendingFloorNodeId { get; private set; }
+    public string CurrentFloorSceneName { get; private set; } = DefaultFloorSceneName;
     public int SavedPlayerHealth { get; private set; } = -1;
     public bool HasFloorKey { get; private set; }
 
@@ -89,6 +91,7 @@ public class RunManager : MonoBehaviour
         _selectedEnemyOverrides.Clear();
         CurrentFloorNodeId = StartFloorNodeId;
         PendingFloorNodeId = null;
+        CurrentFloorSceneName = DefaultFloorSceneName;
         SavedPlayerHealth = -1;
         HasFloorKey = false;
         CurrentRoomConfig = null;
@@ -114,14 +117,28 @@ public class RunManager : MonoBehaviour
 
     public void BeginNextFloor()
     {
+        BeginNextFloor(CurrentFloorSceneName);
+    }
+
+    public void BeginNextFloor(string floorSceneName)
+    {
         SelectedRoomTemplate = null;
         SelectedRoomEnemyCount = 0;
         _selectedEnemyOverrides.Clear();
         CurrentFloorNodeId = StartFloorNodeId;
         PendingFloorNodeId = null;
+        if (!string.IsNullOrWhiteSpace(floorSceneName))
+            CurrentFloorSceneName = floorSceneName;
         HasFloorKey = false;
         CurrentRoomConfig = null;
         _clearedFloorNodeIds.Clear();
+    }
+
+    public string GetCurrentFloorSceneName()
+    {
+        return string.IsNullOrWhiteSpace(CurrentFloorSceneName)
+            ? DefaultFloorSceneName
+            : CurrentFloorSceneName;
     }
 
     public void AcquireFloorKey()

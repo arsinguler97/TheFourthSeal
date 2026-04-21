@@ -18,6 +18,7 @@ public class GridManager : MonoBehaviour
     [SerializeField] TileTypeSO rewardTileType;
     [SerializeField] TileTypeSO rewardOpenedTileType;
     [SerializeField] TileTypeSO keyTileType;
+    [SerializeField, Range(0f, 1f)] float lockedMinibossExitAlpha = 0.4f;
 
     [SerializeField] TileTypeSO walkTileType;
     [SerializeField] TileTypeSO attackTileType;
@@ -95,6 +96,7 @@ public class GridManager : MonoBehaviour
         {
             Vector2Int tileGridPosition = new Vector2Int(x, y);
             _tileViews[x, y].SetSprite(GetBaseTileSprite(roomConfig, tileGridPosition));
+            _tileViews[x, y].SetAlpha(GetBaseTileAlpha(roomConfig, tileGridPosition));
 
 
             _tileViewsWalkGrid[x, y].SetSprite(null);
@@ -116,6 +118,15 @@ public class GridManager : MonoBehaviour
             return;
 
         _tileViews[roomConfig.keyTile.x, roomConfig.keyTile.y].SetSprite(GetBaseTileSprite(roomConfig, roomConfig.keyTile));
+    }
+
+    public void RefreshExitTile(RoomConfig roomConfig)
+    {
+        if (roomConfig == null || !InBounds(roomConfig.exit))
+            return;
+
+        _tileViews[roomConfig.exit.x, roomConfig.exit.y].SetSprite(GetBaseTileSprite(roomConfig, roomConfig.exit));
+        _tileViews[roomConfig.exit.x, roomConfig.exit.y].SetAlpha(GetBaseTileAlpha(roomConfig, roomConfig.exit));
     }
 
     public Vector3 GridToWorld(Vector2Int gridPosition)
@@ -344,6 +355,17 @@ public class GridManager : MonoBehaviour
             return lightningTileType != null ? lightningTileType.sprite : floorTileType.sprite;
 
         return floorTileType != null ? floorTileType.sprite : null;
+    }
+
+    float GetBaseTileAlpha(RoomConfig roomConfig, Vector2Int tileGridPosition)
+    {
+        if (roomConfig == null || tileGridPosition != roomConfig.exit)
+            return 1f;
+
+        bool isLockedMinibossExit = roomConfig.isMinibossRoom
+            && (RunManager.I == null || !RunManager.I.HasFloorKey);
+
+        return isLockedMinibossExit ? lockedMinibossExitAlpha : 1f;
     }
 
 
