@@ -36,13 +36,11 @@ public class StatusEffectManager
             {
                 _owningUnit.ReceiveDamage((activeFireEffect.DotAmount + newEffect.DotAmount) * comboStatusEffectMultiplier);
                 RemoveEffect(activeFireEffect);
-                return;
             }
             else if (activeLightningEffect != null && newEffect.Name == "Fire")
             {
                 _owningUnit.ReceiveDamage((activeLightningEffect.DotAmount + newEffect.DotAmount) * comboStatusEffectMultiplier);
                 RemoveEffect(activeLightningEffect);
-                return;
             }
         }
 

@@ -619,6 +619,7 @@ MonoBehaviour:
   rewardTileType: {fileID: 11400000, guid: ec9edd362ae16904c93086dbb1c450f7, type: 2}
   rewardOpenedTileType: {fileID: 11400000, guid: b5d4b5ae555d06b41a73a900a3e76b28, type: 2}
   keyTileType: {fileID: 11400000, guid: 68a1c184535adc943a4dae5c0c0ab0c5, type: 2}
+  lockedMinibossExitAlpha: 0.4
   walkTileType: {fileID: 11400000, guid: 44ccfed7e02b53242acd30e069f00f6b, type: 2}
   attackTileType: {fileID: 11400000, guid: 412f2f0a3b048ca468f8850f3173bf32, type: 2}
 --- !u!114 &107617980
@@ -658,7 +659,7 @@ MonoBehaviour:
   - {fileID: 882960546}
   whoStartsText: {fileID: 1414716301}
   actionPointText: {fileID: 1328715817}
-  DelayBeforeHidingDice: 5
+  DelayBeforeHidingDice: 3
 --- !u!114 &107617982
 MonoBehaviour:
   m_ObjectHideFlags: 0

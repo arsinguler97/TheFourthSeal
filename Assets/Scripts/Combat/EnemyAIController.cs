@@ -69,6 +69,13 @@ public class EnemyAIController : MonoBehaviour
 
             yield return _enemyUnit.MoveOneStepAnimated(nextStep);
 
+            if (_enemyUnit == null || !_enemyUnit.IsAlive || !gameObject.activeInHierarchy)
+            {
+                _activeTurnRoutine = null;
+                onTurnComplete?.Invoke();
+                yield break;
+            }
+
             if (stepIndex < _enemyUnit.Stats.Speed - 1)
                 yield return new WaitForSeconds(delayBetweenMoveSteps);
         }
@@ -101,6 +108,13 @@ public class EnemyAIController : MonoBehaviour
 
     private void DealDamageOfficially(int amount)
     {
+        if (_enemyUnit == null || !_enemyUnit.IsAlive || !gameObject.activeInHierarchy)
+        {
+            DiceManager.Instance.OnDiceRollCompleted -= DealDamageOfficially;
+            FinishAttackResolution();
+            return;
+        }
+
         _enemyUnit.HideDice();
         DiceManager.Instance.OnDiceRollCompleted -= DealDamageOfficially;
 

@@ -185,8 +185,13 @@ public class EnemyUnit : CombatUnit
 
     StatusEffectSO GetActiveAttackStatusEffect()
     {
-        if (enemyDefinition == null || !enemyDefinition.alternateFireAndLightningAttacks)
+        if (enemyDefinition == null)
             return null;
+
+        if (!enemyDefinition.alternateFireAndLightningAttacks)
+            return enemyDefinition.fireAttackStatusEffect != null
+                ? enemyDefinition.fireAttackStatusEffect
+                : enemyDefinition.lightningAttackStatusEffect;
 
         return _usesFireElementalAttack
             ? enemyDefinition.fireAttackStatusEffect

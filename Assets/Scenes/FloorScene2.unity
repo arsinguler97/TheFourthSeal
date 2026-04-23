@@ -1236,8 +1236,6 @@ MonoBehaviour:
   additionalEnemyCount: 0
   connectedNodes:
   - {fileID: 1216931665}
-  - {fileID: 1962364012}
-  - {fileID: 757295711}
   enemyOverrides: []
   destinationType: 0
   destinationSceneName: 

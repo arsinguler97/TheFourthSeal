@@ -172,6 +172,7 @@ public class EquipmentManager : MonoBehaviour
         if (targetSlot == LoadoutSlotType.Shield && IsTwoHandedWeaponEquipped() && fromSlot != LoadoutSlotType.Weapon)
             return false;
 
+        ItemSO equippedShield = GetEquippedItem(LoadoutSlotType.Shield);
         if (movingItem.type == ItemType.Weapon
             && movingItem.weaponHandedness == WeaponHandedness.TwoHanded
             && targetSlot == LoadoutSlotType.Weapon)
@@ -179,12 +180,29 @@ public class EquipmentManager : MonoBehaviour
             if (targetItem != null && targetItem.type == ItemType.Equipment && targetItem.equipmentSubtype == EquipmentSubtype.Shield)
                 return false;
 
-            if (fromSlot != LoadoutSlotType.Shield)
-                DeleteItemInSlot(LoadoutSlotType.Shield);
+            bool shieldEquipped = equippedShield != null && fromSlot != LoadoutSlotType.Shield;
+            bool canMoveShieldToSourceSpare = shieldEquipped
+                && fromSlot == LoadoutSlotType.Spare
+                && targetItem == null;
+            if (shieldEquipped && !canMoveShieldToSourceSpare)
+                return false;
+
+            if (canMoveShieldToSourceSpare)
+                _equippedItems[LoadoutSlotType.Shield] = null;
         }
 
         _equippedItems[fromSlot] = targetItem;
         _equippedItems[targetSlot] = movingItem;
+
+        if (fromSlot == LoadoutSlotType.Spare
+            && movingItem.type == ItemType.Weapon
+            && movingItem.weaponHandedness == WeaponHandedness.TwoHanded
+            && targetSlot == LoadoutSlotType.Weapon
+            && equippedShield != null)
+        {
+            _equippedItems[fromSlot] = equippedShield;
+            NotifySlotChanged(LoadoutSlotType.Shield);
+        }
 
         NotifySlotChanged(fromSlot);
         NotifySlotChanged(targetSlot);
@@ -391,21 +409,28 @@ public class EquipmentManager : MonoBehaviour
         if (!CanAssignItemToSlot(item, slotType))
             return false;
 
-        bool removedShield = false;
+        bool movedShieldToSpare = false;
         if (item.type == ItemType.Weapon
             && item.weaponHandedness == WeaponHandedness.TwoHanded
             && slotType == LoadoutSlotType.Weapon
             && GetEquippedItem(LoadoutSlotType.Shield) != null)
         {
+            if (GetEquippedItem(LoadoutSlotType.Spare) != null)
+                return false;
+
+            _equippedItems[LoadoutSlotType.Spare] = GetEquippedItem(LoadoutSlotType.Shield);
             _equippedItems[LoadoutSlotType.Shield] = null;
-            removedShield = true;
+            movedShieldToSpare = true;
         }
 
         _equippedItems[slotType] = item;
         NotifySlotChanged(slotType);
 
-        if (removedShield)
+        if (movedShieldToSpare)
+        {
             NotifySlotChanged(LoadoutSlotType.Shield);
+            NotifySlotChanged(LoadoutSlotType.Spare);
+        }
 
         ApplyEquippedStatsToCurrentPlayer();
         return true;
